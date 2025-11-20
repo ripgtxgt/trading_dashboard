@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { balanceSnapshots, BotState, botState, InsertUser, positions, trades, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,97 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Trading bot queries
+export async function getBotState() {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(botState).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateBotState(data: Partial<BotState>) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const existing = await getBotState();
+  if (existing) {
+    await db.update(botState).set(data).where(eq(botState.id, existing.id));
+  } else {
+    await db.insert(botState).values({
+      capital: data.capital || "0",
+      initialCapital: data.initialCapital || "0",
+      currentStage: data.currentStage || "stage1",
+      ...data,
+    });
+  }
+}
+
+export async function getRecentTrades(limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(trades).orderBy(desc(trades.exitTime)).limit(limit);
+}
+
+export async function addTrade(trade: Omit<typeof trades.$inferInsert, "id" | "createdAt">) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(trades).values(trade);
+}
+
+export async function getCurrentPosition() {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(positions).orderBy(desc(positions.createdAt)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updatePosition(data: Omit<typeof positions.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Clear old positions and insert new one
+  await db.delete(positions);
+  await db.insert(positions).values(data);
+}
+
+export async function clearPosition() {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(positions);
+}
+
+export async function addBalanceSnapshot(capital: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(balanceSnapshots).values({ capital });
+}
+
+export async function getBalanceHistory(hours: number = 24) {
+  const db = await getDb();
+  if (!db) return [];
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+  return await db
+    .select()
+    .from(balanceSnapshots)
+    .where(sql`${balanceSnapshots.timestamp} >= ${since}`)
+    .orderBy(balanceSnapshots.timestamp);
+}
+
+export async function getTradeStats() {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const allTrades = await db.select().from(trades);
+  if (allTrades.length === 0) return null;
+  
+  const winningTrades = allTrades.filter(t => parseFloat(t.pnl) > 0);
+  const totalPnl = allTrades.reduce((sum, t) => sum + parseFloat(t.pnl), 0);
+  
+  return {
+    totalTrades: allTrades.length,
+    winningTrades: winningTrades.length,
+    winRate: (winningTrades.length / allTrades.length) * 100,
+    totalPnl,
+    avgPnl: totalPnl / allTrades.length,
+  };
+}
