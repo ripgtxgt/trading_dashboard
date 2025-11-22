@@ -9,7 +9,8 @@ import { ParamsPanel } from "@/components/ParamsPanel";
 import { ParamsComparison } from "@/components/ParamsComparison";
 import { TradeHistory } from "@/components/TradeHistory";
 import { RiskControlPanel } from "@/components/RiskControlPanel";
-// import { KlineChart } from "@/components/KlineChart";
+import { KlineChartSimple } from "@/components/KlineChartSimple";
+import { ReportExport } from "@/components/ReportExport";
 
 export default function Dashboard() {
   const { data: state, isLoading: stateLoading } = trpc.trading.getState.useQuery(undefined, {
@@ -161,6 +162,9 @@ export default function Dashboard() {
         </Card>
       )}
 
+      {/* Kline Chart */}
+      <KlineChartSimple />
+
       {/* Balance Chart */}
       <BalanceChart />
 
@@ -181,6 +185,9 @@ export default function Dashboard() {
 
       {/* Trade History */}
       <TradeHistory />
+
+      {/* Report Export */}
+      <ReportExport />
 
       {/* Recent Trades */}
       <Card>
