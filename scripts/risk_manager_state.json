@@ -1,0 +1,48 @@
+{
+  "is_trading_allowed": false,
+  "pause_reason": "\u8fde\u7eed3\u7b14\u4e8f\u635f",
+  "pause_until": "2025-11-22T05:12:32.099236",
+  "daily_pnl": -1.5,
+  "total_pnl": -1.5,
+  "peak_capital": 103,
+  "consecutive_losses": 3,
+  "trade_history": [
+    {
+      "timestamp": "2025-11-22T04:12:32.098409",
+      "pnl": 1,
+      "is_win": true
+    },
+    {
+      "timestamp": "2025-11-22T04:12:32.098504",
+      "pnl": 1,
+      "is_win": true
+    },
+    {
+      "timestamp": "2025-11-22T04:12:32.098610",
+      "pnl": 1,
+      "is_win": true
+    },
+    {
+      "timestamp": "2025-11-22T04:12:32.098767",
+      "pnl": -1.5,
+      "is_win": false
+    },
+    {
+      "timestamp": "2025-11-22T04:12:32.098917",
+      "pnl": -1.5,
+      "is_win": false
+    },
+    {
+      "timestamp": "2025-11-22T04:12:32.099085",
+      "pnl": -1.5,
+      "is_win": false
+    }
+  ],
+  "risk_events": [
+    {
+      "timestamp": "2025-11-22T04:12:32.099241",
+      "type": "pause",
+      "description": "\u8fde\u7eed3\u7b14\u4e8f\u635f"
+    }
+  ]
+}

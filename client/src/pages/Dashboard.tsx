@@ -13,6 +13,7 @@ import { KlineChartSimple } from "@/components/KlineChartSimple";
 import { ReportExport } from "@/components/ReportExport";
 import { SignalNotifications } from "@/components/SignalNotifications";
 import { BacktestHistoryChart } from "@/components/BacktestHistoryChart";
+import { RiskManagementPanel } from "@/components/RiskManagementPanel";
 
 export default function Dashboard() {
   const { data: state, isLoading: stateLoading } = trpc.trading.getState.useQuery(undefined, {
@@ -244,6 +245,9 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+      
+      {/* 风险管理面板 */}
+      <RiskManagementPanel />
     </div>
   );
 }

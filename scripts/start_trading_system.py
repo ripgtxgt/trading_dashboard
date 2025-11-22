@@ -18,6 +18,7 @@ from kucoin_trader import KuCoinTrader
 from live_trading_config import STRATEGY_CONFIG
 from db_sync import DatabaseSync
 from telegram_notifier import TelegramNotifier
+from risk_manager import RiskManager
 
 
 # 配置日志
@@ -52,6 +53,10 @@ class IntegratedTradingSystem:
         
         # 初始化Telegram通知
         self.telegram = TelegramNotifier()
+        
+        # 初始化风险管理器
+        self.risk_manager = RiskManager()
+        logger.info("风险管理模块已启动")
         
         # 初始化KuCoin交易器
         api_key = os.getenv('KUCOIN_API_KEY')
@@ -170,6 +175,12 @@ class IntegratedTradingSystem:
             result = original_close_position(current_price, reason)
             
             if result:
+                # 记录到风险管理器
+                self.risk_manager.record_trade(
+                    pnl=result['pnl'],
+                    is_win=result['pnl'] > 0
+                )
+                
                 # 同步到数据库
                 try:
                     trade_id = self.db.add_trade(
@@ -256,6 +267,40 @@ class IntegratedTradingSystem:
             
             while self.engine.is_running and not self.engine.emergency_stopped:
                 try:
+                    # 获取当前价格
+                    current_price = self.trader.get_current_price()
+                    if not current_price:
+                        logger.warning("无法获取当前价格")
+                        time.sleep(60)
+                        continue
+                    
+                    # 风险检查
+                    allowed, reason = self.risk_manager.check_risk(current_price, self.engine.capital)
+                    
+                    if not allowed:
+                        logger.warning(f"交易被暂停: {reason}")
+                        
+                        # 发送风险警告
+                        try:
+                            risk_status = self.risk_manager.get_risk_status()
+                            self.telegram.send_risk_alert(
+                                alert_type=reason,
+                                current_balance=self.engine.capital,
+                                drawdown=risk_status['current_drawdown_pct'],
+                                consecutive_losses=risk_status['consecutive_losses']
+                            )
+                        except Exception as e:
+                            logger.error(f"Telegram通知发送失败: {e}")
+                        
+                        # 如果有持仓，考虑平仓
+                        if self.engine.rolling_manager.current_position:
+                            logger.info("检测到持仓，执行平仓...")
+                            self.engine.rolling_manager.close_position(current_price, f"风险控制: {reason}")
+                        
+                        # 等待一段时间再检查
+                        time.sleep(300)  # 5分钟
+                        continue
+                    
                     # 执行一个交易周期
                     self.engine.run_cycle()
                     

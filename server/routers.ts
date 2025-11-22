@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
 import { klineCache } from "./kline_cache";
 import { telegramNotifier } from "./telegram";
+import { riskRouter } from "./risk_api";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
@@ -375,6 +376,9 @@ export const appRouter = router({
         return { success };
       }),
   }),
+  
+  // 风险管理
+  risk: riskRouter,
 });
 
 export type AppRouter = typeof appRouter;
