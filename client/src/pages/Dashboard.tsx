@@ -8,6 +8,7 @@ import { ControlPanel } from "@/components/ControlPanel";
 import { ParamsPanel } from "@/components/ParamsPanel";
 import { ParamsComparison } from "@/components/ParamsComparison";
 import { TradeHistory } from "@/components/TradeHistory";
+import { RiskControlPanel } from "@/components/RiskControlPanel";
 
 export default function Dashboard() {
   const { data: state, isLoading: stateLoading } = trpc.trading.getState.useQuery(undefined, {
@@ -173,6 +174,9 @@ export default function Dashboard() {
 
       {/* Params Comparison */}
       <ParamsComparison />
+
+      {/* Risk Control Panel */}
+      <RiskControlPanel />
 
       {/* Trade History */}
       <TradeHistory />
