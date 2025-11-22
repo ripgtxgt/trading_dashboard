@@ -200,3 +200,101 @@ A: 需要安装 `mysql-connector-python`：
 ```bash
 pip3 install mysql-connector-python
 ```
+
+## 完整集成示例
+
+我们提供了一个完整的集成示例脚本 `trading_rolling_integrated.py`，它已经整合了数据库同步和Telegram通知功能。
+
+### 使用方法
+
+1. **配置环境变量**
+
+```bash
+export DATABASE_URL="mysql://user:password@host:port/database"
+export TELEGRAM_BOT_TOKEN="your_bot_token"  # 可选
+export TELEGRAM_CHAT_ID="your_chat_id"      # 可选
+```
+
+2. **运行完整示例**
+
+```bash
+cd /home/ubuntu/trading_dashboard/scripts
+python3 trading_rolling_integrated.py
+```
+
+### 功能特性
+
+- ✅ 自动同步交易数据到MySQL数据库
+- ✅ 实时Telegram通知（开仓/平仓/风险警告）
+- ✅ 完整的止损止盈逻辑
+- ✅ 详细的日志记录
+- ✅ 优雅的启动和关闭处理
+
+### 自定义策略参数
+
+在 `TradingStrategy.__init__()` 中修改以下参数：
+
+```python
+self.short_ma_period = 5      # 短期MA周期
+self.long_ma_period = 20      # 长期MA周期
+self.timeframe = "1h"         # 时间框架
+self.leverage = 10            # 杠杆倍数
+```
+
+### 集成真实API
+
+将 `get_klines()` 方法中的模拟数据替换为真实的KuCoin API调用：
+
+```python
+import ccxt
+
+def get_klines(self, limit=100) -> List[Dict]:
+    exchange = ccxt.kucoin()
+    ohlcv = exchange.fetch_ohlcv(self.symbol, self.timeframe, limit=limit)
+    
+    klines = []
+    for candle in ohlcv:
+        klines.append({
+            'timestamp': candle[0] // 1000,
+            'open': candle[1],
+            'high': candle[2],
+            'low': candle[3],
+            'close': candle[4],
+            'volume': candle[5]
+        })
+    
+    return klines
+```
+
+### 修改你的trading_rolling.py
+
+参考 `trading_rolling_integrated.py` 的结构，将以下功能集成到你的脚本：
+
+1. **导入模块**
+```python
+from db_sync import DatabaseSync
+from telegram_notifier import TelegramNotifier
+```
+
+2. **初始化**
+```python
+self.db = DatabaseSync()
+self.telegram = TelegramNotifier()
+```
+
+3. **开仓时**
+```python
+# 同步到数据库
+position_id = self.db.update_position(...)
+# 发送Telegram通知
+self.telegram.send_trade_opened(...)
+```
+
+4. **平仓时**
+```python
+# 同步到数据库
+trade_id = self.db.add_trade(...)
+self.db.update_bot_state(...)
+# 发送Telegram通知
+self.telegram.send_trade_closed(...)
+```
