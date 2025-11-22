@@ -99,9 +99,29 @@ export const paramSimulations = mysqlTable("param_simulations", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Backtest history table
+export const backtestHistory = mysqlTable("backtest_history", {
+  id: int("id").autoincrement().primaryKey(),
+  shortMaPeriod: int("short_ma_period").notNull(),
+  longMaPeriod: int("long_ma_period").notNull(),
+  timeframe: varchar("timeframe", { length: 10 }).notNull(),
+  sensitivity: varchar("sensitivity", { length: 20 }).notNull(),
+  totalTrades: int("total_trades").default(0).notNull(),
+  winTrades: int("win_trades").default(0).notNull(),
+  winRate: varchar("win_rate", { length: 20 }).default("0").notNull(),
+  totalPnl: varchar("total_pnl", { length: 20 }).default("0").notNull(),
+  sharpeRatio: varchar("sharpe_ratio", { length: 20 }).default("0").notNull(),
+  maxDrawdown: varchar("max_drawdown", { length: 20 }).default("0").notNull(),
+  avgWin: varchar("avg_win", { length: 20 }).default("0").notNull(),
+  avgLoss: varchar("avg_loss", { length: 20 }).default("0").notNull(),
+  compositeScore: varchar("composite_score", { length: 20 }).default("0").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type BotState = typeof botState.$inferSelect;
 export type Trade = typeof trades.$inferSelect;
 export type Position = typeof positions.$inferSelect;
 export type BalanceSnapshot = typeof balanceSnapshots.$inferSelect;
 export type StrategyParams = typeof strategyParams.$inferSelect;
 export type ParamSimulation = typeof paramSimulations.$inferSelect;
+export type BacktestHistory = typeof backtestHistory.$inferSelect;

@@ -1,6 +1,6 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { balanceSnapshots, BotState, botState, InsertUser, paramSimulations, positions, strategyParams, StrategyParams, trades, users } from "../drizzle/schema";
+import { backtestHistory, balanceSnapshots, BotState, botState, InsertUser, paramSimulations, positions, strategyParams, StrategyParams, trades, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -232,4 +232,33 @@ export async function getParamSimulation(paramId: number) {
     .orderBy(desc(paramSimulations.createdAt))
     .limit(1);
   return result.length > 0 ? result[0] : null;
+}
+
+// Backtest history queries
+export async function saveBacktestResult(result: Omit<typeof backtestHistory.$inferInsert, "id" | "createdAt">) {
+  const db = await getDb();
+  if (!db) return null;
+  const insertResult = await db.insert(backtestHistory).values(result);
+  return insertResult;
+}
+
+export async function getBacktestHistory(limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(backtestHistory).orderBy(desc(backtestHistory.createdAt)).limit(limit);
+}
+
+export async function getBacktestByParams(shortMa: number, longMa: number, timeframe: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(backtestHistory)
+    .where(
+      and(
+        eq(backtestHistory.shortMaPeriod, shortMa),
+        eq(backtestHistory.longMaPeriod, longMa),
+        eq(backtestHistory.timeframe, timeframe)
+      )
+    )
+    .orderBy(desc(backtestHistory.createdAt))
+    .limit(10);
 }

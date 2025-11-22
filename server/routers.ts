@@ -1,6 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
 import { klineCache } from "./kline_cache";
+import { telegramNotifier } from "./telegram";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
@@ -221,6 +222,14 @@ export const appRouter = router({
         return await getParamSimulation(input.paramId);
       }),
     
+    // Get backtest history
+    getBacktestHistory: publicProcedure
+      .input(z.object({ limit: z.number().optional().default(50) }))
+      .query(async ({ input }) => {
+        const { getBacktestHistory } = await import('./db');
+        return await getBacktestHistory(input.limit);
+      }),
+    
     // Backtest parameters
     backtestParams: publicProcedure
       .input(z.object({
@@ -307,6 +316,63 @@ export const appRouter = router({
           console.error('Error running optimization:', error);
           throw new Error('Optimization failed');
         }
+      }),
+  }),
+  
+  // Telegram notifications
+  telegram: router({
+    // Check if Telegram is configured
+    isConfigured: publicProcedure.query(() => {
+      return { configured: telegramNotifier.isConfigured() };
+    }),
+    
+    // Send test message
+    sendTest: publicProcedure.mutation(async () => {
+      const success = await telegramNotifier.sendMessage({
+        text: "🤖 *测试消息*\n\nTelegram通知配置成功！\n\n_" + new Date().toLocaleString("zh-CN") + "_"
+      });
+      return { success };
+    }),
+    
+    // Send open position notification
+    notifyOpen: publicProcedure
+      .input(z.object({
+        symbol: z.string(),
+        side: z.enum(["long", "short"]),
+        price: z.number(),
+        quantity: z.number(),
+        margin: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const success = await telegramNotifier.notifyOpenPosition(input);
+        return { success };
+      }),
+    
+    // Send close position notification
+    notifyClose: publicProcedure
+      .input(z.object({
+        symbol: z.string(),
+        side: z.enum(["long", "short"]),
+        entryPrice: z.number(),
+        exitPrice: z.number(),
+        pnl: z.number(),
+        pnlPct: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const success = await telegramNotifier.notifyClosePosition(input);
+        return { success };
+      }),
+    
+    // Send risk alert
+    notifyRisk: publicProcedure
+      .input(z.object({
+        level: z.enum(["info", "warning", "error"]),
+        message: z.string(),
+        details: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const success = await telegramNotifier.notifyRiskAlert(input);
+        return { success };
       }),
   }),
 });
