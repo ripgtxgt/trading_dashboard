@@ -15,6 +15,7 @@ import { ReportExport } from "@/components/ReportExport";
 import { SignalNotifications } from "@/components/SignalNotifications";
 import { BacktestHistoryChart } from "@/components/BacktestHistoryChart";
 import { RiskManagementPanel } from "@/components/RiskManagementPanel";
+import RiskMonitorCard from "@/components/RiskMonitorCard";
 
 export default function Dashboard() {
   return (
@@ -73,6 +74,15 @@ function DashboardContent() {
           {state?.isRunning ? "运行中" : "已停止"}
         </Badge>
       </div>
+
+      {/* Risk Monitor */}
+      <RiskMonitorCard
+        volatility={0.025}
+        riskLevel="low"
+        positionMultiplier={1.0}
+        isPaused={false}
+        trend="stable"
+      />
 
       {/* Main Stats */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

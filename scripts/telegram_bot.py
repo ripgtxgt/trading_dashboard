@@ -35,6 +35,93 @@ class TelegramBot:
         if not self.chat_id:
             print("[TG Bot] Warning: TELEGRAM_CHAT_ID not set")
     
+    def send_risk_alert(self, risk_level: str, volatility: float, message: str) -> bool:
+        """
+        发送风险警报
+        
+        Args:
+            risk_level: 风险等级 (low/medium/high/extreme)
+            volatility: 波动率
+            message: 警报消息
+        
+        Returns:
+            是否发送成功
+        """
+        emoji_map = {
+            'low': '🟢',
+            'medium': '🟡',
+            'high': '🟠',
+            'extreme': '🔴'
+        }
+        
+        emoji = emoji_map.get(risk_level, '⚪')
+        
+        alert_text = f"{emoji} 风险警报\n\n"
+        alert_text += f"风险等级: {risk_level.upper()}\n"
+        alert_text += f"波动率: {volatility*100:.2f}%\n\n"
+        alert_text += f"{message}"
+        
+        return self.send_message(alert_text)
+    
+    def send_pause_alert(self, reason: str, volatility: float) -> bool:
+        """
+        发送交易暂停警报
+        
+        Args:
+            reason: 暂停原因
+            volatility: 当前波动率
+        
+        Returns:
+            是否发送成功
+        """
+        alert_text = "⚠️ 交易自动暂停\n\n"
+        alert_text += f"原因: {reason}\n"
+        alert_text += f"波动率: {volatility*100:.2f}%\n\n"
+        alert_text += "系统将在波动率降低后自动恢复交易"
+        
+        return self.send_message(alert_text)
+    
+    def send_resume_alert(self, reason: str, pause_duration: float) -> bool:
+        """
+        发送交易恢复警报
+        
+        Args:
+            reason: 恢复原因
+            pause_duration: 暂停时长（秒）
+        
+        Returns:
+            是否发送成功
+        """
+        alert_text = "✅ 交易已恢复\n\n"
+        alert_text += f"原因: {reason}\n"
+        alert_text += f"暂停时长: {pause_duration/60:.1f}分钟\n\n"
+        alert_text += "系统已恢复正常交易"
+        
+        return self.send_message(alert_text)
+    
+    def send_position_adjustment_alert(self, old_position: float, new_position: float, reason: str) -> bool:
+        """
+        发送仓位调整警报
+        
+        Args:
+            old_position: 原仓位
+            new_position: 新仓位
+            reason: 调整原因
+        
+        Returns:
+            是否发送成功
+        """
+        change_pct = ((new_position - old_position) / old_position * 100) if old_position > 0 else 0
+        direction = "增加" if change_pct > 0 else "减少"
+        
+        alert_text = "📊 仓位调整通知\n\n"
+        alert_text += f"原仓位: {old_position:.4f}\n"
+        alert_text += f"新仓位: {new_position:.4f}\n"
+        alert_text += f"变化: {direction} {abs(change_pct):.1f}%\n\n"
+        alert_text += f"原因: {reason}"
+        
+        return self.send_message(alert_text)
+    
     def send_message(self, text: str) -> bool:
         """
         发送消息到Telegram

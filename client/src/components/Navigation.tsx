@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, History, BarChart3, Menu, X } from "lucide-react";
+import { Home, History, BarChart3, Menu, X, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { APP_TITLE } from "@/const";
@@ -12,6 +12,7 @@ export default function Navigation() {
     { path: "/", label: "控制台", icon: Home },
     { path: "/history", label: "交易历史", icon: History },
     { path: "/report", label: "性能报告", icon: BarChart3 },
+    { path: "/risk-analysis", label: "风险分析", icon: AlertTriangle },
   ];
 
   const isActive = (path: string) => {

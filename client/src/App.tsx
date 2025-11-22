@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Dashboard from "./pages/Dashboard";
 import TradeHistory from "./pages/TradeHistory";
 import PerformanceReport from "./pages/PerformanceReport";
+import RiskAnalysis from "./pages/RiskAnalysis";
 
 function Router() {
   return (
@@ -14,6 +15,7 @@ function Router() {
       <Route path={"/"} component={Dashboard} />
       <Route path={"/history"} component={TradeHistory} />
       <Route path={"/report"} component={PerformanceReport} />
+      <Route path={"/risk-analysis"} component={RiskAnalysis} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
