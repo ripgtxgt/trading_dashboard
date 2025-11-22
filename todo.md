@@ -219,3 +219,13 @@
 - [x] 集成db_sync到真实交易脚本
 - [x] 集成telegram_notifier到真实交易脚本
 - [x] 提供完整的trading_rolling集成示例
+
+## 集成原有交易系统到Web Dashboard (v21.0)
+
+- [x] 解压用户原有项目文件
+- [x] 分析原有交易策略代码结构
+- [x] 提取交易策略核心逻辑
+- [x] 集成到Web项目的scripts目录
+- [x] 添加数据库同步功能
+- [x] 添加Telegram通知功能
+- [x] 创建完整集成系统使用指南
