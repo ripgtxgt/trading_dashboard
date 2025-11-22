@@ -251,6 +251,34 @@ export const appRouter = router({
         }
       }),
     
+    // Bot control
+    getBotStatus: publicProcedure.query(async () => {
+      const { getBotStatus } = await import('./bot_integration');
+      return await getBotStatus();
+    }),
+    
+    startBot: publicProcedure.mutation(async () => {
+      const { startBot } = await import('./bot_integration');
+      return await startBot();
+    }),
+    
+    stopBot: publicProcedure.mutation(async () => {
+      const { stopBot } = await import('./bot_integration');
+      return await stopBot();
+    }),
+    
+    getBotLogs: publicProcedure
+      .input(z.object({ lines: z.number().optional().default(100) }))
+      .query(async ({ input }) => {
+        const { getBotLogs } = await import('./bot_integration');
+        return await getBotLogs(input.lines);
+      }),
+    
+    getLatestSignals: publicProcedure.query(async () => {
+      const { parseLatestSignals } = await import('./bot_integration');
+      return await parseLatestSignals();
+    }),
+    
     // Optimize parameters
     optimizeParams: publicProcedure
       .input(z.object({

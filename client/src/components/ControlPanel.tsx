@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Play, Square, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,20 +25,44 @@ export function ControlPanel({ isRunning, emergencyStopped }: ControlPanelProps)
   const [showStopDialog, setShowStopDialog] = useState(false);
   const [showEmergencyDialog, setShowEmergencyDialog] = useState(false);
 
+  const startMutation = (trpc.trading as any).startBot.useMutation({
+    onSuccess: (data: any) => {
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(`启动失败: ${error.message}`);
+    },
+  });
+
+  const stopMutation = (trpc.trading as any).stopBot.useMutation({
+    onSuccess: (data: any) => {
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+      setShowStopDialog(false);
+    },
+    onError: (error: any) => {
+      toast.error(`停止失败: ${error.message}`);
+      setShowStopDialog(false);
+    },
+  });
+
   const handleStart = () => {
-    // TODO: 实现启动功能
-    console.log("Starting bot...");
+    startMutation.mutate();
   };
 
   const handleStop = () => {
-    // TODO: 实现停止功能
-    console.log("Stopping bot...");
-    setShowStopDialog(false);
+    stopMutation.mutate();
   };
 
   const handleEmergencyStop = () => {
-    // TODO: 实现紧急停止功能
-    console.log("Emergency stop!");
+    stopMutation.mutate();
     setShowEmergencyDialog(false);
   };
 
