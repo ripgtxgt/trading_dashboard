@@ -91,7 +91,13 @@ class TradingBot:
         if len(klines) < period:
             return None
         
-        closes = [float(k.get("close", 0)) for k in klines[-period:]]
+        closes = []
+        for k in klines[-period:]:
+            if isinstance(k, dict):
+                closes.append(float(k.get("close", 0)))
+            else:
+                closes.append(float(k[2]))  # [time, open, close, high, low, volume]
+        
         return sum(closes) / period
     
     def check_signal(self, klines):
@@ -247,7 +253,12 @@ class TradingBot:
                     time.sleep(60)
                     continue
                 
-                current_price = float(klines[-1].get("close", 0))
+                # K线数据可能是list或dict格式
+                last_kline = klines[-1]
+                if isinstance(last_kline, dict):
+                    current_price = float(last_kline.get("close", 0))
+                else:
+                    current_price = float(last_kline[2])  # [time, open, close, high, low, volume]
                 print(f"  当前价格: {current_price:.2f}")
                 print(f"  当前资金: {self.capital:.2f} USDT")
                 
@@ -302,7 +313,12 @@ class TradingBot:
             if self.position:
                 klines = self.get_klines(100)
                 if klines:
-                    current_price = float(klines[-1].get("close", 0))
+                    # K线数据可能是list或dict格式
+                    last_kline = klines[-1]
+                    if isinstance(last_kline, dict):
+                        current_price = float(last_kline.get("close", 0))
+                    else:
+                        current_price = float(last_kline[2])  # [time, open, close, high, low, volume]
                     self.close_position(current_price)
             
             # 更新状态为停止
@@ -319,7 +335,8 @@ class TradingBot:
             print(f"[{datetime.now()}] 机器人已停止")
             
         finally:
-            self.db.close()
+            if hasattr(self.db, 'close'):
+                self.db.close()
 
 if __name__ == "__main__":
     # 检查环境变量

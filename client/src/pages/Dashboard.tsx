@@ -11,6 +11,7 @@ import { TradeHistory } from "@/components/TradeHistory";
 import { RiskControlPanel } from "@/components/RiskControlPanel";
 import { KlineChartSimple } from "@/components/KlineChartSimple";
 import { ReportExport } from "@/components/ReportExport";
+import { SignalNotifications } from "@/components/SignalNotifications";
 
 export default function Dashboard() {
   const { data: state, isLoading: stateLoading } = trpc.trading.getState.useQuery(undefined, {
@@ -186,6 +187,9 @@ export default function Dashboard() {
       {/* Trade History */}
       <TradeHistory />
 
+      {/* Signal Notifications */}
+      <SignalNotifications />
+      
       {/* Report Export */}
       <ReportExport />
 
