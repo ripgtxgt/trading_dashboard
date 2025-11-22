@@ -29,6 +29,20 @@
       "when": 1763798932951,
       "tag": "0003_hesitant_molten_man",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1763804796521,
+      "tag": "0004_strong_aqueduct",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1763805080482,
+      "tag": "0005_faithful_william_stryker",
+      "breakpoints": true
     }
   ]
 }

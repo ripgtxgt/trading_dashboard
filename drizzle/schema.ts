@@ -42,12 +42,15 @@ export const botState = mysqlTable("bot_state", {
 // Trading records table
 export const trades = mysqlTable("trades", {
   id: int("id").autoincrement().primaryKey(),
+  symbol: varchar("symbol", { length: 20 }).default("XBTUSDTM").notNull(), // 交易对
   direction: mysqlEnum("direction", ["long", "short"]).notNull(),
   entryPrice: varchar("entry_price", { length: 20 }).notNull(),
   exitPrice: varchar("exit_price", { length: 20 }).notNull(),
+  quantity: varchar("quantity", { length: 20 }).notNull(), // 交易数量
   margin: varchar("margin", { length: 20 }).notNull(),
   pnl: varchar("pnl", { length: 20 }).notNull(),
   pnlPct: varchar("pnl_pct", { length: 20 }).notNull(),
+  fee: varchar("fee", { length: 20 }).default("0").notNull(), // 手续费
   reason: varchar("reason", { length: 50 }).notNull(),
   stage: varchar("stage", { length: 20 }).notNull(),
   entryTime: timestamp("entry_time").notNull(),
@@ -58,8 +61,10 @@ export const trades = mysqlTable("trades", {
 // Position records table (current position)
 export const positions = mysqlTable("positions", {
   id: int("id").autoincrement().primaryKey(),
+  symbol: varchar("symbol", { length: 20 }).default("XBTUSDTM").notNull(), // 交易对
   direction: mysqlEnum("direction", ["long", "short"]).notNull(),
   entryPrice: varchar("entry_price", { length: 20 }).notNull(),
+  quantity: varchar("quantity", { length: 20 }).notNull(), // 持仓数量
   margin: varchar("margin", { length: 20 }).notNull(),
   stopLossPct: varchar("stop_loss_pct", { length: 20 }).notNull(),
   takeProfitPct: varchar("take_profit_pct", { length: 20 }).notNull(),
@@ -125,3 +130,22 @@ export type BalanceSnapshot = typeof balanceSnapshots.$inferSelect;
 export type StrategyParams = typeof strategyParams.$inferSelect;
 export type ParamSimulation = typeof paramSimulations.$inferSelect;
 export type BacktestHistory = typeof backtestHistory.$inferSelect;
+
+// Multi-symbol support tables
+export const symbolConfigs = mysqlTable("symbol_configs", {
+  id: int("id").autoincrement().primaryKey(),
+  symbol: varchar("symbol", { length: 20 }).notNull().unique(),
+  displayName: varchar("display_name", { length: 50 }).notNull(),
+  isActive: int("is_active").default(1).notNull(),
+  initialCapital: varchar("initial_capital", { length: 20 }).default("10").notNull(),
+  leverage: int("leverage").default(10).notNull(),
+  shortMaPeriod: int("short_ma_period").default(5).notNull(),
+  longMaPeriod: int("long_ma_period").default(20).notNull(),
+  timeframe: varchar("timeframe", { length: 10 }).default("1h").notNull(),
+  sensitivity: mysqlEnum("sensitivity", ["loose", "standard", "strict"]).default("standard").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SymbolConfig = typeof symbolConfigs.$inferSelect;
+export type InsertSymbolConfig = typeof symbolConfigs.$inferInsert;
