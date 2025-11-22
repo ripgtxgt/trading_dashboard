@@ -6,6 +6,8 @@ import { ArrowDownIcon, ArrowUpIcon, Activity, TrendingUp, DollarSign, BarChart3
 import { BalanceChart } from "@/components/BalanceChart";
 import { ControlPanel } from "@/components/ControlPanel";
 import { ParamsPanel } from "@/components/ParamsPanel";
+import { ParamsComparison } from "@/components/ParamsComparison";
+import { TradeHistory } from "@/components/TradeHistory";
 
 export default function Dashboard() {
   const { data: state, isLoading: stateLoading } = trpc.trading.getState.useQuery(undefined, {
@@ -168,6 +170,12 @@ export default function Dashboard() {
         />
         <ParamsPanel />
       </div>
+
+      {/* Params Comparison */}
+      <ParamsComparison />
+
+      {/* Trade History */}
+      <TradeHistory />
 
       {/* Recent Trades */}
       <Card>
