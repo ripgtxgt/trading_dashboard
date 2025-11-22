@@ -76,7 +76,32 @@ export const balanceSnapshots = mysqlTable("balance_snapshots", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+// Strategy parameters configuration
+export const strategyParams = mysqlTable("strategy_params", {
+  id: int("id").autoincrement().primaryKey(),
+  shortMaPeriod: int("short_ma_period").default(5).notNull(),
+  longMaPeriod: int("long_ma_period").default(20).notNull(),
+  timeframe: varchar("timeframe", { length: 10 }).default("1h").notNull(),
+  sensitivity: mysqlEnum("sensitivity", ["loose", "standard", "strict"]).default("standard").notNull(),
+  isActive: int("is_active").default(1).notNull(), // 0=inactive, 1=active
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  appliedAt: timestamp("applied_at"),
+});
+
+// Parameter simulation results
+export const paramSimulations = mysqlTable("param_simulations", {
+  id: int("id").autoincrement().primaryKey(),
+  paramId: int("param_id").notNull(),
+  signalCount: int("signal_count").default(0).notNull(),
+  longSignals: int("long_signals").default(0).notNull(),
+  shortSignals: int("short_signals").default(0).notNull(),
+  samplePeriod: varchar("sample_period", { length: 20 }).notNull(), // e.g., "24h", "7d"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type BotState = typeof botState.$inferSelect;
 export type Trade = typeof trades.$inferSelect;
 export type Position = typeof positions.$inferSelect;
 export type BalanceSnapshot = typeof balanceSnapshots.$inferSelect;
+export type StrategyParams = typeof strategyParams.$inferSelect;
+export type ParamSimulation = typeof paramSimulations.$inferSelect;

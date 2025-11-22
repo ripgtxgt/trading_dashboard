@@ -1,6 +1,6 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { balanceSnapshots, BotState, botState, InsertUser, positions, trades, users } from "../drizzle/schema";
+import { balanceSnapshots, BotState, botState, InsertUser, paramSimulations, positions, strategyParams, StrategyParams, trades, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -182,4 +182,54 @@ export async function getTradeStats() {
     totalPnl,
     avgPnl: totalPnl / allTrades.length,
   };
+}
+
+// Strategy parameters queries
+export async function getActiveStrategyParams() {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(strategyParams).where(eq(strategyParams.isActive, 1)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getAllStrategyParams(limit: number = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(strategyParams).orderBy(desc(strategyParams.createdAt)).limit(limit);
+}
+
+export async function createStrategyParams(params: Omit<typeof strategyParams.$inferInsert, "id" | "createdAt">) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.insert(strategyParams).values(params);
+  return result;
+}
+
+export async function applyStrategyParams(paramId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Deactivate all params
+  await db.update(strategyParams).set({ isActive: 0 });
+  
+  // Activate the selected param
+  await db.update(strategyParams)
+    .set({ isActive: 1, appliedAt: new Date() })
+    .where(eq(strategyParams.id, paramId));
+}
+
+export async function saveParamSimulation(simulation: Omit<typeof paramSimulations.$inferInsert, "id" | "createdAt">) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(paramSimulations).values(simulation);
+}
+
+export async function getParamSimulation(paramId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(paramSimulations)
+    .where(eq(paramSimulations.paramId, paramId))
+    .orderBy(desc(paramSimulations.createdAt))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
 }

@@ -15,6 +15,13 @@
       "when": 1763655405001,
       "tag": "0001_smiling_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763771004164,
+      "tag": "0002_spooky_kulan_gath",
+      "breakpoints": true
     }
   ]
 }

@@ -124,6 +124,78 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  strategy: router({
+    // Get active strategy parameters
+    getActiveParams: publicProcedure.query(async () => {
+      const { getActiveStrategyParams } = await import('./db');
+      return await getActiveStrategyParams();
+    }),
+    
+    // Get all strategy parameters history
+    getAllParams: publicProcedure
+      .input(z.object({ limit: z.number().optional().default(10) }))
+      .query(async ({ input }) => {
+        const { getAllStrategyParams } = await import('./db');
+        return await getAllStrategyParams(input.limit);
+      }),
+    
+    // Create new strategy parameters
+    createParams: publicProcedure
+      .input(z.object({
+        shortMaPeriod: z.number().min(3).max(20),
+        longMaPeriod: z.number().min(10).max(60),
+        timeframe: z.enum(["15m", "30m", "1h", "2h", "4h"]),
+        sensitivity: z.enum(["loose", "standard", "strict"]),
+        isActive: z.number().optional().default(0),
+      }))
+      .mutation(async ({ input }) => {
+        const { createStrategyParams } = await import('./db');
+        await createStrategyParams(input);
+        return { success: true };
+      }),
+    
+    // Apply strategy parameters
+    applyParams: publicProcedure
+      .input(z.object({ paramId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { applyStrategyParams } = await import('./db');
+        await applyStrategyParams(input.paramId);
+        return { success: true };
+      }),
+    
+    // Simulate parameters (returns signal count for last N candles)
+    simulateParams: publicProcedure
+      .input(z.object({
+        shortMaPeriod: z.number().min(3).max(20),
+        longMaPeriod: z.number().min(10).max(60),
+        timeframe: z.enum(["15m", "30m", "1h", "2h", "4h"]),
+        sensitivity: z.enum(["loose", "standard", "strict"]),
+        samplePeriod: z.string().optional().default("24h"),
+      }))
+      .mutation(async ({ input }) => {
+        // This will call a Python script to simulate the parameters
+        // For now, return mock data
+        const mockSignalCount = Math.floor(Math.random() * 20) + 5;
+        const mockLongSignals = Math.floor(mockSignalCount * 0.6);
+        const mockShortSignals = mockSignalCount - mockLongSignals;
+        
+        return {
+          signalCount: mockSignalCount,
+          longSignals: mockLongSignals,
+          shortSignals: mockShortSignals,
+          samplePeriod: input.samplePeriod,
+        };
+      }),
+    
+    // Get parameter simulation result
+    getSimulation: publicProcedure
+      .input(z.object({ paramId: z.number() }))
+      .query(async ({ input }) => {
+        const { getParamSimulation } = await import('./db');
+        return await getParamSimulation(input.paramId);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

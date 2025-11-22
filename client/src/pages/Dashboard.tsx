@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowDownIcon, ArrowUpIcon, Activity, TrendingUp, DollarSign, BarChart3 } from "lucide-react";
 import { BalanceChart } from "@/components/BalanceChart";
 import { ControlPanel } from "@/components/ControlPanel";
+import { ParamsPanel } from "@/components/ParamsPanel";
 
 export default function Dashboard() {
   const { data: state, isLoading: stateLoading } = trpc.trading.getState.useQuery(undefined, {
@@ -159,11 +160,14 @@ export default function Dashboard() {
       {/* Balance Chart */}
       <BalanceChart />
 
-      {/* Control Panel */}
-      <ControlPanel
-        isRunning={state?.isRunning === 1}
-        emergencyStopped={state?.emergencyStopped === 1}
-      />
+      {/* Control Panel and Params Panel */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ControlPanel
+          isRunning={state?.isRunning === 1}
+          emergencyStopped={state?.emergencyStopped === 1}
+        />
+        <ParamsPanel />
+      </div>
 
       {/* Recent Trades */}
       <Card>
