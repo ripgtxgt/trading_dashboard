@@ -9,17 +9,40 @@ import mysql.connector
 from datetime import datetime
 from typing import Optional, Dict, Any
 import json
+import sys
+
+# 尝试导入WebSocket客户端（可选）
+try:
+    from websocket_client import WebSocketClient
+    WS_AVAILABLE = True
+except ImportError:
+    WS_AVAILABLE = False
+    print("[DB] WebSocket client not available, real-time push disabled")
 
 
 class DatabaseIntegration:
     """数据库集成类"""
     
-    def __init__(self):
-        """初始化数据库连接"""
+    def __init__(self, enable_websocket=True):
+        """
+        初始化数据库连接
+        
+        Args:
+            enable_websocket: 是否启用WebSocket实时推送
+        """
         # 从环境变量读取数据库配置
         self.db_url = os.getenv("DATABASE_URL", "")
         self.conn = None
         self.cursor = None
+        
+        # WebSocket客户端
+        self.ws_client = None
+        if enable_websocket and WS_AVAILABLE:
+            try:
+                self.ws_client = WebSocketClient()
+                print("[DB] WebSocket client initialized")
+            except Exception as e:
+                print(f"[DB] Failed to initialize WebSocket: {e}")
         
         if self.db_url:
             self._connect()
@@ -121,6 +144,24 @@ class DatabaseIntegration:
             self.cursor.execute(sql, values)
             self.conn.commit()
             print(f"[DB] Trade saved: {direction} {symbol} PnL={pnl:.2f} USDT")
+            
+            # WebSocket实时推送
+            if self.ws_client:
+                try:
+                    self.ws_client.push_trade({
+                        "symbol": symbol,
+                        "direction": direction,
+                        "entryPrice": entry_price,
+                        "exitPrice": exit_price,
+                        "quantity": quantity,
+                        "pnl": pnl,
+                        "pnlPct": pnl_pct,
+                        "fee": fee,
+                        "timestamp": datetime.now().isoformat(),
+                    })
+                except Exception as e:
+                    print(f"[DB] WebSocket push failed: {e}")
+            
             return True
             
         except Exception as e:
@@ -197,6 +238,21 @@ class DatabaseIntegration:
             self.cursor.execute(sql, values)
             self.conn.commit()
             print(f"[DB] Position updated: {symbol} {direction}")
+            
+            # WebSocket实时推送
+            if self.ws_client:
+                try:
+                    self.ws_client.push_position({
+                        "symbol": symbol,
+                        "direction": direction,
+                        "entryPrice": entry_price,
+                        "quantity": quantity,
+                        "currentPrice": current_price,
+                        "timestamp": datetime.now().isoformat(),
+                    })
+                except Exception as e:
+                    print(f"[DB] WebSocket push failed: {e}")
+            
             return True
             
         except Exception as e:
@@ -255,6 +311,20 @@ class DatabaseIntegration:
             self.cursor.execute(sql, values)
             self.conn.commit()
             print(f"[DB] Account state updated: balance={balance:.2f}, profit={profit_rate:.2f}%")
+            
+            # WebSocket实时推送
+            if self.ws_client:
+                try:
+                    self.ws_client.push_account({
+                        "balance": balance,
+                        "profitRate": profit_rate,
+                        "stage": stage,
+                        "symbol": symbol,
+                        "timestamp": datetime.now().isoformat(),
+                    })
+                except Exception as e:
+                    print(f"[DB] WebSocket push failed: {e}")
+            
             return True
             
         except Exception as e:
@@ -269,6 +339,11 @@ class DatabaseIntegration:
             self.cursor.close()
         if self.conn:
             self.conn.close()
+        if self.ws_client:
+            try:
+                self.ws_client.close()
+            except:
+                pass
         print("[DB] Database connection closed")
 
 

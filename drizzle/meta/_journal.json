@@ -43,6 +43,13 @@
       "when": 1763805080482,
       "tag": "0005_faithful_william_stryker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1763807073727,
+      "tag": "0006_wakeful_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }

@@ -25,7 +25,31 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// Trading bot state table
+// 策略配置表
+export const strategyConfig = mysqlTable("strategy_config", {
+  id: int("id").autoincrement().primaryKey(),
+  symbol: varchar("symbol", { length: 20 }).notNull().default("XBTUSDTM"),
+  // 滚仓参数
+  rollMultiplier: varchar("rollMultiplier", { length: 20 }).notNull().default("2.0"),
+  // 止盈止损
+  takeProfitPct: varchar("takeProfitPct", { length: 20 }).notNull().default("5.0"),
+  stopLossPct: varchar("stopLossPct", { length: 20 }).notNull().default("2.0"),
+  // 风险控制
+  maxDailyLoss: varchar("maxDailyLoss", { length: 20 }).notNull().default("10.0"),
+  maxDrawdown: varchar("maxDrawdown", { length: 20 }).notNull().default("20.0"),
+  consecutiveLossLimit: int("consecutiveLossLimit").notNull().default(3),
+  // 交易参数
+  leverage: int("leverage").notNull().default(10),
+  positionSize: varchar("positionSize", { length: 20 }).notNull().default("0.01"),
+  // 状态
+  isActive: mysqlEnum("isActive", ["true", "false"]).default("true").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StrategyConfig = typeof strategyConfig.$inferSelect;
+export type InsertStrategyConfig = typeof strategyConfig.$inferInsert;
+
+// TODO: Add your tables here
 export const botState = mysqlTable("bot_state", {
   id: int("id").autoincrement().primaryKey(),
   isRunning: int("is_running").default(0).notNull(), // 0=stopped, 1=running
