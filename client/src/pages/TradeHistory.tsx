@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,15 @@ import { Download, TrendingUp, TrendingDown, Filter, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function TradeHistory() {
+  return (
+    <>
+      <Navigation />
+      <TradeHistoryContent />
+    </>
+  );
+}
+
+function TradeHistoryContent() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
   const [symbol, setSymbol] = useState<string>("");

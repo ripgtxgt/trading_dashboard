@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +17,15 @@ import { BacktestHistoryChart } from "@/components/BacktestHistoryChart";
 import { RiskManagementPanel } from "@/components/RiskManagementPanel";
 
 export default function Dashboard() {
+  return (
+    <>
+      <Navigation />
+      <DashboardContent />
+    </>
+  );
+}
+
+function DashboardContent() {
   const { data: state, isLoading: stateLoading } = trpc.trading.getState.useQuery(undefined, {
     refetchInterval: 5000, // 每5秒刷新一次
   });

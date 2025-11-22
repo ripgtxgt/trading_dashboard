@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,8 +15,20 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ProfitCurveChart } from "@/components/ProfitCurveChart";
+import { DrawdownChart } from "@/components/DrawdownChart";
+import { DailyPnlChart } from "@/components/DailyPnlChart";
 
 export default function PerformanceReport() {
+  return (
+    <>
+      <Navigation />
+      <PerformanceReportContent />
+    </>
+  );
+}
+
+function PerformanceReportContent() {
   const [selectedPeriod, setSelectedPeriod] = useState<"day" | "week" | "month">("day");
 
   // 获取报告数据
@@ -38,6 +51,61 @@ export default function PerformanceReport() {
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("zh-CN");
   };
+
+  // 准备图表数据
+  const prepareChartData = () => {
+    if (!currentReport) return { profitCurve: [], drawdown: [], dailyPnl: [] };
+
+    if (selectedPeriod === "week" && "dailyStats" in currentReport) {
+      let cumulative = 0;
+      let peak = 0;
+      const profitCurve = currentReport.dailyStats.map((day: any) => {
+        cumulative += parseFloat(day.pnl);
+        return { date: formatDate(day.date), cumulative };
+      });
+
+      const drawdown = currentReport.dailyStats.map((day: any, idx: number) => {
+        const current = profitCurve[idx].cumulative;
+        peak = Math.max(peak, current);
+        const dd = peak > 0 ? ((peak - current) / peak) * 100 : 0;
+        return { date: formatDate(day.date), drawdown: -dd };
+      });
+
+      const dailyPnl = currentReport.dailyStats.map((day: any) => ({
+        date: formatDate(day.date),
+        pnl: parseFloat(day.pnl),
+      }));
+
+      return { profitCurve, drawdown, dailyPnl };
+    }
+
+    if (selectedPeriod === "month" && "weeklyStats" in currentReport) {
+      let cumulative = 0;
+      let peak = 0;
+      const profitCurve = currentReport.weeklyStats.map((week: any, idx: number) => {
+        cumulative += parseFloat(week.pnl);
+        return { date: `第${idx + 1}周`, cumulative };
+      });
+
+      const drawdown = currentReport.weeklyStats.map((week: any, idx: number) => {
+        const current = profitCurve[idx].cumulative;
+        peak = Math.max(peak, current);
+        const dd = peak > 0 ? ((peak - current) / peak) * 100 : 0;
+        return { date: `第${idx + 1}周`, drawdown: -dd };
+      });
+
+      const dailyPnl = currentReport.weeklyStats.map((week: any, idx: number) => ({
+        date: `第${idx + 1}周`,
+        pnl: parseFloat(week.pnl),
+      }));
+
+      return { profitCurve, drawdown, dailyPnl };
+    }
+
+    return { profitCurve: [], drawdown: [], dailyPnl: [] };
+  };
+
+  const chartData = prepareChartData();
 
   const exportReport = () => {
     if (!currentReport) return;
@@ -258,6 +326,41 @@ export default function PerformanceReport() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* 图表可视化 */}
+                {(selectedPeriod === "week" || selectedPeriod === "month") && chartData.profitCurve.length > 0 && (
+                  <>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>收益曲线</CardTitle>
+                        <CardDescription>累计盈亏变化趋势</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ProfitCurveChart data={chartData.profitCurve} />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>回撤曲线</CardTitle>
+                        <CardDescription>最大回撤分析</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <DrawdownChart data={chartData.drawdown} />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>盈亏分布</CardTitle>
+                        <CardDescription>每日/每周盈亏情况</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <DailyPnlChart data={chartData.dailyPnl} />
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
 
                 {/* 周报/月报的额外统计 */}
                 {selectedPeriod === "week" && "dailyStats" in currentReport && (
