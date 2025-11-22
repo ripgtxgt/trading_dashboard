@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
-import { Loader2, TrendingUp, TrendingDown, Activity, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, Activity, CheckCircle2, AlertCircle, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ParamsPanel() {
@@ -35,6 +35,32 @@ export function ParamsPanel() {
     },
     onError: () => {
       toast.error("模拟失败，请重试");
+    },
+  });
+
+  // 回测参数
+  const backtestMutation = trpc.strategy.backtestParams.useMutation({
+    onSuccess: (data) => {
+      toast.success(`回测完成：胜率${data.winRate}%, 总收益${data.totalPnlPct}%`);
+    },
+    onError: () => {
+      toast.error("回测失败，请重试");
+    },
+  });
+
+  // 优化参数
+  const optimizeMutation = trpc.strategy.optimizeParams.useMutation({
+    onSuccess: (data) => {
+      if (data.recommended) {
+        const rec = data.recommended;
+        setShortMaPeriod(rec.shortMaPeriod);
+        setLongMaPeriod(rec.longMaPeriod);
+        setSensitivity(rec.sensitivity as typeof sensitivity);
+        toast.success(`找到最优参数：MA${rec.shortMaPeriod}/MA${rec.longMaPeriod}`);
+      }
+    },
+    onError: () => {
+      toast.error("优化失败，请重试");
     },
   });
 
@@ -72,6 +98,24 @@ export function ParamsPanel() {
       timeframe,
       sensitivity,
       samplePeriod: "24h",
+    });
+  };
+
+  // 处理回测
+  const handleBacktest = () => {
+    backtestMutation.mutate({
+      shortMaPeriod,
+      longMaPeriod,
+      timeframe,
+      sensitivity,
+    });
+  };
+
+  // 处理优化
+  const handleOptimize = () => {
+    optimizeMutation.mutate({
+      timeframe,
+      optimizationTarget: "composite",
     });
   };
 
@@ -231,6 +275,81 @@ export function ParamsPanel() {
 
         <Separator />
 
+        {/* 回测结果 */}
+        {backtestMutation.data && (
+          <div className="rounded-lg border bg-card p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <BarChart3 className="h-4 w-4" />
+              回测结果
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">胜率</span>
+                  <span className="font-semibold">{backtestMutation.data.winRate}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">总收益</span>
+                  <span className={`font-semibold ${backtestMutation.data.totalPnlPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {backtestMutation.data.totalPnlPct >= 0 ? '+' : ''}{backtestMutation.data.totalPnlPct}%
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">总交易</span>
+                  <span className="font-semibold">{backtestMutation.data.totalTrades}笔</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">夏普比率</span>
+                  <span className="font-semibold">{backtestMutation.data.sharpeRatio}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">最大回撤</span>
+                  <span className="font-semibold text-red-600">{backtestMutation.data.maxDrawdown}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">平均盈亏</span>
+                  <span className={`font-semibold ${backtestMutation.data.avgPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {backtestMutation.data.avgPnl >= 0 ? '+' : ''}{backtestMutation.data.avgPnl}U
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 优化结果 */}
+        {optimizeMutation.data && optimizeMutation.data.recommended && (
+          <div className="rounded-lg border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <CheckCircle2 className="h-4 w-4 text-blue-600" />
+              推荐最优参数
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs text-muted-foreground">短期MA</div>
+                <div className="text-lg font-bold">MA{optimizeMutation.data.recommended.shortMaPeriod}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">长期MA</div>
+                <div className="text-lg font-bold">MA{optimizeMutation.data.recommended.longMaPeriod}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">灵敏度</div>
+                <div className="text-lg font-bold">
+                  {optimizeMutation.data.recommended.sensitivity === 'loose' ? '宽松' :
+                   optimizeMutation.data.recommended.sensitivity === 'strict' ? '严格' : '标准'}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">预期胜率</div>
+                <div className="text-lg font-bold text-green-600">{optimizeMutation.data.performance.winRate}%</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 模拟结果 */}
         {simulateMutation.data && (
           <div className="rounded-lg border bg-card p-4 space-y-3">
@@ -262,19 +381,33 @@ export function ParamsPanel() {
         )}
 
         {/* 操作按钮 */}
-        <div className="flex gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <Button
             onClick={handleSimulate}
             variant="outline"
-            className="flex-1"
-            disabled={simulateMutation.isPending || !hasChanges}
+            disabled={simulateMutation.isPending}
           >
             {simulateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            模拟预览
+            信号模拟
+          </Button>
+          <Button
+            onClick={handleBacktest}
+            variant="outline"
+            disabled={backtestMutation.isPending}
+          >
+            {backtestMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            历史回测
+          </Button>
+          <Button
+            onClick={handleOptimize}
+            variant="secondary"
+            disabled={optimizeMutation.isPending}
+          >
+            {optimizeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            AI优化
           </Button>
           <Button
             onClick={handleApply}
-            className="flex-1"
             disabled={createMutation.isPending || applyMutation.isPending || !hasChanges}
           >
             {(createMutation.isPending || applyMutation.isPending) && (

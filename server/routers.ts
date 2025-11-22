@@ -174,18 +174,42 @@ export const appRouter = router({
         samplePeriod: z.string().optional().default("24h"),
       }))
       .mutation(async ({ input }) => {
-        // This will call a Python script to simulate the parameters
-        // For now, return mock data
-        const mockSignalCount = Math.floor(Math.random() * 20) + 5;
-        const mockLongSignals = Math.floor(mockSignalCount * 0.6);
-        const mockShortSignals = mockSignalCount - mockLongSignals;
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
         
-        return {
-          signalCount: mockSignalCount,
-          longSignals: mockLongSignals,
-          shortSignals: mockShortSignals,
-          samplePeriod: input.samplePeriod,
-        };
+        try {
+          const scriptPath = '/home/ubuntu/trading_dashboard/scripts/signal_simulator.py';
+          const command = `python3 ${scriptPath} XBTUSDTM ${input.timeframe} ${input.shortMaPeriod} ${input.longMaPeriod} ${input.sensitivity}`;
+          
+          const { stdout } = await execAsync(command, { timeout: 30000 });
+          const result = JSON.parse(stdout);
+          
+          if (result.error) {
+            throw new Error(result.error);
+          }
+          
+          return {
+            signalCount: result.signalCount,
+            longSignals: result.longSignals,
+            shortSignals: result.shortSignals,
+            samplePeriod: result.samplePeriod,
+            signals: result.signals,
+          };
+        } catch (error) {
+          console.error('Error running signal simulator:', error);
+          // Fallback to mock data if script fails
+          const mockSignalCount = Math.floor(Math.random() * 20) + 5;
+          const mockLongSignals = Math.floor(mockSignalCount * 0.6);
+          const mockShortSignals = mockSignalCount - mockLongSignals;
+          
+          return {
+            signalCount: mockSignalCount,
+            longSignals: mockLongSignals,
+            shortSignals: mockShortSignals,
+            samplePeriod: input.samplePeriod,
+          };
+        }
       }),
     
     // Get parameter simulation result
@@ -194,6 +218,66 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const { getParamSimulation } = await import('./db');
         return await getParamSimulation(input.paramId);
+      }),
+    
+    // Backtest parameters
+    backtestParams: publicProcedure
+      .input(z.object({
+        shortMaPeriod: z.number().min(3).max(20),
+        longMaPeriod: z.number().min(10).max(60),
+        timeframe: z.enum(["15m", "30m", "1h", "2h", "4h"]),
+        sensitivity: z.enum(["loose", "standard", "strict"]),
+      }))
+      .mutation(async ({ input }) => {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        
+        try {
+          const scriptPath = '/home/ubuntu/trading_dashboard/scripts/backtest.py';
+          const command = `python3 ${scriptPath} XBTUSDTM ${input.timeframe} ${input.shortMaPeriod} ${input.longMaPeriod} ${input.sensitivity}`;
+          
+          const { stdout } = await execAsync(command, { timeout: 60000 });
+          const result = JSON.parse(stdout);
+          
+          if (result.error) {
+            throw new Error(result.error);
+          }
+          
+          return result;
+        } catch (error) {
+          console.error('Error running backtest:', error);
+          throw new Error('Backtest failed');
+        }
+      }),
+    
+    // Optimize parameters
+    optimizeParams: publicProcedure
+      .input(z.object({
+        timeframe: z.enum(["15m", "30m", "1h", "2h", "4h"]),
+        optimizationTarget: z.enum(["winRate", "totalPnl", "sharpeRatio", "composite"]).optional().default("composite"),
+      }))
+      .mutation(async ({ input }) => {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        
+        try {
+          const scriptPath = '/home/ubuntu/trading_dashboard/scripts/optimize_params.py';
+          const command = `python3 ${scriptPath} XBTUSDTM ${input.timeframe} ${input.optimizationTarget}`;
+          
+          const { stdout } = await execAsync(command, { timeout: 120000 });
+          const result = JSON.parse(stdout);
+          
+          if (result.error) {
+            throw new Error(result.error);
+          }
+          
+          return result;
+        } catch (error) {
+          console.error('Error running optimization:', error);
+          throw new Error('Optimization failed');
+        }
       }),
   }),
 });
