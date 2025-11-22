@@ -1,0 +1,22 @@
+{
+  "strategies": [
+    {
+      "name": "测试策略1",
+      "params": {
+        "ma_short": "5",
+        "ma_long": "20",
+        "position_size": "0.1"
+      }
+    },
+    {
+      "name": "测试策略2",
+      "params": {
+        "ma_short": "10",
+        "ma_long": "30",
+        "position_size": "0.15"
+      }
+    }
+  ],
+  "timeframe": "1h",
+  "days": 7
+}

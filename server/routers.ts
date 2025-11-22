@@ -3,6 +3,7 @@ import { z } from "zod";
 import { klineCache } from "./kline_cache";
 import { telegramNotifier } from "./telegram";
 import { riskRouter } from "./risk_api";
+import { v24Router } from "./v24_api";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
@@ -10,6 +11,7 @@ import { publicProcedure, router } from "./_core/trpc";
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
+  v24: v24Router,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
