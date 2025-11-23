@@ -49,6 +49,43 @@ export const strategyConfig = mysqlTable("strategy_config", {
 export type StrategyConfig = typeof strategyConfig.$inferSelect;
 export type InsertStrategyConfig = typeof strategyConfig.$inferInsert;
 
+// 风险配置表
+export const riskConfig = mysqlTable("risk_config", {
+  id: int("id").autoincrement().primaryKey(),
+  // 波动率阈值
+  lowVolThreshold: varchar("low_vol_threshold", { length: 20 }).default("0.02").notNull(),
+  mediumVolThreshold: varchar("medium_vol_threshold", { length: 20 }).default("0.05").notNull(),
+  highVolThreshold: varchar("high_vol_threshold", { length: 20 }).default("0.08").notNull(),
+  extremeVolThreshold: varchar("extreme_vol_threshold", { length: 20 }).default("0.10").notNull(),
+  // 仓位系数
+  lowRiskMultiplier: varchar("low_risk_multiplier", { length: 20 }).default("1.0").notNull(),
+  mediumRiskMultiplier: varchar("medium_risk_multiplier", { length: 20 }).default("0.7").notNull(),
+  highRiskMultiplier: varchar("high_risk_multiplier", { length: 20 }).default("0.4").notNull(),
+  extremeRiskMultiplier: varchar("extreme_risk_multiplier", { length: 20 }).default("0.0").notNull(),
+  // 其他参数
+  atrPeriod: int("atr_period").default(14).notNull(),
+  volatilityPeriod: int("volatility_period").default(30).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RiskConfig = typeof riskConfig.$inferSelect;
+export type InsertRiskConfig = typeof riskConfig.$inferInsert;
+
+// 风险历史表
+export const riskHistory = mysqlTable("risk_history", {
+  id: int("id").autoincrement().primaryKey(),
+  eventType: mysqlEnum("event_type", ["volatility", "pause", "resume", "position_adjust"]).notNull(),
+  riskLevel: mysqlEnum("risk_level", ["low", "medium", "high", "extreme"]),
+  volatility: varchar("volatility", { length: 20 }),
+  atr: varchar("atr", { length: 20 }),
+  positionMultiplier: varchar("position_multiplier", { length: 20 }),
+  reason: text("reason"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type RiskHistory = typeof riskHistory.$inferSelect;
+export type InsertRiskHistory = typeof riskHistory.$inferInsert;
+
 // TODO: Add your tables here
 export const botState = mysqlTable("bot_state", {
   id: int("id").autoincrement().primaryKey(),

@@ -7,6 +7,7 @@ import { v24Router } from "./v24_api";
 import { tradeHistoryRouter } from "./trade_history_api";
 import { performanceReportRouter } from "./performance_report_api";
 import { strategyConfigRouter } from "./strategy_config_api";
+import { riskDataRouter } from "./risk_data_api";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
@@ -18,6 +19,7 @@ export const appRouter = router({
   tradeHistory: tradeHistoryRouter,
   performanceReport: performanceReportRouter,
   strategyConfig: strategyConfigRouter,
+  riskData: riskDataRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
