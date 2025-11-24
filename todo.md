@@ -554,3 +554,12 @@
 - [x] start_trading_bot.bat - 交易机器人启动脚本
 - [x] stop_all.bat - 停止服务脚本
 - [x] WINDOWS_SERVER_DEPLOYMENT.md - 详细部署指南
+
+
+## 修复PowerShell脚本打开方式 (v33.1)
+
+- [x] 创建环境检测批处理包装器
+- [x] 创建自动部署批处理包装器
+- [x] 更新部署指南说明
+- [x] 创建快速开始指南
+- [x] 保存并交付

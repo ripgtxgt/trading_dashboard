@@ -111,9 +111,15 @@ pm2-startup install
 
 2. **运行环境检测**
 
+   **方式一：双击运行（推荐）**
+   
+   直接双击 `check_environment.bat` 文件
+
+   **方式二：PowerShell运行**
+   
    右键点击 `scripts\check_windows_environment.ps1`，选择 "使用 PowerShell 运行"
 
-   或在 PowerShell 中执行：
+   **方式三：命令行运行**
 
    ```powershell
    cd C:\trading_dashboard
@@ -150,9 +156,17 @@ pm2-startup install
 
 4. **运行自动化部署脚本**
 
+   **方式一：双击运行（推荐）**
+   
+   直接双击 `deploy.bat` 文件
+   
+   **重要**：建议右键选择 "以管理员身份运行"
+
+   **方式二：PowerShell运行**
+   
    右键点击 `scripts\deploy_windows.ps1`，选择 "使用 PowerShell 运行"
 
-   或在 PowerShell 中执行：
+   **方式三：命令行运行**
 
    ```powershell
    cd C:\trading_dashboard
