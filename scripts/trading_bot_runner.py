@@ -15,7 +15,7 @@ from datetime import datetime
 from kucoin_trader import KuCoinTrader
 from live_strategy_engine_rolling import LiveStrategyEngine
 from db_integration import DatabaseIntegration
-from live_trading_config import KUCOIN_CONFIG, TRADING_CONFIG
+from live_trading_config import KUCOIN_CONFIG, TRADING_CONFIG, SAFETY_CONFIG
 
 # Global flag for graceful shutdown
 running = True

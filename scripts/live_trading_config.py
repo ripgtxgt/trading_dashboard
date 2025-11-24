@@ -71,11 +71,11 @@ SIGNAL_CONFIG = {
 
 # 安全配置
 SAFETY_CONFIG = {
-    'max_daily_loss': 100,  # 单日最大亏损（USDT）
+    'max_daily_loss_pct': 0.05,  # 单日最大亏损比例（总金额的5%）
     'max_daily_trades': 50,  # 单日最大交易次数
     'min_balance': 5,  # 最小账户余额（USDT），低于此值停止交易
-    'emergency_stop_loss': 0.5,  # 紧急止损：账户总资金亏损50%时强制停止
-    'enable_notifications': True,  # 是否启用通知（预留）
+    'emergency_stop_loss': 0.20,  # 紧急止损：单笔仓位亏损20%时强制平仓
+    'enable_notifications': True,  # 是否启用Telegram通知
 }
 
 # 运行配置

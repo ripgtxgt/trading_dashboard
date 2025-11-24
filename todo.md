@@ -697,5 +697,21 @@
 - [x] 连接数据库实时同步交易数据
 - [x] 更新ecosystem.config.cjs使用新的启动脚本
 - [x] 测试两个bot的PM2启动（等待用户配置API密钥）
+- [x] 重新打包
+- [x] 保存并交付
+
+## 配置KuCoin API密钥并最终打包 (v33.15)
+
+- [x] 确认API密钥已配置到live_trading_config.py
+- [x] 验证实盘模式设置
+- [x] 打包最终版本
+- [x] 交付给用户
+
+## 配置Telegram和调整风险参数 (v33.16)
+
+- [x] 配置Telegram Bot环境变量（已在.env中）
+- [x] 调整max_daily_loss为总金额的5%
+- [x] 调整emergency_stop_loss为仓位的20%
+- [x] 确认.env文件包含所有配置
 - [ ] 重新打包
-- [ ] 保存并交付
+- [ ] 交付
