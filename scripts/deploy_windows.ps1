@@ -171,9 +171,17 @@ if (-not (Get-Command "pm2" -ErrorAction SilentlyContinue)) {
 
 # Stop old processes
 Write-Host "  Stopping old processes..." -ForegroundColor Cyan
-pm2 delete trading-dashboard 2>$null
-pm2 delete trading-bot 2>$null
-pm2 delete websocket-server 2>$null
+$ErrorActionPreference = "Continue"
+try {
+    pm2 delete trading-dashboard 2>&1 | Out-Null
+} catch {}
+try {
+    pm2 delete trading-bot 2>&1 | Out-Null
+} catch {}
+try {
+    pm2 delete websocket-server 2>&1 | Out-Null
+} catch {}
+Write-Host "  [OK] Old processes stopped (if any)" -ForegroundColor Green
 
 Write-Host "  [OK] PM2 configured" -ForegroundColor Green
 Write-Host ""
