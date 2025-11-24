@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertCircle } from "lucide-react";
 import {
   ComposedChart,
   Line,
@@ -40,6 +40,7 @@ export function KlineChartSimple({ symbol = "XBTUSDTM", interval = "1hour" }: Kl
   const [data, setData] = useState<KlineData[]>([]);
   const [selectedInterval, setSelectedInterval] = useState(interval);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchKlineData = async () => {
     setLoading(true);
@@ -109,6 +110,7 @@ export function KlineChartSimple({ symbol = "XBTUSDTM", interval = "1hour" }: Kl
       }
     } catch (error) {
       console.error("Failed to fetch kline data:", error);
+      setError("获取K线数据失败，请检查网络连接");
     } finally {
       setLoading(false);
     }
@@ -208,6 +210,41 @@ export function KlineChartSimple({ symbol = "XBTUSDTM", interval = "1hour" }: Kl
         </div>
       </CardHeader>
       <CardContent>
+        {loading && data.length === 0 && (
+          <div className="flex items-center justify-center h-[400px]">
+            <div className="text-center">
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-blue-500" />
+              <p className="text-sm text-muted-foreground">加载K线数据中...</p>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="flex items-center justify-center h-[400px]">
+            <div className="text-center">
+              <AlertCircle className="h-8 w-8 mx-auto mb-2 text-red-500" />
+              <p className="text-sm text-red-600">{error}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={fetchKlineData}
+              >
+                重试
+              </Button>
+            </div>
+          </div>
+        )}
+        {!loading && !error && data.length === 0 && (
+          <div className="flex items-center justify-center h-[400px]">
+            <div className="text-center">
+              <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+              <p className="text-sm text-muted-foreground">暂无数据</p>
+              <p className="text-xs text-muted-foreground mt-1">请稍后再试或点击刷新按钮</p>
+            </div>
+          </div>
+        )}
+        {!loading && !error && data.length > 0 && (
+          <>
         <ResponsiveContainer width="100%" height={400}>
           <ComposedChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(197, 203, 206, 0.1)" />
@@ -286,6 +323,8 @@ export function KlineChartSimple({ symbol = "XBTUSDTM", interval = "1hour" }: Kl
             <span>下跌</span>
           </div>
         </div>
+        </>
+        )}
       </CardContent>
     </Card>
   );

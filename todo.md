@@ -725,5 +725,23 @@
 - [x] 修改trading_bot_runner检查停止状态
 - [x] 添加自动平仓逻辑
 - [x] 测试紧急停止功能（所有4个测试通过）
+- [x] 重新打包
+- [x] 交付
+
+## 修复Dashboard启动机器人按钮错误 (v34.1)
+
+- [x] 查找调用trading.startBot的代码位置（ControlPanel.tsx）
+- [x] 修复为正确的API调用（resumeBot和emergencyStop）
+- [x] 测试修复后的功能
+- [x] 修复图表数据显示问题
+- [x] 添加空状态提示（加载中、错误、空数据）
+- [ ] 重新打包
+- [ ] 交付
+
+## 修复trading-bot ImportError (v34.2)
+
+- [x] 检查live_strategy_engine_rolling.py的实际类名（LiveStrategyEngineRolling）
+- [x] 修复trading_bot_runner.py的导入语句
+- [ ] 测试trading-bot启动
 - [ ] 重新打包
 - [ ] 交付

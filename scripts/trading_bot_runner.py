@@ -13,7 +13,7 @@ from datetime import datetime
 
 # Import trading modules
 from kucoin_trader import KuCoinTrader
-from live_strategy_engine_rolling import LiveStrategyEngine
+from live_strategy_engine_rolling import LiveStrategyEngineRolling
 from db_integration import DatabaseIntegration
 from live_trading_config import KUCOIN_CONFIG, TRADING_CONFIG, SAFETY_CONFIG
 
@@ -86,7 +86,7 @@ def main():
     # Initialize strategy engine
     try:
         initial_capital = TRADING_CONFIG.get('initial_capital', 10)
-        engine = LiveStrategyEngine(trader=trader, initial_capital=initial_capital)
+        engine = LiveStrategyEngineRolling(trader=trader, initial_capital=initial_capital)
         print(f"[Trading Bot] Strategy engine initialized with {initial_capital} USDT")
         print(f"[Trading Bot] Current stage: {engine.rolling_manager.get_current_stage(engine.capital).name}")
     except Exception as e:

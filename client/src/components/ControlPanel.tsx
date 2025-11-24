@@ -25,21 +25,21 @@ export function ControlPanel({ isRunning, emergencyStopped }: ControlPanelProps)
   const [showStopDialog, setShowStopDialog] = useState(false);
   const [showEmergencyDialog, setShowEmergencyDialog] = useState(false);
 
-  const startMutation = (trpc.trading as any).startBot.useMutation({
-    onSuccess: (data: any) => {
+  const startMutation = trpc.trading.resumeBot.useMutation({
+    onSuccess: (data) => {
       if (data.success) {
         toast.success(data.message);
       } else {
         toast.error(data.message);
       }
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(`启动失败: ${error.message}`);
     },
   });
 
-  const stopMutation = (trpc.trading as any).stopBot.useMutation({
-    onSuccess: (data: any) => {
+  const stopMutation = trpc.trading.emergencyStop.useMutation({
+    onSuccess: (data) => {
       if (data.success) {
         toast.success(data.message);
       } else {
@@ -47,7 +47,7 @@ export function ControlPanel({ isRunning, emergencyStopped }: ControlPanelProps)
       }
       setShowStopDialog(false);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(`停止失败: ${error.message}`);
       setShowStopDialog(false);
     },

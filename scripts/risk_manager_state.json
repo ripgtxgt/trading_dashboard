@@ -2,8 +2,8 @@
   "is_trading_allowed": false,
   "pause_reason": "\u8fde\u7eed3\u7b14\u4e8f\u635f",
   "pause_until": "2025-11-22T05:12:32.099236",
-  "daily_pnl": 51.0,
-  "total_pnl": 51.0,
+  "daily_pnl": 61.5,
+  "total_pnl": 61.5,
   "peak_capital": 103,
   "consecutive_losses": 0,
   "trade_history": [
@@ -59,6 +59,11 @@
     },
     {
       "timestamp": "2025-11-22T05:29:09.518253",
+      "pnl": 10.5,
+      "is_win": true
+    },
+    {
+      "timestamp": "2025-11-24T11:40:27.236482",
       "pnl": 10.5,
       "is_win": true
     }
