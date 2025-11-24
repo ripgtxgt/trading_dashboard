@@ -620,3 +620,11 @@
 - [x] 创建包含用户配置的.env文件
 - [x] 重新打包项目
 - [x] 保存并交付
+
+
+## 修复PowerShell SQL执行问题 (v33.7)
+
+- [x] 修复init_database_windows.ps1中的重定向符号问题
+- [x] 使用PowerShell兼容的方式执行SQL文件（Get-Content + 管道）
+- [x] 重新打包
+- [x] 保存并交付

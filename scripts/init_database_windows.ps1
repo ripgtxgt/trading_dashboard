@@ -97,10 +97,13 @@ try {
         exit 1
     }
     
+    # Read SQL script content
+    $sqlContent = Get-Content -Path $scriptPath -Raw
+    
     if ($rootPasswordPlain) {
-        mysql -u root -p"$rootPasswordPlain" < $scriptPath 2>&1
+        $sqlContent | mysql -u root -p"$rootPasswordPlain" 2>&1
     } else {
-        mysql -u root < $scriptPath 2>&1
+        $sqlContent | mysql -u root 2>&1
     }
     
     if ($LASTEXITCODE -eq 0) {
