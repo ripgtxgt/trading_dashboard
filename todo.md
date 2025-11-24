@@ -526,3 +526,31 @@
 - [ ] 测试所有功能
 - [ ] 更新文档
 - [ ] 打包交付
+
+
+## Windows Server 2022 部署 (v33.0)
+
+### 环境检测和部署脚本
+- [ ] 创建环境检测PowerShell脚本
+- [ ] 创建自动化部署脚本
+- [ ] 创建PM2配置文件
+- [ ] 创建开机自启配置
+
+### 部署指南
+- [ ] 创建详细的部署步骤文档
+- [ ] 添加常见问题解决方案
+- [ ] 提供配置示例
+
+### 打包交付
+- [ ] 打包所有部署脚本和文档
+
+
+### 已完成的部署脚本
+- [x] check_windows_environment.ps1 - 环境检测脚本
+- [x] deploy_windows.ps1 - 自动化部署脚本
+- [x] ecosystem.config.js - PM2配置文件
+- [x] requirements.txt - Python依赖清单
+- [x] start_all.bat - 快速启动脚本
+- [x] start_trading_bot.bat - 交易机器人启动脚本
+- [x] stop_all.bat - 停止服务脚本
+- [x] WINDOWS_SERVER_DEPLOYMENT.md - 详细部署指南

@@ -1,0 +1,40 @@
+# ===================================================================
+# Python 依赖清单
+# 用于安装所有 Python 脚本所需的依赖包
+# ===================================================================
+
+# 交易所 API
+ccxt==4.2.25
+
+# WebSocket 客户端
+websocket-client==1.7.0
+
+# HTTP 请求
+requests==2.31.0
+
+# 数据处理
+pandas==2.2.0
+numpy==1.26.3
+
+# 数据库
+pymysql==1.1.0
+SQLAlchemy==2.0.25
+
+# Telegram Bot
+python-telegram-bot==20.7
+
+# 技术指标计算
+ta-lib==0.4.28
+
+# 环境变量
+python-dotenv==1.0.0
+
+# 日期时间处理
+python-dateutil==2.8.2
+
+# JSON 处理
+ujson==5.9.0
+
+# 异步支持
+asyncio==3.4.3
+aiohttp==3.9.1
