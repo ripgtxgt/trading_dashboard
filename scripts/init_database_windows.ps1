@@ -64,17 +64,23 @@ Write-Host ""
 # Test MySQL connection
 Write-Host "Testing MySQL connection..." -ForegroundColor Yellow
 try {
+    $ErrorActionPreference = "Continue"
     if ($rootPasswordPlain) {
-        $testResult = mysql -u root -p"$rootPasswordPlain" -e "SELECT 1;" 2>&1
+        $testResult = mysql -u root -p"$rootPasswordPlain" -e "SELECT 1;" 2>&1 | Out-String
     } else {
-        $testResult = mysql -u root -e "SELECT 1;" 2>&1
+        $testResult = mysql -u root -e "SELECT 1;" 2>&1 | Out-String
     }
     
+    # Check if connection was successful (ignore warnings, check for actual errors)
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  [OK] MySQL connection successful" -ForegroundColor Green
     } else {
         Write-Host "  [ERROR] MySQL connection failed" -ForegroundColor Red
-        Write-Host "  Please check your root password" -ForegroundColor Gray
+        if ($testResult -match "Access denied") {
+            Write-Host "  Incorrect password. Please try again." -ForegroundColor Gray
+        } else {
+            Write-Host "  Error details: $testResult" -ForegroundColor Gray
+        }
         exit 1
     }
 } catch {
@@ -100,16 +106,19 @@ try {
     # Read SQL script content
     $sqlContent = Get-Content -Path $scriptPath -Raw
     
+    $ErrorActionPreference = "Continue"
     if ($rootPasswordPlain) {
-        $sqlContent | mysql -u root -p"$rootPasswordPlain" 2>&1
+        $sqlResult = $sqlContent | mysql -u root -p"$rootPasswordPlain" 2>&1 | Out-String
     } else {
-        $sqlContent | mysql -u root 2>&1
+        $sqlResult = $sqlContent | mysql -u root 2>&1 | Out-String
     }
     
+    # Check if SQL execution was successful (ignore warnings)
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  [OK] Database initialized successfully" -ForegroundColor Green
     } else {
         Write-Host "  [ERROR] Database initialization failed" -ForegroundColor Red
+        Write-Host "  Error details: $sqlResult" -ForegroundColor Gray
         exit 1
     }
 } catch {
@@ -121,10 +130,11 @@ Write-Host ""
 # Verify database creation
 Write-Host "Verifying database creation..." -ForegroundColor Yellow
 try {
+    $ErrorActionPreference = "Continue"
     if ($rootPasswordPlain) {
-        $dbCheck = mysql -u root -p"$rootPasswordPlain" -e "SHOW DATABASES LIKE 'trading_dashboard';" 2>&1
+        $dbCheck = mysql -u root -p"$rootPasswordPlain" -e "SHOW DATABASES LIKE 'trading_dashboard';" 2>&1 | Out-String
     } else {
-        $dbCheck = mysql -u root -e "SHOW DATABASES LIKE 'trading_dashboard';" 2>&1
+        $dbCheck = mysql -u root -e "SHOW DATABASES LIKE 'trading_dashboard';" 2>&1 | Out-String
     }
     
     if ($LASTEXITCODE -eq 0 -and $dbCheck -match "trading_dashboard") {
@@ -140,10 +150,11 @@ Write-Host ""
 # Verify user creation
 Write-Host "Verifying user creation..." -ForegroundColor Yellow
 try {
+    $ErrorActionPreference = "Continue"
     if ($rootPasswordPlain) {
-        $userCheck = mysql -u root -p"$rootPasswordPlain" -e "SELECT User, Host FROM mysql.user WHERE User='trading';" 2>&1
+        $userCheck = mysql -u root -p"$rootPasswordPlain" -e "SELECT User, Host FROM mysql.user WHERE User='trading';" 2>&1 | Out-String
     } else {
-        $userCheck = mysql -u root -e "SELECT User, Host FROM mysql.user WHERE User='trading';" 2>&1
+        $userCheck = mysql -u root -e "SELECT User, Host FROM mysql.user WHERE User='trading';" 2>&1 | Out-String
     }
     
     if ($LASTEXITCODE -eq 0 -and $userCheck -match "trading") {
@@ -159,7 +170,8 @@ Write-Host ""
 # Test new user connection
 Write-Host "Testing new user connection..." -ForegroundColor Yellow
 try {
-    $testNewUser = mysql -u trading -p"trading123" -e "USE trading_dashboard; SELECT 1;" 2>&1
+    $ErrorActionPreference = "Continue"
+    $testNewUser = mysql -u trading -p"trading123" -e "USE trading_dashboard; SELECT 1;" 2>&1 | Out-String
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  [OK] User 'trading' can access database" -ForegroundColor Green
     } else {

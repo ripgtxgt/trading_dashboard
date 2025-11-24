@@ -628,3 +628,12 @@
 - [x] 使用PowerShell兼容的方式执行SQL文件（Get-Content + 管道）
 - [x] 重新打包
 - [x] 保存并交付
+
+
+## 修复MySQL密码验证逻辑 (v33.8)
+
+- [x] 修复init_database_windows.ps1的密码验证逻辑
+- [x] 忽略MySQL的密码警告信息（使用Out-String和$LASTEXITCODE）
+- [x] 使用更可靠的连接测试方法
+- [x] 重新打包
+- [x] 保存并交付
