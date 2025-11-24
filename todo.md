@@ -583,3 +583,22 @@
 - [x] 修复deploy_windows.ps1（移除中文字符）
 - [x] 重新打包
 - [x] 保存并交付
+
+
+## 修夏Python依赖安装问题 (v33.4)
+
+- [x] 移除ta-lib依赖（需要C++编译器）
+- [x] 更新requirements.txt（注释ta-lib并添加替代方案说明）
+- [x] 创建Windows故障排除指南
+- [ ] 重新打包
+- [ ] 保存并交付
+
+
+## 添加TA-Lib自动安装功能 (v33.4)
+
+- [x] 创建TA-Lib自动安装PowerShell脚本
+- [x] 创建install_talib.bat批处理包装器
+- [x] 更新deploy_windows.ps1集成TA-Lib安装
+- [x] 更新QUICK_START.md添加说明
+- [x] 重新打包
+- [x] 保存并交付

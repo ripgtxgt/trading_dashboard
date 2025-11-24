@@ -2,9 +2,10 @@
 
 ## 📦 打包信息
 
-- **版本**: v33.3
+- **版本**: v33.4
 - **打包时间**: 2024-11-24
-- **文件名**: trading_dashboard_v33.3_windows_deployment.tar.gz
+- **文件名**: trading_dashboard_v33.4_windows_deployment.tar.gz
+- **新增**: TA-Lib自动安装功能（预编译版本，无需C++编译器）
 - **修复**: 批处理文件编码问题（移除中文字符，使用纯ASCII）
 - **修复**: PowerShell脚本语法错误（移除中文字符，使用纯ASCII）
 - **适用系统**: Windows Server 2022 / Windows 10/11
@@ -205,6 +206,13 @@ CREATE DATABASE trading_dashboard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_
 ---
 
 ## 📝 版本历史
+
+### v33.4 (2024-11-24)
+- ✅ 新增TA-Lib自动安装功能
+- ✅ 自动检测Python版本和系统架构
+- ✅ 自动下载并安装预编译wheel
+- ✅ 无需Visual Studio Build Tools
+- ✅ 集成到deploy.bat自动部署流程
 
 ### v33.3 (2024-11-24)
 - ✅ 修复PowerShell脚本语法错误

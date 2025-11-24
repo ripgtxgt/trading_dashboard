@@ -24,7 +24,7 @@ SQLAlchemy==2.0.25
 python-telegram-bot==20.7
 
 # 技术指标计算
-ta-lib==0.4.28
+# ta-lib==0.4.28  # Windows: 将由部署脚本自动安装预编译版本
 
 # 环境变量
 python-dotenv==1.0.0

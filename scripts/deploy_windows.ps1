@@ -71,9 +71,31 @@ Write-Host "  [OK] Node.js dependencies installed" -ForegroundColor Green
 Write-Host ""
 
 # ===================================================================
-# 4. Install Python Dependencies
+# 4. Install TA-Lib (Windows pre-compiled)
 # ===================================================================
-Write-Host "[4/10] Installing Python dependencies..." -ForegroundColor Yellow
+Write-Host "[4/10] Installing TA-Lib..." -ForegroundColor Yellow
+try {
+    # Check if TA-Lib is already installed
+    $talibInstalled = python -c "import talib" 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  [OK] TA-Lib already installed" -ForegroundColor Green
+    } else {
+        Write-Host "  Installing TA-Lib pre-compiled wheel..." -ForegroundColor Cyan
+        & ".\scripts\install_talib_windows.ps1"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  [WARNING] TA-Lib installation failed, continuing anyway..." -ForegroundColor Yellow
+            Write-Host "  You can install it manually later using: .\install_talib.bat" -ForegroundColor Gray
+        }
+    }
+} catch {
+    Write-Host "  [WARNING] TA-Lib check failed, continuing anyway..." -ForegroundColor Yellow
+}
+Write-Host ""
+
+# ===================================================================
+# 5. Install Python Dependencies
+# ===================================================================
+Write-Host "[5/10] Installing Python dependencies..." -ForegroundColor Yellow
 if (Test-Path "scripts\requirements.txt") {
     pip install -r scripts\requirements.txt
     if ($LASTEXITCODE -ne 0) {
@@ -87,10 +109,10 @@ if (Test-Path "scripts\requirements.txt") {
 Write-Host ""
 
 # ===================================================================
-# 5. Database Migration
+# 6. Database Migration
 # ===================================================================
 if (-not $SkipDB) {
-    Write-Host "[5/10] Running database migration..." -ForegroundColor Yellow
+    Write-Host "[6/10] Running database migration..." -ForegroundColor Yellow
     try {
         if (Get-Command "pnpm" -ErrorAction SilentlyContinue) {
             pnpm db:push
@@ -108,15 +130,15 @@ if (-not $SkipDB) {
         exit 1
     }
 } else {
-    Write-Host "[5/10] Skipping database migration..." -ForegroundColor Yellow
+    Write-Host "[6/10] Skipping database migration..." -ForegroundColor Yellow
 }
 Write-Host ""
 
 # ===================================================================
-# 6. Build Frontend
+# 7. Build Frontend
 # ===================================================================
 if (-not $SkipBuild) {
-    Write-Host "[6/10] Building frontend..." -ForegroundColor Yellow
+    Write-Host "[7/10] Building frontend..." -ForegroundColor Yellow
     try {
         if (Get-Command "pnpm" -ErrorAction SilentlyContinue) {
             pnpm build
@@ -133,14 +155,14 @@ if (-not $SkipBuild) {
         exit 1
     }
 } else {
-    Write-Host "[6/10] Skipping frontend build..." -ForegroundColor Yellow
+    Write-Host "[7/10] Skipping frontend build..." -ForegroundColor Yellow
 }
 Write-Host ""
 
 # ===================================================================
-# 7. Configure PM2
+# 8. Configure PM2
 # ===================================================================
-Write-Host "[7/10] Configuring PM2..." -ForegroundColor Yellow
+Write-Host "[8/10] Configuring PM2..." -ForegroundColor Yellow
 if (-not (Get-Command "pm2" -ErrorAction SilentlyContinue)) {
     Write-Host "  [ERROR] PM2 not installed" -ForegroundColor Red
     Write-Host "  Install command: npm install -g pm2" -ForegroundColor Gray
@@ -157,9 +179,9 @@ Write-Host "  [OK] PM2 configured" -ForegroundColor Green
 Write-Host ""
 
 # ===================================================================
-# 8. Start Services
+# 9. Start Services
 # ===================================================================
-Write-Host "[8/10] Starting services..." -ForegroundColor Yellow
+Write-Host "[9/10] Starting services..." -ForegroundColor Yellow
 
 # Start Web Dashboard
 Write-Host "  Starting Web Dashboard..." -ForegroundColor Cyan
@@ -181,17 +203,17 @@ Write-Host "  [OK] Services started" -ForegroundColor Green
 Write-Host ""
 
 # ===================================================================
-# 9. Save PM2 Configuration
+# 10. Save PM2 Configuration
 # ===================================================================
-Write-Host "[9/10] Saving PM2 configuration..." -ForegroundColor Yellow
+Write-Host "[10/10] Saving PM2 configuration..." -ForegroundColor Yellow
 pm2 save
 Write-Host "  [OK] PM2 configuration saved" -ForegroundColor Green
 Write-Host ""
 
 # ===================================================================
-# 10. Configure Startup
+# 11. Configure Startup
 # ===================================================================
-Write-Host "[10/10] Configuring startup..." -ForegroundColor Yellow
+Write-Host "[11/11] Configuring startup..." -ForegroundColor Yellow
 if (Get-Command "pm2-startup" -ErrorAction SilentlyContinue) {
     Write-Host "  Configuring PM2 startup..." -ForegroundColor Cyan
     pm2-startup install
