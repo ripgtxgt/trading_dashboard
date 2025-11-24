@@ -510,8 +510,8 @@
 - [x] 更新ecosystem.config.cjs设置telegram-bot和trading-bot为autostart
 - [x] 确认文件已修复但用户需要重新下载
 - [x] 创建依赖安装脚本
-- [ ] 重新打包
-- [ ] 保存并交付
+- [x] 重新打包
+- [x] 保存并交付
 
 ### 连接真实数据
 - [x] 创建风险数据API端点
@@ -686,5 +686,16 @@
 - [ ] 检查Python脚本路径和依赖
 - [ ] 修复ecosystem.config.cjs路径问题
 - [ ] 确保所有服务都能正常启动
+- [ ] 重新打包
+- [ ] 保存并交付
+
+## 创建持续运行的Bot启动脚本并接入真实数据 (v33.14)
+
+- [x] 创建telegram_bot_runner.py持续运行脚本
+- [x] 创建trading_bot_runner.py持续运行脚本
+- [x] 接入真实KuCoin API数据
+- [x] 连接数据库实时同步交易数据
+- [x] 更新ecosystem.config.cjs使用新的启动脚本
+- [x] 测试两个bot的PM2启动（等待用户配置API密钥）
 - [ ] 重新打包
 - [ ] 保存并交付

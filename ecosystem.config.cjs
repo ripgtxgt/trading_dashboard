@@ -43,7 +43,7 @@ module.exports = {
     {
       name: 'trading-bot',
       script: 'python',
-      args: 'scripts/kucoin_api.py',
+      args: 'scripts/trading_bot_runner.py',
       cwd: './',
       instances: 1,
       autorestart: true,
@@ -59,7 +59,7 @@ module.exports = {
     {
       name: 'telegram-bot',
       script: 'python',
-      args: 'scripts/telegram_bot.py',
+      args: 'scripts/telegram_bot_runner.py',
       cwd: './',
       instances: 1,
       autorestart: true,
