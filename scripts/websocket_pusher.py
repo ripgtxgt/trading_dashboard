@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-增强的WebSocket实时数据推送服务
-推送账户状态、持仓信息、K线数据和风险状态到Dashboard
+Enhanced WebSocket Real-time Data Push Service
+Push account status, positions, kline data and risk status to Dashboard
 """
 
 import asyncio
@@ -11,19 +11,19 @@ import sys
 from datetime import datetime
 from typing import Dict, List, Optional
 
-# 添加父目录到路径
+# Add parent directory to path
 sys.path.append(os.path.dirname(__file__))
 
 try:
     import websockets
     from websockets.server import serve
 except ImportError:
-    print("请安装websockets: pip install websockets")
+    print("Please install websockets: pip install websockets")
     sys.exit(1)
 
 
 class WebSocketPusher:
-    """WebSocket推送服务"""
+    """WebSocket Push Service"""
     
     def __init__(self, host: str = '0.0.0.0', port: int = 8765):
         self.host = host
@@ -32,31 +32,31 @@ class WebSocketPusher:
         self.running = False
     
     async def register(self, websocket):
-        """注册客户端"""
+        """Register client"""
         self.clients.add(websocket)
-        print(f"✅ 客户端已连接，当前连接数: {len(self.clients)}")
+        print(f"[+] Client connected, total: {len(self.clients)}")
         
-        # 发送欢迎消息
+        # Send welcome message
         await self.send_to_client(websocket, {
             'type': 'welcome',
-            'message': 'WebSocket连接成功',
+            'message': 'WebSocket connected successfully',
             'timestamp': datetime.now().isoformat()
         })
     
     async def unregister(self, websocket):
-        """注销客户端"""
+        """Unregister client"""
         self.clients.discard(websocket)
-        print(f"❌ 客户端已断开，当前连接数: {len(self.clients)}")
+        print(f"[-] Client disconnected, total: {len(self.clients)}")
     
     async def send_to_client(self, websocket, data: Dict):
-        """发送数据到单个客户端"""
+        """Send data to single client"""
         try:
             await websocket.send(json.dumps(data))
         except Exception as e:
-            print(f"发送失败: {e}")
+            print(f"Send failed: {e}")
     
     async def broadcast(self, data: Dict):
-        """广播数据到所有客户端"""
+        """Broadcast data to all clients"""
         if not self.clients:
             return
         
@@ -67,27 +67,27 @@ class WebSocketPusher:
             try:
                 await websocket.send(message)
             except Exception as e:
-                print(f"广播失败: {e}")
+                print(f"Broadcast failed: {e}")
                 disconnected.add(websocket)
         
-        # 移除断开的客户端
+        # Remove disconnected clients
         for websocket in disconnected:
             await self.unregister(websocket)
     
     async def handler(self, websocket, path):
-        """WebSocket连接处理器"""
+        """WebSocket connection handler"""
         await self.register(websocket)
         
         try:
             async for message in websocket:
-                # 处理客户端消息
+                # Handle client messages
                 try:
                     data = json.loads(message)
                     await self.handle_message(websocket, data)
                 except json.JSONDecodeError:
                     await self.send_to_client(websocket, {
                         'type': 'error',
-                        'message': '无效的JSON格式'
+                        'message': 'Invalid JSON format'
                     })
         except websockets.exceptions.ConnectionClosed:
             pass
@@ -95,7 +95,7 @@ class WebSocketPusher:
             await self.unregister(websocket)
     
     async def handle_message(self, websocket, data: Dict):
-        """处理客户端消息"""
+        """Handle client messages"""
         msg_type = data.get('type')
         
         if msg_type == 'ping':
@@ -104,7 +104,7 @@ class WebSocketPusher:
                 'timestamp': datetime.now().isoformat()
             })
         elif msg_type == 'subscribe':
-            # 订阅特定数据流
+            # Subscribe to specific data streams
             channels = data.get('channels', [])
             await self.send_to_client(websocket, {
                 'type': 'subscribed',
@@ -112,12 +112,12 @@ class WebSocketPusher:
             })
     
     async def start(self):
-        """启动WebSocket服务器"""
+        """Start WebSocket server"""
         self.running = True
-        print(f"🚀 WebSocket服务器启动: ws://{self.host}:{self.port}")
+        print(f"[*] WebSocket server started: ws://{self.host}:{self.port}")
         
         async with serve(self.handler, self.host, self.port):
-            # 启动数据推送任务
+            # Start data push tasks
             await asyncio.gather(
                 self.push_account_status(),
                 self.push_positions(),
@@ -127,10 +127,10 @@ class WebSocketPusher:
             )
     
     async def push_account_status(self):
-        """推送账户状态"""
+        """Push account status"""
         while self.running:
             try:
-                # 获取账户状态
+                # Get account status
                 account_status = await self.get_account_status()
                 
                 if account_status:
@@ -140,16 +140,16 @@ class WebSocketPusher:
                         'timestamp': datetime.now().isoformat()
                     })
                 
-                await asyncio.sleep(5)  # 每5秒推送一次
+                await asyncio.sleep(5)  # Push every 5 seconds
             except Exception as e:
-                print(f"推送账户状态失败: {e}")
+                print(f"Push account status failed: {e}")
                 await asyncio.sleep(5)
     
     async def push_positions(self):
-        """推送持仓信息"""
+        """Push positions"""
         while self.running:
             try:
-                # 获取持仓信息
+                # Get positions
                 positions = await self.get_positions()
                 
                 if positions:
@@ -159,16 +159,16 @@ class WebSocketPusher:
                         'timestamp': datetime.now().isoformat()
                     })
                 
-                await asyncio.sleep(3)  # 每3秒推送一次
+                await asyncio.sleep(3)  # Push every 3 seconds
             except Exception as e:
-                print(f"推送持仓信息失败: {e}")
+                print(f"Push positions failed: {e}")
                 await asyncio.sleep(3)
     
     async def push_kline_data(self):
-        """推送K线数据"""
+        """Push kline data"""
         while self.running:
             try:
-                # 获取最新K线
+                # Get latest kline
                 kline = await self.get_latest_kline()
                 
                 if kline:
@@ -178,16 +178,16 @@ class WebSocketPusher:
                         'timestamp': datetime.now().isoformat()
                     })
                 
-                await asyncio.sleep(60)  # 每60秒推送一次
+                await asyncio.sleep(60)  # Push every 60 seconds
             except Exception as e:
-                print(f"推送K线数据失败: {e}")
+                print(f"Push kline data failed: {e}")
                 await asyncio.sleep(60)
     
     async def push_risk_status(self):
-        """推送风险状态"""
+        """Push risk status"""
         while self.running:
             try:
-                # 获取风险状态
+                # Get risk status
                 risk_status = await self.get_risk_status()
                 
                 if risk_status:
@@ -197,16 +197,16 @@ class WebSocketPusher:
                         'timestamp': datetime.now().isoformat()
                     })
                 
-                await asyncio.sleep(10)  # 每10秒推送一次
+                await asyncio.sleep(10)  # Push every 10 seconds
             except Exception as e:
-                print(f"推送风险状态失败: {e}")
+                print(f"Push risk status failed: {e}")
                 await asyncio.sleep(10)
     
     async def push_trade_signals(self):
-        """推送交易信号"""
+        """Push trade signals"""
         while self.running:
             try:
-                # 检查交易信号
+                # Check trade signals
                 signal = await self.check_trade_signal()
                 
                 if signal:
@@ -216,17 +216,17 @@ class WebSocketPusher:
                         'timestamp': datetime.now().isoformat()
                     })
                 
-                await asyncio.sleep(30)  # 每30秒检查一次
+                await asyncio.sleep(30)  # Check every 30 seconds
             except Exception as e:
-                print(f"推送交易信号失败: {e}")
+                print(f"Push trade signals failed: {e}")
                 await asyncio.sleep(30)
     
-    # ========== 数据获取方法 ==========
+    # ========== Data fetching methods ==========
     
     async def get_account_status(self) -> Optional[Dict]:
-        """获取账户状态"""
+        """Get account status"""
         try:
-            # 从测试模式或真实API获取
+            # Get from test mode or real API
             from test_mode import is_test_mode, get_simulated_exchange
             
             if is_test_mode():
@@ -241,14 +241,14 @@ class WebSocketPusher:
                     'mode': 'test'
                 }
             else:
-                # TODO: 从真实API获取
+                # TODO: Get from real API
                 return None
         except Exception as e:
-            print(f"获取账户状态失败: {e}")
+            print(f"Get account status failed: {e}")
             return None
     
     async def get_positions(self) -> Optional[List[Dict]]:
-        """获取持仓信息"""
+        """Get positions"""
         try:
             from test_mode import is_test_mode, get_simulated_exchange
             
@@ -257,63 +257,63 @@ class WebSocketPusher:
                 positions = exchange.get_positions()
                 return positions
             else:
-                # TODO: 从真实API获取
+                # TODO: Get from real API
                 return []
         except Exception as e:
-            print(f"获取持仓信息失败: {e}")
+            print(f"Get positions failed: {e}")
             return []
     
     async def get_latest_kline(self) -> Optional[Dict]:
-        """获取最新K线"""
+        """Get latest kline"""
         try:
-            # TODO: 从API获取最新K线
+            # TODO: Get latest kline from API
             return None
         except Exception as e:
-            print(f"获取K线数据失败: {e}")
+            print(f"Get kline data failed: {e}")
             return None
     
     async def get_risk_status(self) -> Optional[Dict]:
-        """获取风险状态"""
+        """Get risk status"""
         try:
             from risk_manager import RiskManager
             
-            # 创建风险管理器实例
+            # Create risk manager instance
             risk_manager = RiskManager()
             status = risk_manager.get_risk_status()
             
             return status
         except Exception as e:
-            print(f"获取风险状态失败: {e}")
+            print(f"Get risk status failed: {e}")
             return None
     
     async def check_trade_signal(self) -> Optional[Dict]:
-        """检查交易信号"""
+        """Check trade signals"""
         try:
-            # TODO: 实现信号检测逻辑
+            # TODO: Implement signal detection logic
             return None
         except Exception as e:
-            print(f"检查交易信号失败: {e}")
+            print(f"Check trade signals failed: {e}")
             return None
     
     def stop(self):
-        """停止服务"""
+        """Stop service"""
         self.running = False
-        print("⏹️  WebSocket服务器已停止")
+        print("[*] WebSocket server stopped")
 
 
 async def main():
-    """主函数"""
+    """Main function"""
     pusher = WebSocketPusher(host='0.0.0.0', port=8765)
     
     try:
         await pusher.start()
     except KeyboardInterrupt:
         pusher.stop()
-        print("\n👋 服务已关闭")
+        print("\n[*] Service closed")
 
 
 if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n👋 程序已退出")
+        print("\n[*] Program exited")

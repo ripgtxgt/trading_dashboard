@@ -6,8 +6,9 @@
 # 交易所 API
 ccxt==4.2.25
 
-# WebSocket 客户端
+# WebSocket client and server
 websocket-client==1.7.0
+websockets==12.0
 
 # HTTP 请求
 requests==2.31.0

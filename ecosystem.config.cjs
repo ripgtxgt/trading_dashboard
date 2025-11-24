@@ -39,8 +39,7 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
 
-    // 交易机器人（默认不启动，需要手动启动）
-    // 启动命令: pm2 start ecosystem.config.js --only trading-bot
+    // Trading Bot (Auto start enabled)
     {
       name: 'trading-bot',
       script: 'python',
@@ -53,11 +52,10 @@ module.exports = {
       error_file: './logs/trading-bot-error.log',
       out_file: './logs/trading-bot-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      // 默认不启动
-      autostart: false,
+      autostart: true,
     },
 
-    // Telegram Bot（可选）
+    // Telegram Bot (Auto start enabled)
     {
       name: 'telegram-bot',
       script: 'python',
@@ -70,8 +68,7 @@ module.exports = {
       error_file: './logs/telegram-bot-error.log',
       out_file: './logs/telegram-bot-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      // 默认不启动
-      autostart: false,
+      autostart: true,
     },
   ],
 };

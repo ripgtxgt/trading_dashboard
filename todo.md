@@ -498,6 +498,21 @@
 
 ## 风险管理真实数据集成 (v32.0)
 
+- [x] 创建风险数据API端点
+- [x] 添加Python脚本获取风险数据
+- [x] 创建数据库表
+
+## 修复所有服务启动问题 (v33.12)
+
+- [x] 修复websocket_pusher.py的中文编码问题
+- [x] 添加websockets依赖到requirements.txt
+- [x] 检查其他Python脚本的中文字符（注释不影响运行）
+- [x] 更新ecosystem.config.cjs设置telegram-bot和trading-bot为autostart
+- [x] 确认文件已修复但用户需要重新下载
+- [x] 创建依赖安装脚本
+- [ ] 重新打包
+- [ ] 保存并交付
+
 ### 连接真实数据
 - [x] 创建风险数据API端点
 - [x] 集成Python风险管理模块
@@ -663,3 +678,13 @@
 - [x] 更新README中的引用
 - [x] 重新打包
 - [x] 保存并交付
+
+
+## 修复所有服务启动问题 (v33.12)
+
+- [ ] 诊断websocket-server错误原因
+- [ ] 检查Python脚本路径和依赖
+- [ ] 修复ecosystem.config.cjs路径问题
+- [ ] 确保所有服务都能正常启动
+- [ ] 重新打包
+- [ ] 保存并交付
