@@ -1,25 +1,24 @@
 @echo off
-chcp 65001 >nul
-title 环境检测工具
+title Environment Check Tool
 
 echo ========================================
-echo   10U战神滚仓策略 - 环境检测工具
+echo   Trading Dashboard - Environment Check
 echo ========================================
 echo.
-echo 正在启动环境检测脚本...
+echo Starting environment detection...
 echo.
 
-REM 切换到脚本所在目录
+REM Switch to script directory
 cd /d "%~dp0"
 
-REM 运行PowerShell脚本
+REM Run PowerShell script
 powershell -ExecutionPolicy Bypass -File "scripts\check_windows_environment.ps1"
 
-REM 如果PowerShell执行失败
+REM Check if PowerShell execution failed
 if %errorLevel% neq 0 (
     echo.
-    echo [错误] PowerShell脚本执行失败
-    echo 请确保已安装PowerShell
+    echo [ERROR] PowerShell script execution failed
+    echo Please ensure PowerShell is installed
     echo.
     pause
     exit /b 1

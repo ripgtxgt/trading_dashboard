@@ -563,3 +563,14 @@
 - [x] 更新部署指南说明
 - [x] 创建快速开始指南
 - [x] 保存并交付
+
+
+## 修复批处理文件编码问题 (v33.2)
+
+- [x] 修复check_environment.bat编码（移除中文）
+- [x] 修复deploy.bat编码（移除中文）
+- [x] 修复start_all.bat编码（移除中文）
+- [x] 修复start_trading_bot.bat编码（移除中文）
+- [x] 修复stop_all.bat编码（移除中文）
+- [x] 重新打包项目
+- [x] 保存并交付
