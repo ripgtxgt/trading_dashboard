@@ -29,7 +29,22 @@
 
 ---
 
-## ⚙️ 第三步：配置环境变量
+## 🛠️ 第三步：初始化数据库
+
+**双击运行**：`init_database.bat`
+
+脚本会自动：
+1. ✅ 检测 MySQL 服务状态
+2. ✅ 创建数据库 `trading_dashboard`
+3. ✅ 创建用户 `trading`（密码：`trading123`）
+4. ✅ 授予必要的权限
+5. ✅ 显示数据库连接字符串
+
+**注意**：您需要输入 MySQL root 密码。
+
+---
+
+## ⚠️ 第四步：配置环境变量
 
 1. 找到项目根目录下的 `.env.example` 文件
 2. 复制一份并重命名为 `.env`
@@ -38,7 +53,8 @@
 
 ```env
 # 数据库配置（必须）
-DATABASE_URL="mysql://trading:你的密码@localhost:3306/trading_dashboard"
+# 如果使用了 init_database.bat，直接使用默认配置：
+DATABASE_URL="mysql://trading:trading123@localhost:3306/trading_dashboard"
 
 # KuCoin API 配置（必须）
 KUCOIN_API_KEY="你的API密钥"
@@ -54,13 +70,13 @@ JWT_SECRET="随机生成的32位以上字符串"
 ```
 
 **重要提示**：
-- 数据库密码是您在安装MySQL时设置的
+- 数据库配置：如果使用了 `init_database.bat`，直接使用上面的默认配置
 - KuCoin API密钥需要在KuCoin官网创建
 - Telegram配置是可选的，但强烈建议配置（用于接收交易通知）
 
 ---
 
-## 🚀 第四步：一键部署
+## 🚀 第五步：一键部署
 
 **右键点击** `deploy.bat`，选择 **“以管理员身份运行”**
 
@@ -78,7 +94,7 @@ JWT_SECRET="随机生成的32位以上字符串"
 
 ---
 
-## 🎉 第五步：访问系统
+## 🎉 第六步：访问系统
 
 部署完成后，打开浏览器访问：
 
@@ -96,7 +112,7 @@ http://localhost:3000
 
 ---
 
-## 🤖 第六步：启动交易机器人（可选）
+## 🤖 第七步：启动交易机器人（可选）
 
 **警告**：在启动交易机器人前，请确保：
 - ✅ 已充分测试策略参数

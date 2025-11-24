@@ -2,9 +2,10 @@
 
 ## 📦 打包信息
 
-- **版本**: v33.4
+- **版本**: v33.5
 - **打包时间**: 2024-11-24
-- **文件名**: trading_dashboard_v33.4_windows_deployment.tar.gz
+- **文件名**: trading_dashboard_v33.5_windows_deployment.tar.gz
+- **新增**: 数据库自动初始化功能（一键创建数据库和用户）
 - **新增**: TA-Lib自动安装功能（预编译版本，无需C++编译器）
 - **修复**: 批处理文件编码问题（移除中文字符，使用纯ASCII）
 - **修复**: PowerShell脚本语法错误（移除中文字符，使用纯ASCII）
@@ -206,6 +207,13 @@ CREATE DATABASE trading_dashboard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_
 ---
 
 ## 📝 版本历史
+
+### v33.5 (2024-11-24)
+- ✅ 新增数据库自动初始化功能
+- ✅ 创建init_database.bat一键初始化
+- ✅ 自动创建数据库trading_dashboard
+- ✅ 自动创建用户trading（密码：trading123）
+- ✅ 解决数据库权限问题
 
 ### v33.4 (2024-11-24)
 - ✅ 新增TA-Lib自动安装功能

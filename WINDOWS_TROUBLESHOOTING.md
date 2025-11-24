@@ -59,15 +59,26 @@ pip install ta-lib
 
 ## 数据库连接问题
 
-### 问题：数据库迁移失败
+### 问题：数据库访问权限被拒绝
 
 **错误信息**：
 ```
-[ERROR] Database migration failed
-Please check if DATABASE_URL configuration is correct
+Error: Access denied for user 'trading'@'localhost' (using password: YES)
 ```
 
-**解决步骤**：
+**解决方案（推荐）**：
+
+使用自动化初始化脚本：
+
+1. **双击运行**：`init_database.bat`
+2. **输入 MySQL root 密码**
+3. **脚本会自动创建**：
+   - 数据库：`trading_dashboard`
+   - 用户：`trading`
+   - 密码：`trading123`（默认）
+4. **复制连接字符串到 .env 文件**
+
+**手动解决方案**：
 
 1. **检查 MySQL 服务是否运行**：
 ```powershell
@@ -79,28 +90,53 @@ Get-Service -Name "MySQL*"
 Start-Service MySQL80  # 服务名可能不同，根据实际情况调整
 ```
 
-2. **检查 .env 文件中的 DATABASE_URL**：
+2. **手动创建数据库和用户**：
 
-打开 `C:\trading_dashboard\.env`，确认格式正确：
-```
-DATABASE_URL=mysql://username:password@localhost:3306/trading_db
-```
-
-- `username`: MySQL 用户名（默认 root）
-- `password`: MySQL 密码
-- `localhost`: 数据库服务器地址
-- `3306`: MySQL 端口（默认 3306）
-- `trading_db`: 数据库名称
-
-3. **测试数据库连接**：
+登录 MySQL：
 ```powershell
-mysql -u root -p -e "SHOW DATABASES;"
+mysql -u root -p
 ```
 
-4. **创建数据库**（如果不存在）：
-```powershell
-mysql -u root -p -e "CREATE DATABASE trading_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+执行以下 SQL 命令：
+```sql
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS trading_dashboard
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+-- 创建用户
+CREATE USER IF NOT EXISTS 'trading'@'localhost' IDENTIFIED BY 'trading123';
+
+-- 授权
+GRANT ALL PRIVILEGES ON trading_dashboard.* TO 'trading'@'localhost';
+FLUSH PRIVILEGES;
 ```
+
+3. **更新 .env 文件**：
+
+打开 `C:\trading_dashboard\.env`，修改为：
+```
+DATABASE_URL="mysql://trading:trading123@localhost:3306/trading_dashboard"
+```
+
+4. **测试连接**：
+```powershell
+mysql -u trading -p"trading123" -e "USE trading_dashboard; SELECT 1;"
+```
+
+### 问题：数据库迁移失败
+
+**错误信息**：
+```
+[ERROR] Database migration failed
+Please check if DATABASE_URL configuration is correct
+```
+
+**解决步骤**：
+
+1. 先运行 `init_database.bat` 初始化数据库
+2. 确认 .env 文件中的 DATABASE_URL 配置正确
+3. 重新运行 `deploy.bat`
 
 ---
 

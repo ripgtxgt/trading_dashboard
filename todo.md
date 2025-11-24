@@ -602,3 +602,14 @@
 - [x] 更新QUICK_START.md添加说明
 - [x] 重新打包
 - [x] 保存并交付
+
+
+## 创建数据库初始化脚本 (v33.5)
+
+- [x] 创建MySQL数据库初始化SQL脚本
+- [x] 创建数据库初始化PowerShell脚本
+- [x] 创建数据库初始化批处理包装器
+- [x] 更新WINDOWS_TROUBLESHOOTING.md
+- [x] 更新QUICK_START.md
+- [x] 重新打包
+- [x] 保存并交付
