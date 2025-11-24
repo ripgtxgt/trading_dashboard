@@ -713,5 +713,17 @@
 - [x] 调整max_daily_loss为总金额的5%
 - [x] 调整emergency_stop_loss为仓位的20%
 - [x] 确认.env文件包含所有配置
+- [x] 重新打包
+- [x] 交付
+
+## 添加紧急停止功能 (v34.0)
+
+- [x] 在数据库schema中添加bot_control表（已存在bot_state表）
+- [x] 创建tRPC API端点控制bot状态
+- [x] 实现Telegram /stop和/resume命令
+- [x] 在Dashboard首页添加紧急停止按钮
+- [x] 修改trading_bot_runner检查停止状态
+- [x] 添加自动平仓逻辑
+- [x] 测试紧急停止功能（所有4个测试通过）
 - [ ] 重新打包
 - [ ] 交付

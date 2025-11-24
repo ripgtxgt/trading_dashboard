@@ -119,6 +119,53 @@ def main():
             cycle_count += 1
             print(f"\n[Cycle {cycle_count}] {datetime.now()}")
             
+            # Check emergency stop status from database
+            if db:
+                try:
+                    bot_status = db.get_bot_status()
+                    if bot_status and bot_status.get('emergency_stopped'):
+                        print("[WARNING] Emergency stop detected! Closing positions and pausing...")
+                        
+                        # Close all positions
+                        if engine.rolling_manager.position:
+                            print("[Emergency Stop] Closing current position...")
+                            try:
+                                close_result = trader.close_position(
+                                    symbol=engine.symbol,
+                                    side=engine.rolling_manager.position.side
+                                )
+                                if close_result:
+                                    print("[Emergency Stop] Position closed successfully")
+                                    engine.rolling_manager.position = None
+                                else:
+                                    print("[Emergency Stop] Failed to close position")
+                            except Exception as e:
+                                print(f"[Emergency Stop] Error closing position: {e}")
+                        
+                        # Update status
+                        db.update_bot_status(
+                            status='stopped',
+                            balance=engine.capital,
+                            profit_rate=((engine.capital - initial_capital) / initial_capital * 100),
+                            stage=engine.rolling_manager.get_current_stage(engine.capital).name,
+                            symbol=engine.symbol
+                        )
+                        
+                        print("[Emergency Stop] Bot paused. Waiting for resume command...")
+                        
+                        # Wait until emergency stop is cleared
+                        while running:
+                            time.sleep(5)
+                            bot_status = db.get_bot_status()
+                            if not bot_status or not bot_status.get('emergency_stopped'):
+                                print("[Resume] Emergency stop cleared. Resuming trading...")
+                                break
+                        
+                        continue
+                        
+                except Exception as e:
+                    print(f"[WARNING] Failed to check emergency stop status: {e}")
+            
             # Run one trading cycle
             result = engine.run_cycle()
             

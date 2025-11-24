@@ -16,7 +16,9 @@ import {
   PauseCircle,
   TestTube,
   Zap,
-  BarChart3
+  BarChart3,
+  StopCircle,
+  Play
 } from "lucide-react";
 import { APP_TITLE } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -89,6 +91,40 @@ export default function Home() {
     }
   };
 
+  // 紧急停止
+  const emergencyStopMutation = trpc.trading.emergencyStop.useMutation({
+    onSuccess: () => {
+      toast.success("紧急停止已激活！所有交易活动已暂停。");
+    },
+    onError: (error) => {
+      toast.error("紧急停止失败: " + error.message);
+    },
+  });
+
+  // 恢复Bot
+  const resumeBotMutation = trpc.trading.resumeBot.useMutation({
+    onSuccess: () => {
+      toast.success("Bot已恢复！交易活动已重新启动。");
+    },
+    onError: (error) => {
+      toast.error("恢复失败: " + error.message);
+    },
+  });
+
+  // 处理紧急停止
+  const handleEmergencyStop = () => {
+    if (confirm("确定要紧急停止所有交易吗？\n\n这将：\n- 暂停所有交易活动\n- 关闭当前持仓\n- 停止新交易")) {
+      emergencyStopMutation.mutate();
+    }
+  };
+
+  // 处理恢复交易
+  const handleResumeBot = () => {
+    if (confirm("确定要恢复交易活动吗？")) {
+      resumeBotMutation.mutate();
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -154,6 +190,50 @@ export default function Home() {
 
       {/* 主内容区 */}
       <main className="container mx-auto px-4 py-6">
+        {/* 紧急停止控制区 */}
+        <Card className="mb-6 border-red-200 bg-gradient-to-r from-red-50 to-orange-50">
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <StopCircle className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <p className="font-bold text-red-900">紧急控制</p>
+                <p className="text-sm text-red-700">
+                  {botState?.emergencyStopped === 1 
+                    ? "⚠️ 交易已暂停 - 点击恢复按钮重新启动" 
+                    : "在紧急情况下立即停止所有交易活动"}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {botState?.emergencyStopped === 1 ? (
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={handleResumeBot}
+                  disabled={resumeBotMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Play className="h-5 w-5 mr-2" />
+                  恢复交易
+                </Button>
+              ) : (
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  onClick={handleEmergencyStop}
+                  disabled={emergencyStopMutation.isPending}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <StopCircle className="h-5 w-5 mr-2" />
+                  紧急停止
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* 测试模式警告 */}
         {testModeEnabled && (
           <Card className="mb-6 border-orange-200 bg-orange-50">

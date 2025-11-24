@@ -66,6 +66,47 @@ export const appRouter = router({
       return await getTradeStats();
     }),
     
+    // Emergency stop bot
+    emergencyStop: publicProcedure
+      .mutation(async () => {
+        const { updateBotState } = await import('./db');
+        await updateBotState({ emergencyStopped: 1, isRunning: 0 });
+        
+        // Send Telegram notification
+        try {
+          await telegramNotifier.sendMessage({
+            text: "\u26a0\ufe0f EMERGENCY STOP TRIGGERED\n\n" +
+              "All trading activities have been paused.\n" +
+              "Any open positions will be closed.\n\n" +
+              "Use /resume command or Dashboard to restart."
+          });
+        } catch (e) {
+          console.error('[Emergency Stop] Failed to send Telegram notification:', e);
+        }
+        
+        return { success: true, message: 'Emergency stop activated' };
+      }),
+    
+    // Resume bot
+    resumeBot: publicProcedure
+      .mutation(async () => {
+        const { updateBotState } = await import('./db');
+        await updateBotState({ emergencyStopped: 0, isRunning: 1 });
+        
+        // Send Telegram notification
+        try {
+          await telegramNotifier.sendMessage({
+            text: "\u2705 BOT RESUMED\n\n" +
+              "Trading activities have been resumed.\n" +
+              "Bot is now monitoring the market."
+          });
+        } catch (e) {
+          console.error('[Resume Bot] Failed to send Telegram notification:', e);
+        }
+        
+        return { success: true, message: 'Bot resumed successfully' };
+      }),
+    
     // Update bot state (for integration with trading bot)
     updateState: publicProcedure
       .input(z.object({

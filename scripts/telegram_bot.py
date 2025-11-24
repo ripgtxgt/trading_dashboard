@@ -221,6 +221,14 @@ class TelegramBot:
         elif command == "disable":
             return self._handle_enable(False)
         
+        # /stop - 紧急停止
+        elif command == "stop":
+            return self._handle_emergency_stop()
+        
+        # /resume - 恢复交易
+        elif command == "resume":
+            return self._handle_resume()
+        
         # /help - 帮助
         elif command == "help":
             return self._handle_help()
@@ -296,6 +304,38 @@ class TelegramBot:
         return f"⚠️ 策略{action}需要通过Web Dashboard操作\n\n" \
                f"请访问Dashboard的策略配置面板进行操作"
     
+    def _handle_emergency_stop(self) -> str:
+        """处理紧急停止命令"""
+        try:
+            # 更新数据库状态
+            self.db.update_bot_status(
+                status='stopped',
+                emergency_stopped=True
+            )
+            
+            return "⚠️ *紧急停止已激活*\n\n" \
+                   "✅ 所有交易活动已暂停\n" \
+                   "✅ 开仓位将被关闭\n\n" \
+                   "使用 /resume 命令恢复交易"
+        except Exception as e:
+            return f"❌ 紧急停止失败: {str(e)}"
+    
+    def _handle_resume(self) -> str:
+        """处理恢复交易命令"""
+        try:
+            # 更新数据库状态
+            self.db.update_bot_status(
+                status='running',
+                emergency_stopped=False
+            )
+            
+            return "✅ *交易已恢复*\n\n" \
+                   "✅ Bot已重新启动\n" \
+                   "✅ 正在监控市场\n\n" \
+                   "使用 /status 查看当前状态"
+        except Exception as e:
+            return f"❌ 恢复失败: {str(e)}"
+    
     def _handle_help(self) -> str:
         """处理帮助命令"""
         help_text = "🤖 *Telegram Bot 命令帮助*\n\n"
@@ -303,6 +343,8 @@ class TelegramBot:
         help_text += "/status - 查询交易系统状态\n"
         help_text += "/config - 查看策略配置\n"
         help_text += "\n*控制命令*\n"
+        help_text += "/stop - 紧急停止所有交易\n"
+        help_text += "/resume - 恢复交易活动\n"
         help_text += "/enable - 启用策略\n"
         help_text += "/disable - 禁用策略\n"
         help_text += "/set <参数> <值> - 修改参数\n"
