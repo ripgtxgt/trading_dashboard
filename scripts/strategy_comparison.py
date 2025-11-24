@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 多策略回测对比模块
-支持并行回测多组参数，对比不同策略的表现
+支持并行回测多组参数, 对比不同策略的表现
 """
 
 import sys
@@ -18,7 +18,7 @@ try:
     import pandas as pd
     import numpy as np
 except ImportError:
-    print("请安装依赖: pip install ccxt pandas numpy")
+    print("Please: pip install ccxt pandas numpy")
     sys.exit(1)
 
 
@@ -157,7 +157,7 @@ class StrategyBacktester:
         # 计算时间范围
         since = int((datetime.now() - timedelta(days=days)).timestamp() * 1000)
         
-        print(f"正在获取 {self.symbol} {timeframe} 数据，最近 {days} 天...")
+        print(f"In progressGet {self.symbol} {timeframe} ,  {days} ...")
         
         # 获取K线数据
         ohlcv = self.exchange.fetch_ohlcv(self.symbol, timeframe, since=since, limit=1000)
@@ -166,7 +166,7 @@ class StrategyBacktester:
         df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
         
-        print(f"✅ 获取到 {len(df)} 根K线")
+        print(f"[OK] Get {len(df)} K")
         
         return df
     
@@ -178,7 +178,7 @@ class StrategyBacktester:
         df[f'ma{ma_short}'] = df['close'].rolling(window=ma_short).mean()
         df[f'ma{ma_long}'] = df['close'].rolling(window=ma_long).mean()
         
-        # 计算前一个MA值（用于趋势判断）
+        # 计算前一个MA值(用于趋势判断)
         df[f'ma{ma_short}_prev'] = df[f'ma{ma_short}'].shift(1)
         
         return df
@@ -209,8 +209,8 @@ class StrategyBacktester:
     
     def backtest_strategy(self, config: StrategyConfig, df: pd.DataFrame) -> BacktestResult:
         """回测单个策略"""
-        print(f"\n回测策略: {config.name}")
-        print(f"参数: {config.params}")
+        print(f"\n: {config.name}")
+        print(f": {config.params}")
         
         result = BacktestResult(config)
         
@@ -249,9 +249,9 @@ class StrategyBacktester:
                     'entry_time': row['timestamp']
                 }
                 
-                print(f"  开仓: {position['side']} @ {position['entry_price']:.2f}")
+                print(f"  Open position: {position['side']} @ {position['entry_price']:.2f}")
             
-            # 平仓信号（反向信号或止损）
+            # 平仓信号(反向信号或止损)
             elif position is not None:
                 should_close = False
                 
@@ -282,7 +282,7 @@ class StrategyBacktester:
                     }
                     result.trades.append(trade)
                     
-                    print(f"  平仓: {position['side']} @ {row['close']:.2f}, 盈亏: {pnl:.2f}")
+                    print(f"  Close position: {position['side']} @ {row['close']:.2f}, : {pnl:.2f}")
                     
                     position = None
             
@@ -293,12 +293,12 @@ class StrategyBacktester:
         # 计算指标
         result.calculate_metrics(self.initial_capital)
         
-        print(f"✅ 回测完成:")
-        print(f"   总交易: {result.total_trades}")
-        print(f"   胜率: {result.win_rate*100:.2f}%")
-        print(f"   总收益: {result.total_return:.2f} ({result.total_return_pct:.2f}%)")
-        print(f"   夏普比率: {result.sharpe_ratio:.2f}")
-        print(f"   最大回撤: {result.max_drawdown:.2f} ({result.max_drawdown_pct:.2f}%)")
+        print(f"[OK] Complete:")
+        print(f"   Trade: {result.total_trades}")
+        print(f"   : {result.win_rate*100:.2f}%")
+        print(f"   : {result.total_return:.2f} ({result.total_return_pct:.2f}%)")
+        print(f"   : {result.sharpe_ratio:.2f}")
+        print(f"   : {result.max_drawdown:.2f} ({result.max_drawdown_pct:.2f}%)")
         
         return result
     
@@ -306,13 +306,13 @@ class StrategyBacktester:
                           timeframe: str = '1h', days: int = 30) -> List[BacktestResult]:
         """对比多个策略"""
         print(f"\n{'='*60}")
-        print(f"策略对比回测")
+        print(f"")
         print(f"{'='*60}")
-        print(f"交易对: {self.symbol}")
-        print(f"时间框架: {timeframe}")
-        print(f"回测天数: {days}")
-        print(f"初始资金: {self.initial_capital} USDT")
-        print(f"策略数量: {len(configs)}")
+        print(f"Trade: {self.symbol}")
+        print(f"Time: {timeframe}")
+        print(f": {days}")
+        print(f"Capital: {self.initial_capital} USDT")
+        print(f"Amount: {len(configs)}")
         
         # 获取历史数据
         df = self.fetch_historical_data(timeframe, days)
@@ -320,26 +320,26 @@ class StrategyBacktester:
         # 并行回测
         results = []
         
-        # 使用线程池并行回测（注意：ccxt可能有API限制）
-        # 为了安全，这里使用顺序执行
+        # 使用线程池并行回测(注意: ccxt可能有API限制)
+        # 为了安全, 这里使用顺序执行
         for config in configs:
             result = self.backtest_strategy(config, df)
             results.append(result)
         
-        # 排序（按总收益）
+        # 排序(按总收益)
         results.sort(key=lambda r: r.total_return, reverse=True)
         
         print(f"\n{'='*60}")
-        print(f"回测结果排名")
+        print(f"")
         print(f"{'='*60}")
         
         for i, result in enumerate(results, 1):
-            print(f"\n第 {i} 名: {result.config.name}")
-            print(f"  参数: {result.config.params}")
-            print(f"  总收益: {result.total_return:.2f} USDT ({result.total_return_pct:.2f}%)")
-            print(f"  胜率: {result.win_rate*100:.2f}%")
-            print(f"  夏普比率: {result.sharpe_ratio:.2f}")
-            print(f"  最大回撤: {result.max_drawdown_pct:.2f}%")
+            print(f"\n {i} : {result.config.name}")
+            print(f"  : {result.config.params}")
+            print(f"  : {result.total_return:.2f} USDT ({result.total_return_pct:.2f}%)")
+            print(f"  : {result.win_rate*100:.2f}%")
+            print(f"  : {result.sharpe_ratio:.2f}")
+            print(f"  : {result.max_drawdown_pct:.2f}%")
         
         return results
     
@@ -357,7 +357,7 @@ class StrategyBacktester:
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
         
-        print(f"\n✅ 结果已保存到: {filepath}")
+        print(f"\n[OK] Save: {filepath}")
 
 
 def create_default_strategies() -> List[StrategyConfig]:
@@ -406,4 +406,4 @@ if __name__ == '__main__':
     # 保存结果
     backtester.save_results(results)
     
-    print("\n✅ 策略对比完成！")
+    print("\n[OK] Complete!")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 测试模式配置模块
-提供模拟交易功能，用于测试风险管理和策略逻辑，无需真实资金
+提供模拟交易功能, 用于测试风险管理和策略逻辑, 无需真实资金
 """
 
 import json
@@ -22,7 +22,7 @@ class TestModeConfig:
         """默认测试配置"""
         return {
             'enabled': False,  # 是否启用测试模式
-            'initial_balance': 100.0,  # 初始资金（USDT）
+            'initial_balance': 100.0,  # 初始资金(USDT)
             'leverage': 10,  # 杠杆倍数
             'maker_fee': 0.0002,  # Maker手续费 0.02%
             'taker_fee': 0.0006,  # Taker手续费 0.06%
@@ -40,7 +40,7 @@ class TestModeConfig:
                 with open(self.config_file, 'r') as f:
                     return json.load(f)
             except Exception as e:
-                print(f"加载测试配置失败: {e}")
+                print(f"LoadConfigFailed: {e}")
                 return self._default_config()
         return self._default_config()
     
@@ -50,7 +50,7 @@ class TestModeConfig:
             with open(self.config_file, 'w') as f:
                 json.dump(self.config, f, indent=2)
         except Exception as e:
-            print(f"保存测试配置失败: {e}")
+            print(f"SaveConfigFailed: {e}")
     
     def is_enabled(self) -> bool:
         """是否启用测试模式"""
@@ -60,13 +60,13 @@ class TestModeConfig:
         """启用测试模式"""
         self.config['enabled'] = True
         self._save_config()
-        print("✅ 测试模式已启用")
+        print("[OK] ")
     
     def disable(self):
         """禁用测试模式"""
         self.config['enabled'] = False
         self._save_config()
-        print("✅ 测试模式已禁用")
+        print("[OK] ")
     
     def get_config(self) -> Dict:
         """获取配置"""
@@ -105,7 +105,7 @@ class SimulatedExchange:
                     self.trades = state.get('trades', [])
                     self.order_id_counter = state.get('order_id_counter', 1)
             except Exception as e:
-                print(f"加载测试状态失败: {e}")
+                print(f"LoadFailed: {e}")
     
     def _save_state(self):
         """保存状态"""
@@ -121,7 +121,7 @@ class SimulatedExchange:
             with open(state_file, 'w') as f:
                 json.dump(state, f, indent=2)
         except Exception as e:
-            print(f"保存测试状态失败: {e}")
+            print(f"SaveFailed: {e}")
     
     def get_balance(self) -> Dict:
         """获取账户余额"""
@@ -325,7 +325,7 @@ class SimulatedExchange:
         self.trades = []
         self.order_id_counter = 1
         self._save_state()
-        print("✅ 测试状态已重置")
+        print("[OK] ")
 
 
 # 全局实例
@@ -356,7 +356,7 @@ def is_test_mode() -> bool:
 
 if __name__ == '__main__':
     # 测试示例
-    print("=== 测试模式示例 ===\n")
+    print("===  ===\n")
     
     # 启用测试模式
     config = get_test_config()
@@ -367,21 +367,21 @@ if __name__ == '__main__':
     
     # 查看初始余额
     balance = exchange.get_balance()
-    print(f"初始余额: {balance['total']} USDT")
-    print(f"可用余额: {balance['available']} USDT\n")
+    print(f"Balance: {balance['total']} USDT")
+    print(f"Balance: {balance['available']} USDT\n")
     
     # 创建订单
-    print("创建买单...")
+    print("...")
     result = exchange.create_order('XBTUSDTM', 'buy', 0.001, 50000)
     if result['success']:
-        print(f"✅ 订单创建成功: {result['order']['order_id']}")
-        print(f"   成交价格: {result['order']['price']}")
-        print(f"   手续费: {result['order']['fee']} USDT")
-        print(f"   保证金: {result['order']['margin']} USDT\n")
+        print(f"[OK] OrderSuccess: {result['order']['order_id']}")
+        print(f"   Price: {result['order']['price']}")
+        print(f"   : {result['order']['fee']} USDT")
+        print(f"   : {result['order']['margin']} USDT\n")
     
     # 查看持仓
     positions = exchange.get_positions()
-    print(f"当前持仓数量: {len(positions)}")
+    print(f"CurrentPositionAmount: {len(positions)}")
     for pos in positions:
         print(f"  - {pos['symbol']} {pos['side']} {pos['size']} @ {pos['entry_price']}\n")
     
@@ -390,18 +390,18 @@ if __name__ == '__main__':
     exchange.update_positions(current_price)
     positions = exchange.get_positions()
     for pos in positions:
-        print(f"未实现盈亏: {pos['unrealized_pnl']:.2f} USDT\n")
+        print(f"Not: {pos['unrealized_pnl']:.2f} USDT\n")
     
     # 平仓
-    print("平仓...")
+    print("Close position...")
     result = exchange.close_position(positions[0]['position_id'], current_price)
     if result['success']:
-        print(f"✅ 平仓成功")
-        print(f"   盈亏: {result['trade']['pnl']:.2f} USDT")
-        print(f"   手续费: {result['trade']['fee']:.2f} USDT")
-        print(f"   净盈亏: {result['trade']['net_pnl']:.2f} USDT")
-        print(f"   当前余额: {result['balance']:.2f} USDT\n")
+        print(f"[OK] Close positionSuccess")
+        print(f"   : {result['trade']['pnl']:.2f} USDT")
+        print(f"   : {result['trade']['fee']:.2f} USDT")
+        print(f"   : {result['trade']['net_pnl']:.2f} USDT")
+        print(f"   CurrentBalance: {result['balance']:.2f} USDT\n")
     
     # 查看交易历史
     trades = exchange.get_trades()
-    print(f"交易历史: {len(trades)} 笔")
+    print(f"TradeHistory: {len(trades)} ")

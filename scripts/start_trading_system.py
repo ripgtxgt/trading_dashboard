@@ -39,7 +39,7 @@ class IntegratedTradingSystem:
     def __init__(self):
         """初始化系统"""
         logger.info("="*60)
-        logger.info("10U战神滚仓策略 - Web Dashboard集成版")
+        logger.info("10U - Web Dashboard")
         logger.info("="*60)
         
         # 检查环境变量
@@ -48,7 +48,7 @@ class IntegratedTradingSystem:
         # 初始化数据库连接
         self.db = DatabaseSync()
         if not self.db.connect():
-            logger.error("数据库连接失败！")
+            logger.error("DatabaseConnectFailed!")
             sys.exit(1)
         
         # 初始化Telegram通知
@@ -56,7 +56,7 @@ class IntegratedTradingSystem:
         
         # 初始化风险管理器
         self.risk_manager = RiskManager()
-        logger.info("风险管理模块已启动")
+        logger.info("RiskStart")
         
         # 初始化KuCoin交易器
         api_key = os.getenv('KUCOIN_API_KEY')
@@ -64,8 +64,8 @@ class IntegratedTradingSystem:
         api_passphrase = os.getenv('KUCOIN_API_PASSPHRASE')
         
         if not all([api_key, api_secret, api_passphrase]):
-            logger.error("缺少KuCoin API配置！")
-            logger.error("请设置环境变量：KUCOIN_API_KEY, KUCOIN_API_SECRET, KUCOIN_API_PASSPHRASE")
+            logger.error("KuCoin APIConfig!")
+            logger.error("Please: KUCOIN_API_KEY, KUCOIN_API_SECRET, KUCOIN_API_PASSPHRASE")
             sys.exit(1)
         
         self.trader = KuCoinTrader(
@@ -85,12 +85,12 @@ class IntegratedTradingSystem:
         self.engine.db = self.db
         self.telegram = self.telegram
         
-        # 修改引擎的开仓方法，添加数据库同步
+        # 修改引擎的开仓方法, 添加数据库同步
         self._patch_engine_methods()
         
-        logger.info("系统初始化完成")
-        logger.info(f"初始资金: {self.engine.capital:.2f} USDT")
-        logger.info(f"当前阶段: {self.engine.rolling_manager.get_current_stage(self.engine.capital).name}")
+        logger.info("InitializeComplete")
+        logger.info(f"Capital: {self.engine.capital:.2f} USDT")
+        logger.info(f"Current: {self.engine.rolling_manager.get_current_stage(self.engine.capital).name}")
     
     def check_env_vars(self):
         """检查必需的环境变量"""
@@ -107,25 +107,25 @@ class IntegratedTradingSystem:
                 missing_vars.append(f"  {var} - {desc}")
         
         if missing_vars:
-            logger.error("缺少必需的环境变量：")
+            logger.error(": ")
             for var in missing_vars:
                 logger.error(var)
-            logger.error("\n可选环境变量：")
+            logger.error("\n: ")
             logger.error("  TELEGRAM_BOT_TOKEN - Telegram Bot Token")
             logger.error("  TELEGRAM_CHAT_ID - Telegram Chat ID")
-            logger.error("  KUCOIN_SANDBOX - 是否使用沙盒环境（true/false）")
-            logger.error("  INITIAL_CAPITAL - 初始资金（默认10.0）")
+            logger.error("  KUCOIN_SANDBOX - (true/false)")
+            logger.error("  INITIAL_CAPITAL - Capital(10.0)")
             sys.exit(1)
     
     def _patch_engine_methods(self):
-        """修改引擎方法，添加数据库同步和Telegram通知"""
+        """修改引擎方法, 添加数据库同步和Telegram通知"""
         
         # 保存原始方法
         original_open_position = self.engine.open_position
         original_close_position = self.engine.rolling_manager.close_position
         
         def patched_open_position(direction):
-            """开仓（添加数据库同步和通知）"""
+            """开仓(添加数据库同步和通知)"""
             result = original_open_position(direction)
             
             if result and self.engine.rolling_manager.current_position:
@@ -141,9 +141,9 @@ class IntegratedTradingSystem:
                         margin=pos.margin,
                         leverage=self.trader.leverage
                     )
-                    logger.info(f"持仓已同步到数据库，ID: {position_id}")
+                    logger.info(f"PositionDatabase, ID: {position_id}")
                 except Exception as e:
-                    logger.error(f"持仓同步失败: {e}")
+                    logger.error(f"PositionFailed: {e}")
                 
                 # 发送Telegram通知
                 try:
@@ -155,12 +155,12 @@ class IntegratedTradingSystem:
                         margin=pos.margin
                     )
                 except Exception as e:
-                    logger.error(f"Telegram通知发送失败: {e}")
+                    logger.error(f"TelegramNotifySendFailed: {e}")
             
             return result
         
         def patched_close_position(current_price, reason=""):
-            """平仓（添加数据库同步和通知）"""
+            """平仓(添加数据库同步和通知)"""
             pos = self.engine.rolling_manager.current_position
             if not pos:
                 return None
@@ -194,7 +194,7 @@ class IntegratedTradingSystem:
                         open_time=datetime.now(),  # 简化处理
                         close_time=datetime.now()
                     )
-                    logger.info(f"交易已同步到数据库，ID: {trade_id}")
+                    logger.info(f"TradeDatabase, ID: {trade_id}")
                     
                     # 更新机器人状态
                     self.db.update_bot_state(
@@ -213,7 +213,7 @@ class IntegratedTradingSystem:
                     )
                     
                 except Exception as e:
-                    logger.error(f"交易同步失败: {e}")
+                    logger.error(f"TradeFailed: {e}")
                 
                 # 发送Telegram通知
                 try:
@@ -226,7 +226,7 @@ class IntegratedTradingSystem:
                         pnl_percent=result['pnl_pct']
                     )
                 except Exception as e:
-                    logger.error(f"Telegram通知发送失败: {e}")
+                    logger.error(f"TelegramNotifySendFailed: {e}")
             
             return result
         
@@ -236,7 +236,7 @@ class IntegratedTradingSystem:
     
     def run(self):
         """运行交易系统"""
-        logger.info("交易系统启动")
+        logger.info("TradeStart")
         
         # 发送启动通知
         try:
@@ -247,7 +247,7 @@ class IntegratedTradingSystem:
                 win_rate=0.0
             )
         except Exception as e:
-            logger.error(f"Telegram通知发送失败: {e}")
+            logger.error(f"TelegramNotifySendFailed: {e}")
         
         # 更新数据库状态
         try:
@@ -259,7 +259,7 @@ class IntegratedTradingSystem:
                 total_profit=0.0
             )
         except Exception as e:
-            logger.error(f"数据库更新失败: {e}")
+            logger.error(f"DatabaseUpdateFailed: {e}")
         
         try:
             # 启动策略引擎
@@ -270,7 +270,7 @@ class IntegratedTradingSystem:
                     # 获取当前价格
                     current_price = self.trader.get_current_price()
                     if not current_price:
-                        logger.warning("无法获取当前价格")
+                        logger.warning("CannotGetCurrentPrice")
                         time.sleep(60)
                         continue
                     
@@ -278,7 +278,7 @@ class IntegratedTradingSystem:
                     allowed, reason = self.risk_manager.check_risk(current_price, self.engine.capital)
                     
                     if not allowed:
-                        logger.warning(f"交易被暂停: {reason}")
+                        logger.warning(f"TradePaused: {reason}")
                         
                         # 发送风险警告
                         try:
@@ -290,11 +290,11 @@ class IntegratedTradingSystem:
                                 consecutive_losses=risk_status['consecutive_losses']
                             )
                         except Exception as e:
-                            logger.error(f"Telegram通知发送失败: {e}")
+                            logger.error(f"TelegramNotifySendFailed: {e}")
                         
-                        # 如果有持仓，考虑平仓
+                        # 如果有持仓, 考虑平仓
                         if self.engine.rolling_manager.current_position:
-                            logger.info("检测到持仓，执行平仓...")
+                            logger.info("Position, Close position...")
                             self.engine.rolling_manager.close_position(current_price, f"风险控制: {reason}")
                         
                         # 等待一段时间再检查
@@ -308,10 +308,10 @@ class IntegratedTradingSystem:
                     time.sleep(self.engine.check_interval)
                     
                 except KeyboardInterrupt:
-                    logger.info("\n收到停止信号...")
+                    logger.info("\nStop...")
                     break
                 except Exception as e:
-                    logger.error(f"交易周期出错: {e}", exc_info=True)
+                    logger.error(f"TradePeriod: {e}", exc_info=True)
                     time.sleep(60)  # 出错后等待1分钟再继续
         
         finally:
@@ -320,12 +320,12 @@ class IntegratedTradingSystem:
     def shutdown(self):
         """关闭系统"""
         logger.info("="*60)
-        logger.info("交易系统停止")
+        logger.info("TradeStop")
         logger.info("="*60)
         
-        # 如果有持仓，平仓
+        # 如果有持仓, 平仓
         if self.engine.rolling_manager.current_position:
-            logger.info("检测到持仓，执行平仓...")
+            logger.info("Position, Close position...")
             current_price = self.trader.get_current_price()
             if current_price:
                 self.engine.rolling_manager.close_position(current_price, "系统停止")
@@ -337,12 +337,12 @@ class IntegratedTradingSystem:
             win_rate = (win_trades / total_trades) * 100
             total_profit = self.engine.capital - self.engine.initial_capital
             
-            logger.info(f"总交易次数: {total_trades}")
-            logger.info(f"盈利次数: {win_trades}")
-            logger.info(f"胜率: {win_rate:.2f}%")
-            logger.info(f"总盈亏: {total_profit:.2f} USDT")
-            logger.info(f"最终余额: {self.engine.capital:.2f} USDT")
-            logger.info(f"收益率: {((self.engine.capital - self.engine.initial_capital) / self.engine.initial_capital * 100):.2f}%")
+            logger.info(f"Trade: {total_trades}")
+            logger.info(f"Profit: {win_trades}")
+            logger.info(f": {win_rate:.2f}%")
+            logger.info(f": {total_profit:.2f} USDT")
+            logger.info(f"Balance: {self.engine.capital:.2f} USDT")
+            logger.info(f": {((self.engine.capital - self.engine.initial_capital) / self.engine.initial_capital * 100):.2f}%")
             
             # 发送每日统计
             try:
@@ -354,7 +354,7 @@ class IntegratedTradingSystem:
                     current_balance=self.engine.capital
                 )
             except Exception as e:
-                logger.error(f"Telegram通知发送失败: {e}")
+                logger.error(f"TelegramNotifySendFailed: {e}")
         
         # 更新数据库状态
         try:
@@ -366,7 +366,7 @@ class IntegratedTradingSystem:
                 total_profit=total_profit if total_trades > 0 else 0.0
             )
         except Exception as e:
-            logger.error(f"数据库更新失败: {e}")
+            logger.error(f"DatabaseUpdateFailed: {e}")
         
         # 断开数据库连接
         self.db.disconnect()

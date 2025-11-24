@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 完整的交易机器人示例 - 集成数据库同步
-这是一个完整的可运行示例，展示如何将db_sync模块集成到你的交易脚本中
+这是一个完整的可运行示例, 展示如何将db_sync模块集成到你的交易脚本中
 """
 
 import os
@@ -34,10 +34,10 @@ class TradingBot:
         self.trades_count = 0
         self.win_count = 0
         
-        print(f"[{datetime.now()}] 交易机器人初始化完成")
-        print(f"初始资金: {INITIAL_CAPITAL} USDT")
-        print(f"杠杆: {LEVERAGE}x")
-        print(f"策略: MA{SHORT_MA}/MA{LONG_MA}")
+        print(f"[{datetime.now()}] TradeInitializeComplete")
+        print(f"Capital: {INITIAL_CAPITAL} USDT")
+        print(f": {LEVERAGE}x")
+        print(f": MA{SHORT_MA}/MA{LONG_MA}")
         
     def get_klines(self, limit=100):
         """获取K线数据"""
@@ -59,11 +59,11 @@ class TradingBot:
                 if data.get("code") == "200000":
                     return data.get("data", [])
             
-            print(f"[警告] 获取K线失败，使用模拟数据")
+            print(f"[Warning] GetKFailed, ")
             return self._generate_mock_klines(limit)
             
         except Exception as e:
-            print(f"[错误] 获取K线异常: {e}")
+            print(f"[Error] GetK: {e}")
             return self._generate_mock_klines(limit)
     
     def _generate_mock_klines(self, limit=100):
@@ -111,7 +111,7 @@ class TradingBot:
         if ma_short is None or ma_long is None:
             return None
         
-        # 金叉：短期均线上穿长期均线 -> 买入信号
+        # 金叉: 短期均线上穿长期均线 -> 买入信号
         if ma_short > ma_long:
             prev_ma_short = self.calculate_ma(klines[:-1], SHORT_MA)
             prev_ma_long = self.calculate_ma(klines[:-1], LONG_MA)
@@ -119,7 +119,7 @@ class TradingBot:
             if prev_ma_short and prev_ma_long and prev_ma_short <= prev_ma_long:
                 return "long"
         
-        # 死叉：短期均线下穿长期均线 -> 卖出信号
+        # 死叉: 短期均线下穿长期均线 -> 卖出信号
         if ma_short < ma_long:
             prev_ma_short = self.calculate_ma(klines[:-1], SHORT_MA)
             prev_ma_long = self.calculate_ma(klines[:-1], LONG_MA)
@@ -154,16 +154,16 @@ class TradingBot:
                 "margin": margin
             }
             
-            print(f"[{datetime.now()}] 开仓成功")
-            print(f"  方向: {side}")
-            print(f"  价格: {price:.2f}")
-            print(f"  数量: {quantity:.6f}")
-            print(f"  保证金: {margin:.2f} USDT")
+            print(f"[{datetime.now()}] Open positionSuccess")
+            print(f"  : {side}")
+            print(f"  Price: {price:.2f}")
+            print(f"  Amount: {quantity:.6f}")
+            print(f"  : {margin:.2f} USDT")
             
             return True
             
         except Exception as e:
-            print(f"[错误] 开仓失败: {e}")
+            print(f"[Error] Open positionFailed: {e}")
             return False
     
     def close_position(self, price):
@@ -200,18 +200,18 @@ class TradingBot:
                 pnl_pct=pnl_pct
             )
             
-            print(f"[{datetime.now()}] 平仓成功")
-            print(f"  方向: {side}")
-            print(f"  入场价: {entry_price:.2f}")
-            print(f"  出场价: {price:.2f}")
-            print(f"  盈亏: {pnl:.2f} USDT ({pnl_pct*100:.2f}%)")
-            print(f"  当前资金: {self.capital:.2f} USDT")
+            print(f"[{datetime.now()}] Close positionSuccess")
+            print(f"  : {side}")
+            print(f"  : {entry_price:.2f}")
+            print(f"  : {price:.2f}")
+            print(f"  : {pnl:.2f} USDT ({pnl_pct*100:.2f}%)")
+            print(f"  CurrentCapital: {self.capital:.2f} USDT")
             
             self.position = None
             return True
             
         except Exception as e:
-            print(f"[错误] 平仓失败: {e}")
+            print(f"[Error] Close positionFailed: {e}")
             return False
     
     def update_state(self):
@@ -231,11 +231,11 @@ class TradingBot:
             self.db.save_balance_snapshot(self.capital)
             
         except Exception as e:
-            print(f"[错误] 更新状态失败: {e}")
+            print(f"[Error] UpdateFailed: {e}")
     
     def run(self):
         """运行交易循环"""
-        print(f"\n[{datetime.now()}] 开始运行交易机器人...")
+        print(f"\n[{datetime.now()}] StartRunningTrade...")
         print("=" * 60)
         
         cycle = 0
@@ -243,13 +243,13 @@ class TradingBot:
         try:
             while True:
                 cycle += 1
-                print(f"\n[周期 {cycle}] {datetime.now()}")
+                print(f"\n[Period {cycle}] {datetime.now()}")
                 
                 # 获取K线数据
                 klines = self.get_klines(100)
                 
                 if not klines:
-                    print("  无法获取K线数据，跳过本周期")
+                    print("  CannotGetK, Period")
                     time.sleep(60)
                     continue
                 
@@ -259,32 +259,32 @@ class TradingBot:
                     current_price = float(last_kline.get("close", 0))
                 else:
                     current_price = float(last_kline[2])  # [time, open, close, high, low, volume]
-                print(f"  当前价格: {current_price:.2f}")
-                print(f"  当前资金: {self.capital:.2f} USDT")
+                print(f"  CurrentPrice: {current_price:.2f}")
+                print(f"  CurrentCapital: {self.capital:.2f} USDT")
                 
                 # 检查是否有持仓
                 if self.position:
-                    print(f"  持仓中: {self.position['side']} @ {self.position['entry_price']:.2f}")
+                    print(f"  Position: {self.position['side']} @ {self.position['entry_price']:.2f}")
                     
                     # 检查平仓信号
                     signal = self.check_signal(klines)
                     
-                    # 如果信号与持仓方向相反，平仓
+                    # 如果信号与持仓方向相反, 平仓
                     if signal and signal != self.position["side"]:
-                        print(f"  检测到反向信号: {signal}")
+                        print(f"  : {signal}")
                         self.close_position(current_price)
                     else:
-                        print("  无平仓信号，继续持仓")
+                        print("  Close position, Position")
                 
                 else:
                     # 检查开仓信号
                     signal = self.check_signal(klines)
                     
                     if signal:
-                        print(f"  检测到开仓信号: {signal}")
+                        print(f"  Open position: {signal}")
                         self.open_position(signal, current_price)
                     else:
-                        print("  无信号")
+                        print("  ")
                 
                 # 更新状态到数据库
                 self.update_state()
@@ -295,21 +295,21 @@ class TradingBot:
                     profit_rate = ((self.capital - self.initial_capital) / self.initial_capital * 100)
                     
                     print("\n" + "=" * 60)
-                    print(f"统计信息 (周期 {cycle})")
-                    print(f"  总交易次数: {self.trades_count}")
-                    print(f"  盈利次数: {self.win_count}")
-                    print(f"  胜率: {win_rate:.2f}%")
-                    print(f"  总盈利: {self.capital - self.initial_capital:.2f} USDT")
-                    print(f"  收益率: {profit_rate:.2f}%")
+                    print(f"Info (Period {cycle})")
+                    print(f"  Trade: {self.trades_count}")
+                    print(f"  Profit: {self.win_count}")
+                    print(f"  : {win_rate:.2f}%")
+                    print(f"  Profit: {self.capital - self.initial_capital:.2f} USDT")
+                    print(f"  : {profit_rate:.2f}%")
                     print("=" * 60)
                 
-                # 等待下一个周期（1分钟）
+                # 等待下一个周期(1分钟)
                 time.sleep(60)
                 
         except KeyboardInterrupt:
-            print(f"\n[{datetime.now()}] 收到停止信号，正在关闭...")
+            print(f"\n[{datetime.now()}] Stop, In progress...")
             
-            # 如果有持仓，先平仓
+            # 如果有持仓, 先平仓
             if self.position:
                 klines = self.get_klines(100)
                 if klines:
@@ -332,7 +332,7 @@ class TradingBot:
                 win_trades=self.win_count
             )
             
-            print(f"[{datetime.now()}] 机器人已停止")
+            print(f"[{datetime.now()}] Stop")
             
         finally:
             if hasattr(self.db, 'close'):
@@ -341,8 +341,8 @@ class TradingBot:
 if __name__ == "__main__":
     # 检查环境变量
     if not os.getenv("DATABASE_URL"):
-        print("错误: 未设置 DATABASE_URL 环境变量")
-        print("请设置: export DATABASE_URL='mysql://user:pass@host:port/dbname'")
+        print("Error: Not DATABASE_URL ")
+        print("Please: export DATABASE_URL='mysql://user:pass@host:port/dbname'")
         sys.exit(1)
     
     # 创建并运行机器人

@@ -41,7 +41,7 @@ class SignalSimulator:
             # 使用正确的KuCoin API端点
             url = f"{self.base_url}/api/v1/kline/query"
             
-            # 计算时间范围（毫秒时间戳）
+            # 计算时间范围(毫秒时间戳)
             end_time = int(datetime.now().timestamp())
             start_time = int((datetime.now() - timedelta(days=7)).timestamp())
             
@@ -58,7 +58,7 @@ class SignalSimulator:
             
             response = requests.get(url, params=params, headers=headers, timeout=10)
             
-            # 如果失败，尝试使用备用方法生成模拟数据
+            # 如果失败, 尝试使用备用方法生成模拟数据
             if response.status_code != 200:
                 print(f"API returned {response.status_code}, using simulated data", file=sys.stderr)
                 return self._generate_simulated_klines(limit)
@@ -88,7 +88,7 @@ class SignalSimulator:
     
     def _generate_simulated_klines(self, limit: int) -> List[Dict]:
         """
-        生成模拟K线数据（用于测试）
+        生成模拟K线数据(用于测试)
         基于真实BTC价格范围生成随机波动
         """
         import random
@@ -174,11 +174,11 @@ class SignalSimulator:
             
             # 根据灵敏度调整条件
             if sensitivity == "loose":
-                # 宽松模式：只需要MA交叉
+                # 宽松模式: 只需要MA交叉
                 long_condition = short_ma > long_ma
                 short_condition = short_ma < long_ma
             elif sensitivity == "strict":
-                # 严格模式：需要满足所有3个条件
+                # 严格模式: 需要满足所有3个条件
                 long_condition = (
                     short_ma > long_ma and
                     price > short_ma and
@@ -190,7 +190,7 @@ class SignalSimulator:
                     short_ma < prev_short_ma
                 )
             else:
-                # 标准模式：需要MA交叉 + 价格确认
+                # 标准模式: 需要MA交叉 + 价格确认
                 long_condition = (
                     short_ma > long_ma and
                     price > short_ma
@@ -205,7 +205,7 @@ class SignalSimulator:
                 prev_short_ma_val = short_mas[i - 1]
                 prev_long_ma_val = long_mas[i - 1]
                 
-                # 金叉：短期MA从下方穿过长期MA
+                # 金叉: 短期MA从下方穿过长期MA
                 if (prev_short_ma_val <= prev_long_ma_val and 
                     short_ma > long_ma and long_condition):
                     signals.append({
@@ -217,7 +217,7 @@ class SignalSimulator:
                     })
                     long_count += 1
                 
-                # 死叉：短期MA从上方穿过长期MA
+                # 死叉: 短期MA从上方穿过长期MA
                 elif (prev_short_ma_val >= prev_long_ma_val and 
                       short_ma < long_ma and short_condition):
                     signals.append({
@@ -253,7 +253,7 @@ def main():
     long_ma_period = int(sys.argv[4])
     sensitivity = sys.argv[5]
     
-    # 初始化模拟器（KuCoin公开API不需要认证）
+    # 初始化模拟器(KuCoin公开API不需要认证)
     simulator = SignalSimulator("", "", "")
     
     # 获取K线数据

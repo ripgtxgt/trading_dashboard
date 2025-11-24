@@ -16,7 +16,7 @@ class KuCoinTrader:
         初始化交易接口
         
         Args:
-            config: 配置字典，包含api_key, api_secret, api_passphrase, sandbox, leverage
+            config: 配置字典, 包含api_key, api_secret, api_passphrase, sandbox, leverage
         """
         self.api = KuCoinFuturesAPI(
             api_key=config['api_key'],
@@ -33,13 +33,13 @@ class KuCoinTrader:
             'ETH/USDT:USDT': 'ETHUSDTM'
         }
         
-        print(f"✅ KuCoin交易接口初始化成功")
-        print(f"📍 环境: {'沙盒' if config.get('sandbox') else '实盘'}")
-        print(f"🔧 杠杆: {self.leverage}x")
+        print(f"[OK] KuCoinTradeInitializeSuccess")
+        print(f"[INFO] : {'' if config.get('sandbox') else ''}")
+        print(f"[CONFIG] : {self.leverage}x")
     
     def _convert_symbol(self, symbol: str) -> str:
         """转换symbol格式"""
-        # 如果已经是KuCoin格式（以M结尾），直接返回
+        # 如果已经是KuCoin格式(以M结尾), 直接返回
         if symbol.endswith('M'):
             return symbol
         # 否则转换
@@ -50,13 +50,13 @@ class KuCoinTrader:
         获取USDT余额
         
         Returns:
-            余额，失败返回None
+            余额, 失败返回None
         """
         try:
             balance = self.api.get_balance('USDT')
             return balance
         except Exception as e:
-            print(f"❌ 获取余额失败: {e}")
+            print(f"[ERROR] GetBalanceFailed: {e}")
             return None
     
     def get_current_price(self, symbol: str) -> Optional[float]:
@@ -67,14 +67,14 @@ class KuCoinTrader:
             symbol: 交易对
             
         Returns:
-            当前价格，失败返回None
+            当前价格, 失败返回None
         """
         try:
             kucoin_symbol = self._convert_symbol(symbol)
             price = self.api.get_current_price(kucoin_symbol)
             return price
         except Exception as e:
-            print(f"❌ 获取价格失败: {e}")
+            print(f"[ERROR] GetPriceFailed: {e}")
             return None
     
     def get_klines(self, symbol: str, timeframe: str = '1h', limit: int = 100) -> Optional[list]:
@@ -92,7 +92,7 @@ class KuCoinTrader:
         try:
             kucoin_symbol = self._convert_symbol(symbol)
             
-            # 转换timeframe为granularity（分钟）
+            # 转换timeframe为granularity(分钟)
             timeframe_map = {
                 '1m': 1, '5m': 5, '15m': 15, '30m': 30,
                 '1h': 60, '2h': 120, '4h': 240, '8h': 480,
@@ -121,9 +121,9 @@ class KuCoinTrader:
             return result
             
         except Exception as e:
-            print(f"❌ 获取K线失败: {e}")
+            print(f"[ERROR] GetKFailed: {e}")
             print(f"   Symbol: {symbol} -> {kucoin_symbol}")
-            print(f"   Timeframe: {timeframe} -> {granularity}分钟")
+            print(f"   Timeframe: {timeframe} -> {granularity}")
             print(f"   Limit: {limit}")
             import traceback
             traceback.print_exc()
@@ -143,10 +143,10 @@ class KuCoinTrader:
         try:
             kucoin_symbol = self._convert_symbol(symbol)
             self.api.set_leverage(kucoin_symbol, leverage)
-            print(f"✅ 杠杆设置成功: {leverage}x")
+            print(f"[OK] Success: {leverage}x")
             return True
         except Exception as e:
-            print(f"❌ 设置杠杆失败: {e}")
+            print(f"[ERROR] Failed: {e}")
             return False
     
     def open_position(
@@ -164,13 +164,13 @@ class KuCoinTrader:
         Args:
             symbol: 交易对
             side: 方向 'long' 或 'short'
-            margin: 保证金（USDT）
+            margin: 保证金(USDT)
             leverage: 杠杆倍数
-            stop_loss_pct: 止损百分比（可选）
-            take_profit_pct: 止盈百分比（可选）
+            stop_loss_pct: 止损百分比(可选)
+            take_profit_pct: 止盈百分比(可选)
             
         Returns:
-            订单信息，失败返回None
+            订单信息, 失败返回None
         """
         try:
             kucoin_symbol = self._convert_symbol(symbol)
@@ -213,7 +213,7 @@ class KuCoinTrader:
                 take_profit=take_profit_price
             )
             
-            print(f"✅ 开仓成功: {side.upper()} {size}张 @ {price}")
+            print(f"[OK] Open positionSuccess: {side.upper()} {size} @ {price}")
             
             return {
                 'order_id': order.get('orderId'),
@@ -226,7 +226,7 @@ class KuCoinTrader:
             }
             
         except Exception as e:
-            print(f"❌ 开仓失败: {e}")
+            print(f"[ERROR] Open positionFailed: {e}")
             return None
     
     def close_position(self, symbol: str, side: str) -> bool:
@@ -246,13 +246,13 @@ class KuCoinTrader:
             # 获取当前持仓
             position = self.api.get_position(kucoin_symbol)
             if not position:
-                print("⚠️ 没有持仓")
+                print("[WARNING] Position")
                 return True
             
             # 获取持仓数量
             current_qty = int(position.get('currentQty', 0))
             if current_qty == 0:
-                print("⚠️ 持仓数量为0")
+                print("[WARNING] PositionAmount0")
                 return True
             
             # 平仓方向与开仓相反
@@ -267,11 +267,11 @@ class KuCoinTrader:
                 size=size
             )
             
-            print(f"✅ 平仓成功: {side.upper()} {size}张")
+            print(f"[OK] Close positionSuccess: {side.upper()} {size}")
             return True
             
         except Exception as e:
-            print(f"❌ 平仓失败: {e}")
+            print(f"[ERROR] Close positionFailed: {e}")
             return False
     
     def get_position(self, symbol: str) -> Optional[Dict]:
@@ -282,7 +282,7 @@ class KuCoinTrader:
             symbol: 交易对
             
         Returns:
-            持仓信息，无持仓返回None
+            持仓信息, 无持仓返回None
         """
         try:
             kucoin_symbol = self._convert_symbol(symbol)
@@ -307,7 +307,7 @@ class KuCoinTrader:
             }
             
         except Exception as e:
-            print(f"❌ 获取持仓失败: {e}")
+            print(f"[ERROR] GetPositionFailed: {e}")
             return None
     
     def cancel_all_orders(self, symbol: Optional[str] = None) -> bool:
@@ -315,7 +315,7 @@ class KuCoinTrader:
         取消所有订单
         
         Args:
-            symbol: 交易对（可选）
+            symbol: 交易对(可选)
             
         Returns:
             是否成功
@@ -323,18 +323,18 @@ class KuCoinTrader:
         try:
             kucoin_symbol = self._convert_symbol(symbol) if symbol else None
             self.api.cancel_all_orders(kucoin_symbol)
-            print(f"✅ 已取消所有订单")
+            print(f"[OK] CancelOrder")
             return True
         except Exception as e:
-            print(f"❌ 取消订单失败: {e}")
+            print(f"[ERROR] CancelOrderFailed: {e}")
             return False
     
     def open_long(self, margin: float, stop_loss_pct: Optional[float] = None, take_profit_pct: Optional[float] = None) -> Optional[Dict]:
         """
-        开多仓（快捷方法）
+        开多仓(快捷方法)
         
         Args:
-            margin: 保证金（USDT）
+            margin: 保证金(USDT)
             stop_loss_pct: 止损百分比
             take_profit_pct: 止盈百分比
         
@@ -356,10 +356,10 @@ class KuCoinTrader:
     
     def open_short(self, margin: float, stop_loss_pct: Optional[float] = None, take_profit_pct: Optional[float] = None) -> Optional[Dict]:
         """
-        开空仓（快捷方法）
+        开空仓(快捷方法)
         
         Args:
-            margin: 保证金（USDT）
+            margin: 保证金(USDT)
             stop_loss_pct: 止损百分比
             take_profit_pct: 止盈百分比
         
@@ -401,7 +401,7 @@ class KuCoinTrader:
             return result
             
         except Exception as e:
-            print(f"❌ 获取持仓列表失败: {e}")
+            print(f"[ERROR] GetPositionFailed: {e}")
             return []
 
 
@@ -413,25 +413,25 @@ if __name__ == "__main__":
     
     # 测试获取余额
     balance = trader.get_balance()
-    print(f"\n💰 账户余额: {balance} USDT")
+    print(f"\n[BALANCE] Balance: {balance} USDT")
     
     # 测试获取价格
     symbol = TRADING_CONFIG['symbol']
     price = trader.get_current_price(symbol)
-    print(f"📊 {symbol} 当前价格: {price}")
+    print(f"[CHART] {symbol} CurrentPrice: {price}")
     
     # 测试获取K线
     klines = trader.get_klines(symbol, '1h', 5)
     if klines:
-        print(f"📈 最近5根K线:")
+        print(f"[CHART] 5K:")
         for k in klines[-5:]:
-            print(f"  时间: {k[0]}, 开: {k[1]}, 高: {k[2]}, 低: {k[3]}, 收: {k[4]}")
+            print(f"  Time: {k[0]}, : {k[1]}, : {k[2]}, : {k[3]}, : {k[4]}")
     
     # 测试获取持仓
     position = trader.get_position(symbol)
     if position:
-        print(f"\n📍 当前持仓: {position}")
+        print(f"\n[INFO] CurrentPosition: {position}")
     else:
-        print(f"\n📍 无持仓")
+        print(f"\n[INFO] Position")
     
-    print("\n✅ 所有测试完成！")
+    print("\n[OK] Complete!")

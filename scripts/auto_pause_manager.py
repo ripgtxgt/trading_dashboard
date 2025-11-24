@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 自动暂停交易管理器
-当市场剧烈波动时自动暂停交易，保护资金安全
+当市场剧烈波动时自动暂停交易, 保护资金安全
 """
 
 from volatility_monitor import VolatilityMonitor
@@ -18,8 +18,8 @@ class AutoPauseManager:
         extreme_volatility_threshold: float = 0.10,  # 10%波动率触发暂停
         auto_resume_enabled: bool = True,
         resume_volatility_threshold: float = 0.05,   # 5%波动率自动恢复
-        min_pause_duration: int = 300,  # 最小暂停时间（秒）
-        max_pause_duration: int = 3600  # 最大暂停时间（秒）
+        min_pause_duration: int = 300,  # 最小暂停时间(秒)
+        max_pause_duration: int = 3600  # 最大暂停时间(秒)
     ):
         """
         初始化自动暂停管理器
@@ -63,7 +63,7 @@ class AutoPauseManager:
         """
         risk_assessment = self.volatility_monitor.assess_risk_level()
         
-        # 如果已经暂停，不需要重复检查
+        # 如果已经暂停, 不需要重复检查
         if self.is_paused:
             return False, "已处于暂停状态"
         
@@ -85,7 +85,7 @@ class AutoPauseManager:
         Returns:
             (是否应恢复, 原因)
         """
-        # 如果未暂停，不需要检查
+        # 如果未暂停, 不需要检查
         if not self.is_paused:
             return False, "未处于暂停状态"
         
@@ -97,7 +97,7 @@ class AutoPauseManager:
         if self.pause_start_time:
             pause_duration = (datetime.now() - self.pause_start_time).total_seconds()
             if pause_duration < self.min_pause_duration:
-                return False, f"暂停时间不足（{pause_duration:.0f}s < {self.min_pause_duration}s）"
+                return False, f"暂停时间不足({pause_duration:.0f}s < {self.min_pause_duration}s)"
         
         # 检查波动率是否降低
         risk_assessment = self.volatility_monitor.assess_risk_level()
@@ -110,7 +110,7 @@ class AutoPauseManager:
         if self.pause_start_time:
             pause_duration = (datetime.now() - self.pause_start_time).total_seconds()
             if pause_duration > self.max_pause_duration:
-                return True, f"已达到最大暂停时间（{pause_duration:.0f}s）"
+                return True, f"已达到最大暂停时间({pause_duration:.0f}s)"
         
         return False, "波动率仍然较高"
     
@@ -137,7 +137,7 @@ class AutoPauseManager:
         }
         self.pause_history.append(pause_event)
         
-        print(f"⚠️  交易已暂停: {self.pause_reason}")
+        print(f"[WARNING]  TradePaused: {self.pause_reason}")
     
     def resume_trading(self, reason: str = ""):
         """
@@ -167,7 +167,7 @@ class AutoPauseManager:
         self.pause_start_time = None
         self.pause_reason = ""
         
-        print(f"✓ 交易已恢复: {resume_reason} (暂停时长: {pause_duration:.0f}秒)")
+        print(f"[OK] Trade: {resume_reason} (Paused: {pause_duration:.0f})")
     
     def auto_check_and_act(self) -> Dict:
         """
@@ -262,20 +262,20 @@ if __name__ == "__main__":
     import numpy as np
     import time
     
-    print("=== 自动暂停交易管理器测试 ===\n")
+    print("=== PausedTrade ===\n")
     
     # 初始化管理器
     manager = AutoPauseManager(
         extreme_volatility_threshold=0.08,
         auto_resume_enabled=True,
         resume_volatility_threshold=0.04,
-        min_pause_duration=10,  # 测试用，设置为10秒
+        min_pause_duration=10,  # 测试用, 设置为10秒
         max_pause_duration=60
     )
     
     # 模拟市场数据
     base_price = 50000
-    print("模拟市场波动场景...\n")
+    print("...\n")
     
     scenarios = [
         ("正常波动", 0.02, 5),
@@ -286,7 +286,7 @@ if __name__ == "__main__":
     ]
     
     for scenario_name, volatility, periods in scenarios:
-        print(f"--- {scenario_name} (波动率 {volatility*100:.0f}%) ---")
+        print(f"--- {scenario_name} ( {volatility*100:.0f}%) ---")
         
         for i in range(periods):
             high = base_price * (1 + volatility * np.random.random())
@@ -306,23 +306,23 @@ if __name__ == "__main__":
         
         # 显示当前状态
         status = manager.get_status()
-        print(f"  当前状态: {'暂停' if status['is_paused'] else '运行'}")
-        print(f"  风险等级: {status['risk_level']}")
+        print(f"  Current: {'Paused' if status['is_paused'] else 'Running'}")
+        print(f"  Risk: {status['risk_level']}")
         if status['volatility']:
-            print(f"  波动率: {status['volatility']*100:.2f}%")
+            print(f"  : {status['volatility']*100:.2f}%")
         print()
     
     # 显示暂停历史
-    print("\n=== 暂停历史 ===")
+    print("\n=== PausedHistory ===")
     history = manager.get_pause_history()
     for event in history:
         action_text = "暂停" if event['action'] == 'pause' else "恢复"
         vol_text = f"{event['volatility']*100:.2f}%" if event['volatility'] else "N/A"
         duration_text = f" (时长: {event.get('pause_duration', 0):.0f}秒)" if event['action'] == 'resume' else ""
-        print(f"{event['timestamp']}: {action_text} - {event['reason']} (波动率: {vol_text}){duration_text}")
+        print(f"{event['timestamp']}: {action_text} - {event['reason']} (: {vol_text}){duration_text}")
     
     # 显示最终状态
-    print("\n=== 最终状态 ===")
+    print("\n===  ===")
     final_status = manager.get_status()
-    print(f"交易状态: {'暂停' if final_status['is_paused'] else '运行'}")
-    print(f"总暂停次数: {final_status['total_pause_events']}")
+    print(f"Trade: {'Paused' if final_status['is_paused'] else 'Running'}")
+    print(f"Paused: {final_status['total_pause_events']}")

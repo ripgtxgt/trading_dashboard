@@ -30,7 +30,7 @@ class TelegramNotifier:
             disable_notification: 是否静音通知
         """
         if not self.is_configured():
-            print("[Telegram] 未配置，跳过通知")
+            print("[Telegram] NotConfig, Notify")
             return False
         
         try:
@@ -46,19 +46,19 @@ class TelegramNotifier:
             )
             
             if response.status_code == 200:
-                print("[Telegram] 消息发送成功")
+                print("[Telegram] MessageSendSuccess")
                 return True
             else:
-                print(f"[Telegram] 发送失败: {response.status_code}")
+                print(f"[Telegram] SendFailed: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"[Telegram] 发送异常: {e}")
+            print(f"[Telegram] Send: {e}")
             return False
     
     def notify_open_position(self, symbol, side, price, quantity, margin):
         """发送开仓通知"""
-        emoji = "📈" if side == "long" else "📉"
+        emoji = "[CHART]" if side == "long" else "[DOWN]"
         direction = "做多" if side == "long" else "做空"
         
         text = f"""
@@ -78,7 +78,7 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
     def notify_close_position(self, symbol, side, entry_price, exit_price, pnl, pnl_pct):
         """发送平仓通知"""
         is_profit = pnl > 0
-        emoji = "✅" if is_profit else "❌"
+        emoji = "[OK]" if is_profit else "[ERROR]"
         direction = "做多" if side == "long" else "做空"
         
         text = f"""
@@ -102,11 +102,11 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
         Args:
             level: 警告级别 ("info", "warning", "error")
             message: 警告消息
-            details: 详细信息（可选）
+            details: 详细信息(可选)
         """
         emoji_map = {
             "info": "ℹ️",
-            "warning": "⚠️",
+            "warning": "[WARNING]",
             "error": "🚨"
         }
         
@@ -135,7 +135,7 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
     def notify_daily_stats(self, total_trades, win_trades, win_rate, total_pnl, capital):
         """发送每日统计"""
         text = f"""
-📊 *每日统计*
+[CHART] *每日统计*
 
 总交易: {total_trades}笔
 盈利交易: {win_trades}笔
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     notifier = TelegramNotifier()
     
     if not notifier.is_configured():
-        print("请先设置环境变量:")
+        print("Please:")
         print("export TELEGRAM_BOT_TOKEN='your_bot_token'")
         print("export TELEGRAM_CHAT_ID='your_chat_id'")
         exit(1)

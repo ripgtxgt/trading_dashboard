@@ -1,7 +1,7 @@
 """
 KuCoin Futures API 原生封装
 版本: 3.0 (无第三方broker ID)
-不依赖CCXT，直接调用KuCoin官方API
+不依赖CCXT, 直接调用KuCoin官方API
 """
 import hmac
 import hashlib
@@ -48,10 +48,10 @@ class KuCoinFuturesAPI:
         生成API签名
         
         Args:
-            timestamp: 时间戳（毫秒）
+            timestamp: 时间戳(毫秒)
             method: 请求方法 (GET/POST/DELETE)
             endpoint: API端点
-            body: 请求体（JSON字符串）
+            body: 请求体(JSON字符串)
             
         Returns:
             (signature, passphrase)
@@ -100,7 +100,7 @@ class KuCoinFuturesAPI:
         if data:
             body = json.dumps(data)
         
-        # 对于GET和DELETE请求，需要将params拼接到endpoint中进行签名
+        # 对于GET和DELETE请求, 需要将params拼接到endpoint中进行签名
         sign_endpoint = endpoint
         if method in ['GET', 'DELETE'] and params:
             query_string = '&'.join([f"{k}={v}" for k, v in sorted(params.items())])
@@ -121,11 +121,11 @@ class KuCoinFuturesAPI:
         # 发送请求
         url = self.base_url + endpoint
         
-        self.logger.debug(f"API请求: {method} {url}")
+        self.logger.debug(f"APIPlease: {method} {url}")
         if params:
-            self.logger.debug(f"  参数: {params}")
+            self.logger.debug(f"  : {params}")
         if data:
-            self.logger.debug(f"  数据: {data}")
+            self.logger.debug(f"  : {data}")
         
         try:
             if method == 'GET':
@@ -137,7 +137,7 @@ class KuCoinFuturesAPI:
             else:
                 raise ValueError(f"不支持的请求方法: {method}")
             
-            self.logger.debug(f"  响应状态: {response.status_code}")
+            self.logger.debug(f"  : {response.status_code}")
             
             response.raise_for_status()
             result = response.json()
@@ -148,7 +148,7 @@ class KuCoinFuturesAPI:
                 self.logger.error(error_msg)
                 raise Exception(error_msg)
             
-            self.logger.debug(f"  请求成功")
+            self.logger.debug(f"  PleaseSuccess")
             return result.get('data', {})
             
         except requests.exceptions.RequestException as e:
@@ -163,7 +163,7 @@ class KuCoinFuturesAPI:
         获取账户概览
         
         Args:
-            currency: 币种（默认USDT）
+            currency: 币种(默认USDT)
             
         Returns:
             账户信息
@@ -192,10 +192,10 @@ class KuCoinFuturesAPI:
         获取K线数据
         
         Args:
-            symbol: 合约代码，如 'XBTUSDTM'
-            granularity: K线周期（分钟）: 1, 5, 15, 30, 60, 120, 240, 480, 720, 1440, 10080
-            from_time: 开始时间（秒级时间戳）
-            to_time: 结束时间（秒级时间戳）
+            symbol: 合约代码, 如 'XBTUSDTM'
+            granularity: K线周期(分钟): 1, 5, 15, 30, 60, 120, 240, 480, 720, 1440, 10080
+            from_time: 开始时间(秒级时间戳)
+            to_time: 结束时间(秒级时间戳)
             
         Returns:
             K线数据列表 [[时间, 开, 高, 低, 收, 成交量], ...]
@@ -206,7 +206,7 @@ class KuCoinFuturesAPI:
             'granularity': granularity
         }
         
-        # KuCoin需要毫秒级时间戳，且from/to都是必须的
+        # KuCoin需要毫秒级时间戳, 且from/to都是必须的
         if not to_time:
             to_time = int(time.time())
         if not from_time:
@@ -255,7 +255,7 @@ class KuCoinFuturesAPI:
             symbol: 合约代码
             
         Returns:
-            持仓信息，无持仓返回None
+            持仓信息, 无持仓返回None
         """
         endpoint = f'/api/v1/position'
         params = {'symbol': symbol}
@@ -313,11 +313,11 @@ class KuCoinFuturesAPI:
         创建订单
         
         Args:
-            symbol: 合约代码，如 'XBTUSDTM'
+            symbol: 合约代码, 如 'XBTUSDTM'
             side: 方向 'buy' 或 'sell'
             order_type: 订单类型 'limit' 或 'market'
-            size: 数量（张数）
-            price: 价格（限价单必填）
+            size: 数量(张数)
+            price: 价格(限价单必填)
             leverage: 杠杆倍数
             stop_loss: 止损价
             take_profit: 止盈价
@@ -368,7 +368,7 @@ class KuCoinFuturesAPI:
         取消所有订单
         
         Args:
-            symbol: 合约代码（可选，不填则取消所有）
+            symbol: 合约代码(可选, 不填则取消所有)
             
         Returns:
             取消结果
@@ -420,14 +420,14 @@ class KuCoinFuturesAPI:
         
         Args:
             symbol: 合约代码
-            usdt_amount: USDT金额（保证金）
+            usdt_amount: USDT金额(保证金)
             price: 当前价格
             leverage: 杠杆倍数
             
         Returns:
             合约张数
         """
-        # BTC合约：1张 = 0.001 BTC
+        # BTC合约: 1张 = 0.001 BTC
         if 'XBT' in symbol or 'BTC' in symbol:
             contract_value = 0.001  # 每张价值0.001 BTC
         else:
@@ -457,18 +457,18 @@ if __name__ == "__main__":
     try:
         # 测试获取余额
         balance = api.get_balance()
-        print(f"✅ 账户余额: {balance} USDT")
+        print(f"[OK] Balance: {balance} USDT")
         
         # 测试获取价格
         symbol = 'XBTUSDTM'
         price = api.get_current_price(symbol)
-        print(f"✅ BTC当前价格: {price} USDT")
+        print(f"[OK] BTCCurrentPrice: {price} USDT")
         
         # 测试获取K线
         klines = api.get_klines(symbol, 60, limit=5)
-        print(f"✅ 获取到 {len(klines)} 条K线数据")
+        print(f"[OK] Get {len(klines)} K")
         
-        print("\n🎉 所有测试通过！")
+        print("\n[SUCCESS] !")
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"[ERROR] Failed: {e}")

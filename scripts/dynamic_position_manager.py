@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 动态仓位管理器
-根据市场波动率自动调整仓位大小，降低风险
+根据市场波动率自动调整仓位大小, 降低风险
 """
 
 from volatility_monitor import VolatilityMonitor
@@ -69,7 +69,7 @@ class DynamicPositionManager:
         # 限制在最小和最大仓位之间
         optimal_position = max(self.min_position_size, min(optimal_position, self.max_position_size))
         
-        # 如果应该暂停交易，仓位设为0
+        # 如果应该暂停交易, 仓位设为0
         if risk_assessment['should_pause']:
             optimal_position = 0.0
         
@@ -105,7 +105,7 @@ class DynamicPositionManager:
         
         Args:
             current_price: 当前价格
-            force: 是否强制调整（忽略最小变化阈值）
+            force: 是否强制调整(忽略最小变化阈值)
         
         Returns:
             调整结果
@@ -145,7 +145,7 @@ class DynamicPositionManager:
                 'change': calculation['position_change'],
                 'change_ratio': calculation['change_ratio'],
                 'risk_level': calculation['risk_level'],
-                'message': f"仓位已调整: {old_position:.4f} → {new_position:.4f} ({calculation['change_ratio']:+.2f}%)"
+                'message': f"仓位已调整: {old_position:.4f} -> {new_position:.4f} ({calculation['change_ratio']:+.2f}%)"
             }
         else:
             return {
@@ -153,12 +153,12 @@ class DynamicPositionManager:
                 'current_position': self.current_position_size,
                 'optimal_position': calculation['optimal_position'],
                 'change_ratio': calculation['change_ratio'],
-                'message': f"仓位变化较小 ({calculation['change_ratio']:+.2f}%)，无需调整"
+                'message': f"仓位变化较小 ({calculation['change_ratio']:+.2f}%), 无需调整"
             }
     
     def get_position_recommendation(self, current_price: float) -> Dict:
         """
-        获取仓位建议（不实际调整）
+        获取仓位建议(不实际调整)
         
         Args:
             current_price: 当前价格
@@ -231,7 +231,7 @@ class DynamicPositionManager:
 if __name__ == "__main__":
     import numpy as np
     
-    print("=== 动态仓位管理器测试 ===\n")
+    print("===  ===\n")
     
     # 初始化管理器
     manager = DynamicPositionManager(
@@ -243,7 +243,7 @@ if __name__ == "__main__":
     
     # 模拟市场数据
     base_price = 50000
-    print("模拟市场波动场景...\n")
+    print("...\n")
     
     for i in range(30):
         # 模拟不同波动率场景
@@ -269,40 +269,40 @@ if __name__ == "__main__":
         
         # 每5个周期检查一次仓位
         if (i + 1) % 5 == 0:
-            print(f"--- 周期 {i+1} ({scenario}) ---")
+            print(f"--- Period {i+1} ({scenario}) ---")
             
             # 获取仓位建议
             recommendation = manager.get_position_recommendation(close)
-            print(f"当前价格: ${close:.2f}")
-            print(f"风险等级: {recommendation['risk_level']}")
+            print(f"CurrentPrice: ${close:.2f}")
+            print(f"Risk: {recommendation['risk_level']}")
             vol_display = f"{recommendation['volatility']*100:.2f}%" if recommendation['volatility'] is not None else "N/A"
-            print(f"波动率: {vol_display}")
-            print(f"当前仓位: {recommendation['current_position']:.4f}")
-            print(f"建议仓位: {recommendation['recommended_position']:.4f}")
-            print(f"变化: {recommendation['change_ratio']:+.2f}%")
-            print(f"说明: {recommendation['message']}")
+            print(f": {vol_display}")
+            print(f"Current: {recommendation['current_position']:.4f}")
+            print(f": {recommendation['recommended_position']:.4f}")
+            print(f": {recommendation['change_ratio']:+.2f}%")
+            print(f": {recommendation['message']}")
             
             # 执行仓位调整
             adjustment = manager.adjust_position(close)
             if adjustment['adjusted']:
-                print(f"✓ {adjustment['message']}")
+                print(f"[OK] {adjustment['message']}")
             else:
-                print(f"○ {adjustment['message']}")
+                print(f"o {adjustment['message']}")
             
             print()
     
     # 显示调整历史
-    print("\n=== 仓位调整历史 ===")
+    print("\n=== History ===")
     history = manager.get_adjustment_history()
     for record in history:
-        print(f"{record['timestamp']}: {record['old_position']:.4f} → {record['new_position']:.4f} "
+        print(f"{record['timestamp']}: {record['old_position']:.4f} -> {record['new_position']:.4f} "
               f"({record['change_ratio']:+.2f}%) - {record['reason']}")
     
     # 显示最终状态
-    print("\n=== 最终状态 ===")
+    print("\n===  ===")
     status = manager.get_status()
-    print(f"账户余额: ${status['account_balance']:.2f}")
-    print(f"基础仓位: {status['base_position_size']:.4f}")
-    print(f"当前仓位: {status['current_position_size']:.4f}")
-    print(f"风险等级: {status['risk_assessment']['level']}")
-    print(f"总调整次数: {status['total_adjustments']}")
+    print(f"Balance: ${status['account_balance']:.2f}")
+    print(f": {status['base_position_size']:.4f}")
+    print(f"Current: {status['current_position_size']:.4f}")
+    print(f"Risk: {status['risk_assessment']['level']}")
+    print(f": {status['total_adjustments']}")

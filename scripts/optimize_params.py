@@ -62,7 +62,7 @@ class ParamOptimizer:
                     elif optimization_target == "sharpeRatio":
                         score = result["sharpeRatio"]
                     else:
-                        # 综合得分：胜率 * 总收益 * 夏普比率
+                        # 综合得分: 胜率 * 总收益 * 夏普比率
                         score = (
                             result["winRate"] / 100 * 
                             (1 + result["totalPnlPct"] / 100) * 

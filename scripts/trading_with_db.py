@@ -159,7 +159,7 @@ class TradingBotWithDB:
         # 模拟交易序列
         print("\n[Demo] Starting trading simulation...")
         
-        # 第一笔交易：做多
+        # 第一笔交易: 做多
         print("\n--- Trade 1: Long ---")
         self.open_position("long", 50000.0, 0.01)
         time.sleep(1)
@@ -169,7 +169,7 @@ class TradingBotWithDB:
         
         time.sleep(2)
         
-        # 第二笔交易：做空
+        # 第二笔交易: 做空
         print("\n--- Trade 2: Short ---")
         self.open_position("short", 51000.0, 0.01)
         time.sleep(1)
@@ -179,7 +179,7 @@ class TradingBotWithDB:
         
         time.sleep(2)
         
-        # 第三笔交易：做多亏损
+        # 第三笔交易: 做多亏损
         print("\n--- Trade 3: Long (Loss) ---")
         self.open_position("long", 50500.0, 0.01)
         time.sleep(1)

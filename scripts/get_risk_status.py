@@ -16,7 +16,7 @@ try:
     from dynamic_position_manager import DynamicPositionManager
     from auto_pause_manager import AutoPauseManager
 except ImportError:
-    # 如果导入失败，返回默认数据
+    # 如果导入失败, 返回默认数据
     print(json.dumps({
         "volatility": {
             "atr": 0,
@@ -38,11 +38,11 @@ def get_risk_status():
         pos_manager = DynamicPositionManager()
         pause_manager = AutoPauseManager()
         
-        # 获取模拟K线数据（实际使用时应该从交易所获取）
+        # 获取模拟K线数据(实际使用时应该从交易所获取)
         # 这里使用最近的数据
         klines = []  # 实际应该从API获取
         
-        # 如果没有数据，返回默认值
+        # 如果没有数据, 返回默认值
         if not klines:
             return {
                 "volatility": {

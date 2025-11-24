@@ -148,14 +148,14 @@ class DailyReportGenerator:
             return "No trading data available for today."
         
         report = f"""
-📊 Daily Trading Report - {stats['date']}
+[CHART] Daily Trading Report - {stats['date']}
 
-💰 Account Status:
+[BALANCE] Account Status:
 • Current Balance: {stats['current_balance']:.2f} USDT
 • Profit Rate: {stats['profit_rate']:.2f}%
 • Current Stage: {stats['stage']}
 
-📈 Trading Performance:
+[CHART] Trading Performance:
 • Total Trades: {stats['total_trades']}
 • Winning Trades: {stats['winning_trades']}
 • Win Rate: {stats['win_rate']:.2f}%
@@ -166,7 +166,7 @@ class DailyReportGenerator:
 • Max Profit: {stats['max_profit']:.2f} USDT
 • Max Loss: {stats['max_loss']:.2f} USDT
 
-⚠️ Risk Metrics:
+[WARNING] Risk Metrics:
 • Max Drawdown: {stats['max_drawdown']:.2f}%
 
 ---

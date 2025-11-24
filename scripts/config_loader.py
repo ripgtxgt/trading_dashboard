@@ -20,7 +20,7 @@ class ConfigLoader:
         self.cursor = None
         self.last_config = None
         self.last_load_time = 0
-        self.cache_duration = 5  # 缓存5秒，避免频繁查询
+        self.cache_duration = 5  # 缓存5秒, 避免频繁查询
         
         if self.db_url:
             self._connect()
@@ -61,10 +61,10 @@ class ConfigLoader:
         加载策略配置
         
         Args:
-            force_reload: 是否强制重新加载（忽略缓存）
+            force_reload: 是否强制重新加载(忽略缓存)
         
         Returns:
-            配置字典，如果加载失败返回None
+            配置字典, 如果加载失败返回None
         """
         # 检查缓存
         current_time = time.time()
@@ -158,20 +158,20 @@ if __name__ == "__main__":
     # 加载完整配置
     config = loader.load_config()
     if config:
-        print("\n=== 策略配置 ===")
-        print(f"交易对: {config['symbol']}")
-        print(f"滚仓倍数: {config['roll_multiplier']}")
-        print(f"止盈: {config['take_profit_pct']}%")
-        print(f"止损: {config['stop_loss_pct']}%")
-        print(f"最大单日亏损: {config['max_daily_loss']}%")
-        print(f"最大回撤: {config['max_drawdown']}%")
-        print(f"连续亏损限制: {config['consecutive_loss_limit']}")
-        print(f"杠杆: {config['leverage']}x")
-        print(f"仓位大小: {config['position_size']}")
-        print(f"策略启用: {config['is_active']}")
+        print("\n=== Config ===")
+        print(f"Trade: {config['symbol']}")
+        print(f": {config['roll_multiplier']}")
+        print(f"Take profit: {config['take_profit_pct']}%")
+        print(f"Stop loss: {config['stop_loss_pct']}%")
+        print(f"Loss: {config['max_daily_loss']}%")
+        print(f": {config['max_drawdown']}%")
+        print(f"LossLimit: {config['consecutive_loss_limit']}")
+        print(f": {config['leverage']}x")
+        print(f": {config['position_size']}")
+        print(f": {config['is_active']}")
     
     # 获取单个参数
-    print(f"\n滚仓倍数: {loader.get_param('roll_multiplier', 2.0)}")
-    print(f"策略是否启用: {loader.is_active()}")
+    print(f"\n: {loader.get_param('roll_multiplier', 2.0)}")
+    print(f": {loader.is_active()}")
     
     loader.close()

@@ -48,14 +48,14 @@ def get_risk_history():
                 "timestamp": (now - timedelta(days=3)).isoformat(),
                 "from": 1.0,
                 "to": 0.7,
-                "reason": "风险等级: 中 → 高",
+                "reason": "风险等级: 中 -> 高",
                 "riskLevel": "high",
             },
             {
                 "timestamp": (now - timedelta(days=1)).isoformat(),
                 "from": 0.7,
                 "to": 1.0,
-                "reason": "风险等级: 高 → 中",
+                "reason": "风险等级: 高 -> 中",
                 "riskLevel": "medium",
             },
         ]

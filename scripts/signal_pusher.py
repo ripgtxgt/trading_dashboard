@@ -37,14 +37,14 @@ class SignalPusher:
             )
             
             if response.status_code == 200:
-                print(f"[信号推送] 成功推送 {signal_type} 信号")
+                print(f"[Push] SuccessPush {signal_type} ")
                 return True
             else:
-                print(f"[信号推送] 失败: {response.status_code}")
+                print(f"[Push] Failed: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"[信号推送] 异常: {e}")
+            print(f"[Push] : {e}")
             return False
     
     def push_open_signal(self, symbol, side, price, quantity):

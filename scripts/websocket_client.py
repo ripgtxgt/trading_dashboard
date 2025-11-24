@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class WebSocketClient:
-    """WebSocket客户端，用于推送交易数据"""
+    """WebSocket客户端, 用于推送交易数据"""
     
     def __init__(self, url: str = "ws://localhost:8765"):
         """
@@ -32,7 +32,7 @@ class WebSocketClient:
         self.url = url
         self.websocket: Optional[websockets.WebSocketClientProtocol] = None
         self.connected = False
-        self.reconnect_delay = 5  # 重连延迟（秒）
+        self.reconnect_delay = 5  # 重连延迟(秒)
         self.max_reconnect_attempts = 3  # 最大重连次数
         
     async def connect(self) -> bool:
@@ -45,10 +45,10 @@ class WebSocketClient:
         try:
             self.websocket = await websockets.connect(self.url)
             self.connected = True
-            logger.info(f"已连接到WebSocket服务器: {self.url}")
+            logger.info(f"ConnectWebSocket: {self.url}")
             return True
         except Exception as e:
-            logger.error(f"连接WebSocket服务器失败: {e}")
+            logger.error(f"ConnectWebSocketFailed: {e}")
             self.connected = False
             return False
     
@@ -57,7 +57,7 @@ class WebSocketClient:
         if self.websocket:
             await self.websocket.close()
             self.connected = False
-            logger.info("已断开WebSocket连接")
+            logger.info("WebSocketConnect")
     
     async def send_data(self, data_type: str, data: Dict[str, Any]) -> bool:
         """
@@ -71,7 +71,7 @@ class WebSocketClient:
             bool: 发送是否成功
         """
         if not self.connected or not self.websocket:
-            logger.warning("WebSocket未连接，尝试重新连接...")
+            logger.warning("WebSocketNotConnect, Connect...")
             if not await self.connect():
                 return False
         
@@ -83,15 +83,15 @@ class WebSocketClient:
             }
             
             await self.websocket.send(json.dumps(message))
-            logger.debug(f"已发送 {data_type} 数据")
+            logger.debug(f"Send {data_type} ")
             return True
             
         except websockets.exceptions.ConnectionClosed:
-            logger.error("WebSocket连接已关闭")
+            logger.error("WebSocketConnect")
             self.connected = False
             return False
         except Exception as e:
-            logger.error(f"发送数据失败: {e}")
+            logger.error(f"SendFailed: {e}")
             return False
     
     async def push_account_update(self, balance: float, available: float, used: float):
@@ -250,7 +250,7 @@ def get_websocket_client(url: str = "ws://localhost:8765") -> WebSocketClient:
     return _ws_client
 
 
-# 同步包装函数，方便在同步代码中使用
+# 同步包装函数, 方便在同步代码中使用
 def push_account_sync(balance: float, available: float, used: float):
     """同步推送账户更新"""
     client = get_websocket_client()
@@ -259,7 +259,7 @@ def push_account_sync(balance: float, available: float, used: float):
             client.push_account_update(balance, available, used)
         )
     except Exception as e:
-        logger.error(f"推送账户更新失败: {e}")
+        logger.error(f"PushUpdateFailed: {e}")
 
 
 def push_position_sync(symbol: str, side: str, size: float, 
@@ -271,7 +271,7 @@ def push_position_sync(symbol: str, side: str, size: float,
             client.push_position_update(symbol, side, size, entry_price, unrealized_pnl)
         )
     except Exception as e:
-        logger.error(f"推送持仓更新失败: {e}")
+        logger.error(f"PushPositionUpdateFailed: {e}")
 
 
 def push_trade_sync(trade_id: str, symbol: str, side: str,
@@ -283,7 +283,7 @@ def push_trade_sync(trade_id: str, symbol: str, side: str,
             client.push_trade_update(trade_id, symbol, side, price, size, pnl)
         )
     except Exception as e:
-        logger.error(f"推送交易更新失败: {e}")
+        logger.error(f"PushTradeUpdateFailed: {e}")
 
 
 def push_risk_sync(is_trading_allowed: bool, pause_reason: Optional[str],
@@ -296,7 +296,7 @@ def push_risk_sync(is_trading_allowed: bool, pause_reason: Optional[str],
                                    daily_pnl, total_pnl, consecutive_losses)
         )
     except Exception as e:
-        logger.error(f"推送风险状态失败: {e}")
+        logger.error(f"PushRiskFailed: {e}")
 
 
 # 测试代码
@@ -307,29 +307,29 @@ if __name__ == "__main__":
         
         # 连接
         if await client.connect():
-            print("✅ WebSocket连接成功")
+            print("[OK] WebSocketConnectSuccess")
             
             # 测试推送账户数据
             await client.push_account_update(100.0, 80.0, 20.0)
-            print("✅ 推送账户数据")
+            print("[OK] Push")
             
             # 测试推送持仓数据
             await client.push_position_update("XBTUSDTM", "long", 0.001, 50000.0, 10.5)
-            print("✅ 推送持仓数据")
+            print("[OK] PushPosition")
             
             # 测试推送交易数据
             await client.push_trade_update("trade_001", "XBTUSDTM", "buy", 50000.0, 0.001, 10.5)
-            print("✅ 推送交易数据")
+            print("[OK] PushTrade")
             
             # 测试推送风险数据
             await client.push_risk_update(True, None, 10.5, 25.3, 0)
-            print("✅ 推送风险数据")
+            print("[OK] PushRisk")
             
             # 断开连接
             await client.disconnect()
-            print("✅ WebSocket断开连接")
+            print("[OK] WebSocketConnect")
         else:
-            print("❌ WebSocket连接失败")
+            print("[ERROR] WebSocketConnectFailed")
     
     # 运行测试
     asyncio.run(test_websocket())

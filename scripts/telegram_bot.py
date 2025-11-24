@@ -20,8 +20,8 @@ class TelegramBot:
         初始化Telegram Bot
         
         Args:
-            bot_token: Bot Token（从环境变量TELEGRAM_BOT_TOKEN读取）
-            chat_id: 聊天ID（从环境变量TELEGRAM_CHAT_ID读取）
+            bot_token: Bot Token(从环境变量TELEGRAM_BOT_TOKEN读取)
+            chat_id: 聊天ID(从环境变量TELEGRAM_CHAT_ID读取)
         """
         self.bot_token = bot_token or os.getenv("TELEGRAM_BOT_TOKEN", "")
         self.chat_id = chat_id or os.getenv("TELEGRAM_CHAT_ID", "")
@@ -74,7 +74,7 @@ class TelegramBot:
         Returns:
             是否发送成功
         """
-        alert_text = "⚠️ 交易自动暂停\n\n"
+        alert_text = "[WARNING] 交易自动暂停\n\n"
         alert_text += f"原因: {reason}\n"
         alert_text += f"波动率: {volatility*100:.2f}%\n\n"
         alert_text += "系统将在波动率降低后自动恢复交易"
@@ -87,12 +87,12 @@ class TelegramBot:
         
         Args:
             reason: 恢复原因
-            pause_duration: 暂停时长（秒）
+            pause_duration: 暂停时长(秒)
         
         Returns:
             是否发送成功
         """
-        alert_text = "✅ 交易已恢复\n\n"
+        alert_text = "[OK] 交易已恢复\n\n"
         alert_text += f"原因: {reason}\n"
         alert_text += f"暂停时长: {pause_duration/60:.1f}分钟\n\n"
         alert_text += "系统已恢复正常交易"
@@ -114,7 +114,7 @@ class TelegramBot:
         change_pct = ((new_position - old_position) / old_position * 100) if old_position > 0 else 0
         direction = "增加" if change_pct > 0 else "减少"
         
-        alert_text = "📊 仓位调整通知\n\n"
+        alert_text = "[CHART] 仓位调整通知\n\n"
         alert_text += f"原仓位: {old_position:.4f}\n"
         alert_text += f"新仓位: {new_position:.4f}\n"
         alert_text += f"变化: {direction} {abs(change_pct):.1f}%\n\n"
@@ -210,7 +210,7 @@ class TelegramBot:
         # /set <param> <value> - 修改参数
         elif command == "set":
             if len(args) < 2:
-                return "❌ 用法: /set <参数名> <值>\n例如: /set roll_multiplier 2.5"
+                return "[ERROR] 用法: /set <参数名> <值>\n例如: /set roll_multiplier 2.5"
             return self._handle_set(args[0], args[1])
         
         # /enable - 启用策略
@@ -234,18 +234,18 @@ class TelegramBot:
             return self._handle_help()
         
         else:
-            return f"❌ 未知命令: /{command}\n发送 /help 查看可用命令"
+            return f"[ERROR] 未知命令: /{command}\n发送 /help 查看可用命令"
     
     def _handle_status(self) -> str:
         """处理状态查询"""
         try:
             # 这里需要从数据库读取实际状态
-            # 简化版本，返回配置状态
+            # 简化版本, 返回配置状态
             config = self.config_loader.load_config(force_reload=True)
             if not config:
-                return "❌ 无法读取配置"
+                return "[ERROR] 无法读取配置"
             
-            status_text = "📊 *交易系统状态*\n\n"
+            status_text = "[CHART] *交易系统状态*\n\n"
             status_text += f"交易对: `{config['symbol']}`\n"
             status_text += f"策略状态: {'🟢 启用' if config['is_active'] else '🔴 禁用'}\n"
             status_text += f"杠杆: `{config['leverage']}x`\n"
@@ -257,14 +257,14 @@ class TelegramBot:
             return status_text
             
         except Exception as e:
-            return f"❌ 查询失败: {str(e)}"
+            return f"[ERROR] 查询失败: {str(e)}"
     
     def _handle_config(self) -> str:
         """处理配置查看"""
         try:
             config = self.config_loader.load_config(force_reload=True)
             if not config:
-                return "❌ 无法读取配置"
+                return "[ERROR] 无法读取配置"
             
             config_text = "⚙️ *策略配置*\n\n"
             config_text += f"*基础配置*\n"
@@ -285,23 +285,23 @@ class TelegramBot:
             return config_text
             
         except Exception as e:
-            return f"❌ 查询失败: {str(e)}"
+            return f"[ERROR] 查询失败: {str(e)}"
     
     def _handle_set(self, param: str, value: str) -> str:
         """处理参数修改"""
         # 这里需要调用API修改配置
-        # 简化版本，只返回提示
-        return f"⚠️ 参数修改功能需要通过Web Dashboard操作\n\n" \
-               f"请访问Dashboard的策略配置面板修改参数：\n" \
+        # 简化版本, 只返回提示
+        return f"[WARNING] 参数修改功能需要通过Web Dashboard操作\n\n" \
+               f"请访问Dashboard的策略配置面板修改参数: \n" \
                f"参数: `{param}`\n" \
                f"值: `{value}`"
     
     def _handle_enable(self, enable: bool) -> str:
         """处理启用/禁用策略"""
         # 这里需要调用API修改配置
-        # 简化版本，只返回提示
+        # 简化版本, 只返回提示
         action = "启用" if enable else "禁用"
-        return f"⚠️ 策略{action}需要通过Web Dashboard操作\n\n" \
+        return f"[WARNING] 策略{action}需要通过Web Dashboard操作\n\n" \
                f"请访问Dashboard的策略配置面板进行操作"
     
     def _handle_emergency_stop(self) -> str:
@@ -313,12 +313,12 @@ class TelegramBot:
                 emergency_stopped=True
             )
             
-            return "⚠️ *紧急停止已激活*\n\n" \
-                   "✅ 所有交易活动已暂停\n" \
-                   "✅ 开仓位将被关闭\n\n" \
+            return "[WARNING] *紧急停止已激活*\n\n" \
+                   "[OK] 所有交易活动已暂停\n" \
+                   "[OK] 开仓位将被关闭\n\n" \
                    "使用 /resume 命令恢复交易"
         except Exception as e:
-            return f"❌ 紧急停止失败: {str(e)}"
+            return f"[ERROR] 紧急停止失败: {str(e)}"
     
     def _handle_resume(self) -> str:
         """处理恢复交易命令"""
@@ -329,12 +329,12 @@ class TelegramBot:
                 emergency_stopped=False
             )
             
-            return "✅ *交易已恢复*\n\n" \
-                   "✅ Bot已重新启动\n" \
-                   "✅ 正在监控市场\n\n" \
+            return "[OK] *交易已恢复*\n\n" \
+                   "[OK] Bot已重新启动\n" \
+                   "[OK] 正在监控市场\n\n" \
                    "使用 /status 查看当前状态"
         except Exception as e:
-            return f"❌ 恢复失败: {str(e)}"
+            return f"[ERROR] 恢复失败: {str(e)}"
     
     def _handle_help(self) -> str:
         """处理帮助命令"""
@@ -350,12 +350,12 @@ class TelegramBot:
         help_text += "/set <参数> <值> - 修改参数\n"
         help_text += "\n*其他命令*\n"
         help_text += "/help - 显示此帮助信息\n"
-        help_text += "\n💡 提示：大部分操作建议通过Web Dashboard进行"
+        help_text += "\n💡 提示: 大部分操作建议通过Web Dashboard进行"
         
         return help_text
     
     def run(self):
-        """运行Bot（轮询模式）"""
+        """运行Bot(轮询模式)"""
         print("[TG Bot] Starting bot...")
         self.send_message("🤖 Telegram Bot已启动\n发送 /help 查看可用命令")
         
@@ -407,5 +407,5 @@ if __name__ == "__main__":
     # 测试发送消息
     bot.send_message("🧪 测试消息")
     
-    # 运行Bot（轮询模式）
+    # 运行Bot(轮询模式)
     # bot.run()

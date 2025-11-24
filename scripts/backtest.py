@@ -73,7 +73,7 @@ class Backtester:
             signal_type = signal["type"]
             price = signal["price"]
             
-            # 如果有持仓，先平仓
+            # 如果有持仓, 先平仓
             if current_position:
                 exit_price = price
                 entry_price = current_position["entry_price"]
@@ -126,7 +126,7 @@ class Backtester:
             avg_pnl = total_pnl / len(trades)
             win_rate = len(winning_trades) / len(trades) * 100
             
-            # 计算夏普比率（简化版）
+            # 计算夏普比率(简化版)
             pnl_list = [t["pnl"] for t in trades]
             avg_return = sum(pnl_list) / len(pnl_list)
             std_dev = (sum((x - avg_return) ** 2 for x in pnl_list) / len(pnl_list)) ** 0.5

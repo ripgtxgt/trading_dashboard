@@ -67,8 +67,8 @@ class RiskManager:
             # 时间窗口限制
             'trading_hours': {
                 'enabled': False,
-                'start_hour': 0,  # 开始时间（UTC）
-                'end_hour': 24,   # 结束时间（UTC）
+                'start_hour': 0,  # 开始时间(UTC)
+                'end_hour': 24,   # 结束时间(UTC)
             },
             
             # 紧急熔断
@@ -252,7 +252,7 @@ class RiskManager:
         if not self.is_trading_allowed:
             if self.pause_until:
                 if datetime.now() >= self.pause_until:
-                    # 暂停期结束，自动恢复
+                    # 暂停期结束, 自动恢复
                     if self.config['auto_resume']['enabled']:
                         self.manual_resume()
                         return True
@@ -401,13 +401,13 @@ class RiskManager:
             self.trade_history = state.get('trade_history', [])
             self.risk_events = state.get('risk_events', [])
         except Exception as e:
-            print(f"[警告] 加载风险管理状态失败: {e}")
+            print(f"[Warning] LoadRiskFailed: {e}")
 
 
 if __name__ == "__main__":
     # 测试代码
     print("========================================")
-    print("风险管理模块测试")
+    print("Risk")
     print("========================================")
     
     # 创建风险管理器
@@ -418,44 +418,44 @@ if __name__ == "__main__":
     current_capital = initial_capital
     current_price = 100.0
     
-    print(f"\n初始资金: {current_capital} USDT")
-    print(f"初始价格: {current_price}")
+    print(f"\nCapital: {current_capital} USDT")
+    print(f"Price: {current_price}")
     
     # 测试1: 正常交易
-    print("\n[测试1] 正常交易检查...")
+    print("\n[1] TradeCheck...")
     allowed, reason = risk_manager.check_risk(current_price, current_capital)
-    print(f"允许交易: {allowed}, 原因: {reason}")
+    print(f"Trade: {allowed}, : {reason}")
     
     # 测试2: 记录盈利交易
-    print("\n[测试2] 记录盈利交易...")
+    print("\n[2] ProfitTrade...")
     risk_manager.record_trade(pnl=5.0, is_win=True)
     current_capital += 5.0
-    print(f"当前资金: {current_capital} USDT")
-    print(f"今日盈亏: {risk_manager.daily_pnl} USDT")
+    print(f"CurrentCapital: {current_capital} USDT")
+    print(f": {risk_manager.daily_pnl} USDT")
     
     # 测试3: 连续亏损
-    print("\n[测试3] 模拟连续亏损...")
+    print("\n[3] Loss...")
     for i in range(3):
         risk_manager.record_trade(pnl=-3.0, is_win=False)
         current_capital -= 3.0
-        print(f"第{i+1}笔亏损, 当前资金: {current_capital} USDT")
+        print(f"{i+1}Loss, CurrentCapital: {current_capital} USDT")
     
     allowed, reason = risk_manager.check_risk(current_price, current_capital)
-    print(f"允许交易: {allowed}, 原因: {reason}")
+    print(f"Trade: {allowed}, : {reason}")
     
     # 测试4: 市场波动
-    print("\n[测试4] 模拟市场剧烈波动...")
+    print("\n[4] ...")
     for i in range(20):
         current_price *= (1 + 0.01 * (1 if i % 2 == 0 else -1))
         risk_manager.check_risk(current_price, current_capital)
     
-    print(f"当前波动率: {risk_manager.volatility:.4f}")
+    print(f"Current: {risk_manager.volatility:.4f}")
     
     # 测试5: 获取风险状态
-    print("\n[测试5] 风险状态摘要...")
+    print("\n[5] Risk...")
     status = risk_manager.get_risk_status()
     print(json.dumps(status, indent=2, ensure_ascii=False))
     
     print("\n========================================")
-    print("测试完成")
+    print("Complete")
     print("========================================")

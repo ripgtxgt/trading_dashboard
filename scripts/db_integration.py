@@ -11,7 +11,7 @@ from typing import Optional, Dict, Any
 import json
 import sys
 
-# 尝试导入WebSocket客户端（可选）
+# 尝试导入WebSocket客户端(可选)
 try:
     from websocket_client import WebSocketClient
     WS_AVAILABLE = True
@@ -97,8 +97,8 @@ class DatabaseIntegration:
         保存交易记录
         
         Args:
-            symbol: 交易对，如 XBTUSDTM
-            direction: 方向，long 或 short
+            symbol: 交易对, 如 XBTUSDTM
+            direction: 方向, long 或 short
             entry_price: 入场价格
             exit_price: 出场价格
             quantity: 交易数量
@@ -183,7 +183,7 @@ class DatabaseIntegration:
         
         Args:
             symbol: 交易对
-            direction: 方向，long/short/None(空仓)
+            direction: 方向, long/short/None(空仓)
             entry_price: 入场价格
             quantity: 持仓数量
             current_price: 当前价格
@@ -352,7 +352,7 @@ if __name__ == "__main__":
     # 初始化数据库集成
     db = DatabaseIntegration()
     
-    # 示例：保存交易记录
+    # 示例: 保存交易记录
     db.save_trade(
         symbol="XBTUSDTM",
         direction="long",
@@ -364,7 +364,7 @@ if __name__ == "__main__":
         fee=0.5,
     )
     
-    # 示例：更新持仓
+    # 示例: 更新持仓
     db.update_position(
         symbol="XBTUSDTM",
         direction="long",
@@ -373,7 +373,7 @@ if __name__ == "__main__":
         current_price=50500.0,
     )
     
-    # 示例：更新账户状态
+    # 示例: 更新账户状态
     db.update_account_state(
         balance=11.0,
         profit_rate=10.0,

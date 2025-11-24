@@ -11,7 +11,7 @@ def generate_jwt_secret(length=64):
     生成安全的JWT密钥
     
     Args:
-        length: 密钥长度（默认64位）
+        length: 密钥长度(默认64位)
     
     Returns:
         随机生成的JWT密钥字符串
@@ -26,32 +26,32 @@ def generate_jwt_secret(length=64):
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("JWT密钥生成工具")
+    print("JWT")
     print("=" * 70)
     print()
     
     # 生成3个不同长度的密钥供选择
-    print("推荐使用64位密钥（最安全）：")
+    print("64(): ")
     print("-" * 70)
     secret_64 = generate_jwt_secret(64)
     print(secret_64)
     print()
     
-    print("32位密钥（适中）：")
+    print("32(): ")
     print("-" * 70)
     secret_32 = generate_jwt_secret(32)
     print(secret_32)
     print()
     
-    print("使用方法：")
+    print(": ")
     print("-" * 70)
-    print("1. 复制上面的密钥（推荐64位）")
-    print("2. 打开 .env 文件")
-    print("3. 找到 JWT_SECRET= 这一行")
-    print("4. 将密钥粘贴到等号后面")
-    print("5. 保存文件")
+    print("1. (64)")
+    print("2.  .env ")
+    print("3.  JWT_SECRET= ")
+    print("4. ")
+    print("5. Save")
     print()
-    print("示例：")
+    print(": ")
     print(f"JWT_SECRET={secret_64}")
     print()
     print("=" * 70)

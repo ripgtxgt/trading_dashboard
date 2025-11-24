@@ -33,15 +33,15 @@ class TradingBotWithWebSocket:
         
     async def start(self):
         """启动交易机器人"""
-        logger.info("启动交易机器人...")
+        logger.info("StartTrade...")
         
         # 连接WebSocket
         if not await self.ws_client.connect():
-            logger.error("WebSocket连接失败，无法启动")
+            logger.error("WebSocketConnectFailed, CannotStart")
             return
         
         self.is_running = True
-        logger.info("交易机器人已启动")
+        logger.info("TradeStart")
         
         # 推送初始状态
         await self.push_account_status()
@@ -57,7 +57,7 @@ class TradingBotWithWebSocket:
     
     async def stop(self):
         """停止交易机器人"""
-        logger.info("停止交易机器人...")
+        logger.info("StopTrade...")
         self.is_running = False
     
     async def trading_loop(self):
@@ -67,7 +67,7 @@ class TradingBotWithWebSocket:
             risk_status = self.risk_manager.get_risk_status()
             
             if not risk_status['is_trading_allowed']:
-                logger.warning(f"交易已暂停: {risk_status['pause_reason']}")
+                logger.warning(f"TradePaused: {risk_status['pause_reason']}")
                 await self.push_risk_status()
                 return
             
@@ -90,7 +90,7 @@ class TradingBotWithWebSocket:
             await self.push_risk_status()
             
         except Exception as e:
-            logger.error(f"交易循环错误: {e}")
+            logger.error(f"TradeError: {e}")
     
     def generate_signal(self, price: float) -> Dict[str, Any] | None:
         """
@@ -103,7 +103,7 @@ class TradingBotWithWebSocket:
             交易信号或None
         """
         # 这里应该实现真实的策略逻辑
-        # 示例：随机生成信号
+        # 示例: 随机生成信号
         import random
         if random.random() < 0.1:  # 10%概率生成信号
             return {
@@ -122,7 +122,7 @@ class TradingBotWithWebSocket:
             price: 当前价格
         """
         try:
-            logger.info(f"执行交易: {signal}")
+            logger.info(f"Trade: {signal}")
             
             # 1. 创建订单
             order_id = f"order_{int(time.time())}"
@@ -183,10 +183,10 @@ class TradingBotWithWebSocket:
                     # 记录到风险管理器
                     self.risk_manager.record_trade(pnl, pnl > 0)
             
-            logger.info(f"交易执行成功: {order_id}")
+            logger.info(f"TradeSuccess: {order_id}")
             
         except Exception as e:
-            logger.error(f"执行交易失败: {e}")
+            logger.error(f"TradeFailed: {e}")
     
     async def update_positions(self, current_price: float):
         """
@@ -242,21 +242,21 @@ async def main():
     try:
         await bot.start()
     except KeyboardInterrupt:
-        logger.info("接收到停止信号")
+        logger.info("ReceiveStop")
         await bot.stop()
 
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("集成WebSocket的交易机器人示例")
+    print("WebSocketTrade")
     print("=" * 60)
-    print("\n功能说明:")
-    print("- 实时推送账户余额变化")
-    print("- 实时推送持仓信息")
-    print("- 实时推送订单状态")
-    print("- 实时推送交易记录")
-    print("- 实时推送风险状态")
-    print("\n按 Ctrl+C 停止运行\n")
+    print("\n:")
+    print("- PushBalance")
+    print("- PushPositionInfo")
+    print("- PushOrder")
+    print("- PushTrade")
+    print("- PushRisk")
+    print("\n Ctrl+C StopRunning\n")
     print("=" * 60)
     
     asyncio.run(main())

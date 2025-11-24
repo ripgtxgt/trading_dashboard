@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 波动率监控模块
-实时监控市场波动率，评估风险等级，并提供仓位建议
+实时监控市场波动率, 评估风险等级, 并提供仓位建议
 """
 
 import numpy as np
@@ -21,18 +21,18 @@ class VolatilityMonitor:
         
         # 波动率阈值配置
         self.volatility_thresholds = {
-            'low': 0.02,      # 低波动：< 2%
-            'medium': 0.05,   # 中波动：2-5%
-            'high': 0.10,     # 高波动：5-10%
-            'extreme': 0.10   # 极端波动：> 10%
+            'low': 0.02,      # 低波动: < 2%
+            'medium': 0.05,   # 中波动: 2-5%
+            'high': 0.10,     # 高波动: 5-10%
+            'extreme': 0.10   # 极端波动: > 10%
         }
         
         # 仓位调整系数
         self.position_multipliers = {
-            'low': 1.0,       # 低波动：正常仓位
-            'medium': 0.7,    # 中波动：70%仓位
-            'high': 0.4,      # 高波动：40%仓位
-            'extreme': 0.0    # 极端波动：停止交易
+            'low': 1.0,       # 低波动: 正常仓位
+            'medium': 0.7,    # 中波动: 70%仓位
+            'high': 0.4,      # 高波动: 40%仓位
+            'extreme': 0.0    # 极端波动: 停止交易
         }
     
     def add_price_data(
@@ -63,13 +63,13 @@ class VolatilityMonitor:
     
     def calculate_atr(self, period: int = 14) -> Optional[float]:
         """
-        计算ATR（平均真实波幅）
+        计算ATR(平均真实波幅)
         
         Args:
             period: ATR周期
         
         Returns:
-            ATR值，如果数据不足返回None
+            ATR值, 如果数据不足返回None
         """
         if len(self.close_history) < period + 1:
             return None
@@ -88,7 +88,7 @@ class VolatilityMonitor:
             )
             true_ranges.append(tr)
         
-        # 计算ATR（简单移动平均）
+        # 计算ATR(简单移动平均)
         if len(true_ranges) >= period:
             atr = np.mean(true_ranges[-period:])
             return atr
@@ -97,13 +97,13 @@ class VolatilityMonitor:
     
     def calculate_historical_volatility(self, period: int = 20) -> Optional[float]:
         """
-        计算历史波动率（标准差）
+        计算历史波动率(标准差)
         
         Args:
             period: 计算周期
         
         Returns:
-            波动率（百分比），如果数据不足返回None
+            波动率(百分比), 如果数据不足返回None
         """
         if len(self.close_history) < period + 1:
             return None
@@ -167,22 +167,22 @@ class VolatilityMonitor:
                 'trend': None,
                 'position_multiplier': 0.5,
                 'should_pause': False,
-                'message': '数据不足，无法评估风险'
+                'message': '数据不足, 无法评估风险'
             }
         
         # 确定风险等级
         if volatility < self.volatility_thresholds['low']:
             level = 'low'
-            message = '市场波动较小，风险较低'
+            message = '市场波动较小, 风险较低'
         elif volatility < self.volatility_thresholds['medium']:
             level = 'medium'
-            message = '市场波动正常，风险适中'
+            message = '市场波动正常, 风险适中'
         elif volatility < self.volatility_thresholds['high']:
             level = 'high'
-            message = '市场波动较大，风险较高'
+            message = '市场波动较大, 风险较高'
         else:
             level = 'extreme'
-            message = '市场剧烈波动，风险极高'
+            message = '市场剧烈波动, 风险极高'
         
         # 获取仓位调整系数
         position_multiplier = self.position_multipliers[level]
@@ -190,10 +190,10 @@ class VolatilityMonitor:
         # 是否应该暂停交易
         should_pause = (level == 'extreme')
         
-        # 如果波动率趋势上升，降低仓位
+        # 如果波动率趋势上升, 降低仓位
         if trend == 'increasing' and level in ['medium', 'high']:
             position_multiplier *= 0.8
-            message += '，波动率上升趋势'
+            message += ', 波动率上升趋势'
         
         return {
             'level': level,
@@ -294,14 +294,14 @@ if __name__ == "__main__":
     
     # 获取风险评估
     risk = monitor.assess_risk_level()
-    print(f"\n风险评估:")
-    print(f"  等级: {risk['level']}")
-    print(f"  波动率: {risk['volatility']:.4f} ({risk['volatility']*100:.2f}%)")
+    print(f"\nRiskAssess:")
+    print(f"  : {risk['level']}")
+    print(f"  : {risk['volatility']:.4f} ({risk['volatility']*100:.2f}%)")
     print(f"  ATR: {risk['atr']:.2f}")
-    print(f"  趋势: {risk['trend']}")
-    print(f"  仓位系数: {risk['position_multiplier']:.2f}")
-    print(f"  应暂停: {risk['should_pause']}")
-    print(f"  说明: {risk['message']}")
+    print(f"  : {risk['trend']}")
+    print(f"  : {risk['position_multiplier']:.2f}")
+    print(f"  Paused: {risk['should_pause']}")
+    print(f"  : {risk['message']}")
     
     # 获取仓位建议
     position_advice = monitor.get_safe_position_size(
@@ -309,15 +309,15 @@ if __name__ == "__main__":
         current_price=base_price,
         account_balance=10000
     )
-    print(f"\n仓位建议:")
-    print(f"  基础仓位: {position_advice['base_position']}")
-    print(f"  安全仓位: {position_advice['safe_position']:.4f}")
-    print(f"  调整系数: {position_advice['multiplier']:.2f}")
-    print(f"  仓位价值: ${position_advice['position_value']:.2f}")
-    print(f"  占比: {position_advice['position_ratio']*100:.2f}%")
+    print(f"\n:")
+    print(f"  : {position_advice['base_position']}")
+    print(f"  : {position_advice['safe_position']:.4f}")
+    print(f"  : {position_advice['multiplier']:.2f}")
+    print(f"  : ${position_advice['position_value']:.2f}")
+    print(f"  : {position_advice['position_ratio']*100:.2f}%")
     
     # 判断是否暂停
     should_pause, reason = monitor.should_pause_trading()
-    print(f"\n交易状态:")
-    print(f"  应暂停: {should_pause}")
-    print(f"  原因: {reason}")
+    print(f"\nTrade:")
+    print(f"  Paused: {should_pause}")
+    print(f"  : {reason}")

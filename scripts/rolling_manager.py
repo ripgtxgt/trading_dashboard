@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 10U战神滚仓管理器
-负责滚仓策略的核心逻辑：阶段管理、加仓、移动止损、分批平仓
+负责滚仓策略的核心逻辑: 阶段管理、加仓、移动止损、分批平仓
 """
 
 import time
@@ -17,9 +17,9 @@ class Position:
     """持仓信息"""
     position_id: str          # 持仓ID
     entry_price: float        # 开仓价格
-    size: int                 # 持仓数量（张数）
-    side: str                 # 方向：'long' 或 'short'
-    margin: float             # 保证金（USDT）
+    size: int                 # 持仓数量(张数)
+    side: str                 # 方向: 'long' 或 'short'
+    margin: float             # 保证金(USDT)
     unrealized_pnl: float     # 未实现盈亏
     stop_loss: float          # 止损价格
     take_profit: float        # 止盈价格
@@ -38,7 +38,7 @@ class StageConfig:
     name: str                 # 阶段名称
     balance_min: float        # 最小余额
     balance_max: float        # 最大余额
-    position_ratio: float     # 仓位比例（0-1）
+    position_ratio: float     # 仓位比例(0-1)
     stop_loss_ratio: float    # 止损比例
     take_profit_ratio: float  # 止盈比例
     max_add_count: int        # 最大加仓次数
@@ -49,8 +49,8 @@ class RollingManager:
     """
     10U战神滚仓管理器
     
-    核心功能：
-    1. 资金阶段管理（10U→80U→200U→1000U）
+    核心功能: 
+    1. 资金阶段管理(10U->80U->200U->1000U)
     2. 动态仓位计算
     3. 盈利加仓逻辑
     4. 移动止损机制
@@ -83,7 +83,7 @@ class RollingManager:
             name="分仓阶段",
             balance_min=80,
             balance_max=200,
-            position_ratio=0.125,    # 12.5%仓位（10U固定）
+            position_ratio=0.125,    # 12.5%仓位(10U固定)
             stop_loss_ratio=0.15,
             take_profit_ratio=0.5,
             max_add_count=2,
@@ -93,7 +93,7 @@ class RollingManager:
             name="阶梯阶段",
             balance_min=200,
             balance_max=1000,
-            position_ratio=0.1,      # 10%仓位（20U）
+            position_ratio=0.1,      # 10%仓位(20U)
             stop_loss_ratio=0.15,
             take_profit_ratio=0.4,
             max_add_count=3,
@@ -103,7 +103,7 @@ class RollingManager:
             name="稳健阶段",
             balance_min=1000,
             balance_max=float('inf'),
-            position_ratio=0.05,     # 5%仓位（50U）
+            position_ratio=0.05,     # 5%仓位(50U)
             stop_loss_ratio=0.10,
             take_profit_ratio=0.3,
             max_add_count=4,
@@ -116,7 +116,7 @@ class RollingManager:
         初始化滚仓管理器
         
         Args:
-            leverage: 杠杆倍数，默认100倍
+            leverage: 杠杆倍数, 默认100倍
         """
         self.leverage = leverage
         self.current_position: Optional[Position] = None
@@ -129,7 +129,7 @@ class RollingManager:
         self.max_consecutive_losses = 3
         self.is_paused = False
         
-        print(f"[滚仓管理器] 初始化完成，杠杆: {leverage}x")
+        print(f"[] InitializeComplete, : {leverage}x")
     
     def get_current_stage(self, balance: float) -> StageConfig:
         """
@@ -162,11 +162,11 @@ class RollingManager:
         # 计算保证金
         margin = balance * stage.position_ratio
         
-        # 计算张数（KuCoin BTC合约1张=1USD）
+        # 计算张数(KuCoin BTC合约1张=1USD)
         # 张数 = 保证金 × 杠杆 / 价格
         size = int(margin * self.leverage)
         
-        print(f"[仓位计算] 阶段: {stage.name}, 余额: {balance:.2f}U, "
+        print(f"[] : {stage.name}, Balance: {balance:.2f}U, "
               f"仓位比例: {stage.position_ratio*100:.1f}%, "
               f"保证金: {margin:.2f}U, 张数: {size}")
         
@@ -214,7 +214,7 @@ class RollingManager:
         
         self.current_position = position
         
-        print(f"[创建持仓] {side.upper()} {size}张 @ {entry_price:.1f}, "
+        print(f"[Position] {side.upper()} {size} @ {entry_price:.1f}, "
               f"止损: {stop_loss:.1f}, 止盈: {take_profit:.1f}")
         
         return position
@@ -269,11 +269,11 @@ class RollingManager:
         if pnl_ratio < stage.add_profit_threshold:
             return False, 0.0, f"盈利未达阈值 {stage.add_profit_threshold*100:.0f}%"
         
-        # 检查加仓间隔（至少5分钟）
+        # 检查加仓间隔(至少5分钟)
         if time.time() - pos.last_add_time < 300:
             return False, 0.0, "加仓间隔太短"
         
-        # 计算加仓保证金（使用利润的80%）
+        # 计算加仓保证金(使用利润的80%)
         add_margin = pos.unrealized_pnl * 0.8
         
         # 确保加仓保证金不超过当前余额的20%
@@ -283,7 +283,7 @@ class RollingManager:
         if add_margin < 1.0:  # 至少1U
             return False, 0.0, "加仓金额太小"
         
-        return True, add_margin, f"盈利{pnl_ratio*100:.1f}%，可加仓{add_margin:.2f}U"
+        return True, add_margin, f"盈利{pnl_ratio*100:.1f}%, 可加仓{add_margin:.2f}U"
     
     def add_position(self, current_price: float, add_size: int, add_margin: float):
         """
@@ -295,7 +295,7 @@ class RollingManager:
             add_margin: 加仓保证金
         """
         if not self.current_position:
-            print("[加仓失败] 无持仓")
+            print("[Failed] Position")
             return
         
         pos = self.current_position
@@ -319,8 +319,8 @@ class RollingManager:
         # 更新移动止损到保本线
         self.update_trailing_stop(current_price)
         
-        print(f"[加仓成功] 第{pos.add_count}次加仓，新增{add_size}张，"
-              f"总仓位{total_size}张，平均价{new_entry:.1f}")
+        print(f"[Success] {pos.add_count}, {add_size}, "
+              f"总仓位{total_size}张, 平均价{new_entry:.1f}")
     
     def update_trailing_stop(self, current_price: float):
         """
@@ -361,11 +361,11 @@ class RollingManager:
         if pos.side == 'long':
             if new_stop > old_stop:
                 pos.stop_loss = new_stop
-                print(f"[移动止损] {old_stop:.1f} → {new_stop:.1f} (盈利{pnl_ratio*100:.1f}%)")
+                print(f"[Stop loss] {old_stop:.1f} -> {new_stop:.1f} (Profit{pnl_ratio*100:.1f}%)")
         else:
             if new_stop < old_stop:
                 pos.stop_loss = new_stop
-                print(f"[移动止损] {old_stop:.1f} → {new_stop:.1f} (盈利{pnl_ratio*100:.1f}%)")
+                print(f"[Stop loss] {old_stop:.1f} -> {new_stop:.1f} (Profit{pnl_ratio*100:.1f}%)")
     
     def should_partial_close(self) -> Tuple[bool, float, str]:
         """
@@ -382,11 +382,11 @@ class RollingManager:
         
         # 分批平仓策略
         if pnl_ratio >= 1.0:  # 盈利100%
-            return True, 0.3, f"盈利{pnl_ratio*100:.1f}%，平仓30%锁定利润"
+            return True, 0.3, f"盈利{pnl_ratio*100:.1f}%, 平仓30%锁定利润"
         elif pnl_ratio >= 0.8:  # 盈利80%
-            return True, 0.4, f"盈利{pnl_ratio*100:.1f}%，平仓40%锁定利润"
+            return True, 0.4, f"盈利{pnl_ratio*100:.1f}%, 平仓40%锁定利润"
         elif pnl_ratio >= 0.5:  # 盈利50%
-            return True, 0.3, f"盈利{pnl_ratio*100:.1f}%，平仓30%锁定利润"
+            return True, 0.3, f"盈利{pnl_ratio*100:.1f}%, 平仓30%锁定利润"
         
         return False, 0.0, "盈利未达分批平仓阈值"
     
@@ -429,13 +429,13 @@ class RollingManager:
         
         Args:
             close_price: 平仓价格
-            close_ratio: 平仓比例（0-1），1.0表示全平
+            close_ratio: 平仓比例(0-1), 1.0表示全平
             
         Returns:
             平仓记录
         """
         if not self.current_position:
-            print("[平仓失败] 无持仓")
+            print("[Close positionFailed] Position")
             return {}
         
         pos = self.current_position
@@ -472,26 +472,26 @@ class RollingManager:
         # 更新连续亏损计数
         if pnl < 0:
             self.consecutive_losses += 1
-            print(f"[平仓] 亏损 {pnl:.2f}U ({record['pnl_ratio']*100:.1f}%), "
+            print(f"[Close position] Loss {pnl:.2f}U ({record['pnl_ratio']*100:.1f}%), "
                   f"连续亏损 {self.consecutive_losses} 次")
         else:
             self.consecutive_losses = 0
-            print(f"[平仓] 盈利 {pnl:.2f}U ({record['pnl_ratio']*100:.1f}%)")
+            print(f"[Close position] Profit {pnl:.2f}U ({record['pnl_ratio']*100:.1f}%)")
         
         # 检查是否需要暂停
         if self.consecutive_losses >= self.max_consecutive_losses:
             self.is_paused = True
-            print(f"[风险控制] 连续亏损{self.consecutive_losses}次，暂停交易！")
+            print(f"[RiskControl] Loss{self.consecutive_losses}, PausedTrade!")
         
-        # 如果是全平，清除持仓
+        # 如果是全平, 清除持仓
         if close_ratio >= 1.0:
             self.current_position = None
-            print(f"[全部平仓] {pos.side.upper()} {close_size}张 @ {close_price:.1f}")
+            print(f"[Close position] {pos.side.upper()} {close_size} @ {close_price:.1f}")
         else:
-            # 部分平仓，更新持仓
+            # 部分平仓, 更新持仓
             pos.size -= close_size
             pos.margin *= (1 - close_ratio)
-            print(f"[部分平仓] {pos.side.upper()} {close_size}张 @ {close_price:.1f}, "
+            print(f"[Close position] {pos.side.upper()} {close_size} @ {close_price:.1f}, "
                   f"剩余 {pos.size}张")
         
         return record
@@ -524,7 +524,7 @@ class RollingManager:
         """重置暂停状态"""
         self.is_paused = False
         self.consecutive_losses = 0
-        print("[风险控制] 重置暂停状态")
+        print("[RiskControl] Paused")
     
     def save_state(self, filepath: str = 'rolling_state.json'):
         """
@@ -546,7 +546,7 @@ class RollingManager:
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(state, f, indent=2, ensure_ascii=False)
         
-        print(f"[状态保存] 已保存到 {filepath}")
+        print(f"[Save] Save {filepath}")
     
     def load_state(self, filepath: str = 'rolling_state.json'):
         """
@@ -569,20 +569,20 @@ class RollingManager:
                 pos_data = state['current_position']
                 self.current_position = Position(**pos_data)
             
-            print(f"[状态加载] 已从 {filepath} 加载状态")
-            print(f"  余额: {self.balance:.2f}U, 总盈利: {self.total_profit:.2f}U, "
+            print(f"[Load]  {filepath} Load")
+            print(f"  Balance: {self.balance:.2f}U, Profit: {self.total_profit:.2f}U, "
                   f"交易次数: {len(self.trade_history)}")
             
         except FileNotFoundError:
-            print(f"[状态加载] 文件不存在: {filepath}")
+            print(f"[Load] : {filepath}")
         except Exception as e:
-            print(f"[状态加载] 加载失败: {e}")
+            print(f"[Load] LoadFailed: {e}")
 
 
 if __name__ == '__main__':
     """测试代码"""
     print("=" * 60)
-    print("10U战神滚仓管理器 - 测试")
+    print("10U - ")
     print("=" * 60)
     
     # 创建管理器
@@ -592,12 +592,12 @@ if __name__ == '__main__':
     manager.balance = 10.0
     
     # 测试1: 计算开仓大小
-    print("\n[测试1] 计算开仓大小")
+    print("\n[1] Open position")
     margin, size = manager.calculate_position_size(manager.balance, 80000)
-    print(f"结果: 保证金={margin}U, 张数={size}")
+    print(f": ={margin}U, ={size}")
     
     # 测试2: 创建持仓
-    print("\n[测试2] 创建持仓")
+    print("\n[2] Position")
     pos = manager.create_position(
         entry_price=80000,
         size=size,
@@ -605,39 +605,39 @@ if __name__ == '__main__':
         margin=margin,
         balance=manager.balance
     )
-    print(f"持仓: {pos.side} {pos.size}张 @ {pos.entry_price}")
+    print(f"Position: {pos.side} {pos.size} @ {pos.entry_price}")
     
     # 测试3: 更新盈亏
-    print("\n[测试3] 更新盈亏")
+    print("\n[3] Update")
     current_price = 84000  # 上涨5%
     pnl = manager.update_position_pnl(current_price)
-    print(f"当前价格: {current_price}, 盈亏: {pnl:.2f}U ({pnl/margin*100:.1f}%)")
+    print(f"CurrentPrice: {current_price}, : {pnl:.2f}U ({pnl/margin*100:.1f}%)")
     
     # 测试4: 检查加仓
-    print("\n[测试4] 检查加仓")
+    print("\n[4] Check")
     should_add, add_margin, reason = manager.should_add_position(manager.balance + pnl)
-    print(f"是否加仓: {should_add}, 加仓金额: {add_margin:.2f}U, 原因: {reason}")
+    print(f": {should_add}, : {add_margin:.2f}U, : {reason}")
     
     # 测试5: 检查分批平仓
-    print("\n[测试5] 检查分批平仓")
+    print("\n[5] CheckClose position")
     should_close, close_ratio, reason = manager.should_partial_close()
-    print(f"是否平仓: {should_close}, 平仓比例: {close_ratio*100:.0f}%, 原因: {reason}")
+    print(f"Close position: {should_close}, Close position: {close_ratio*100:.0f}%, : {reason}")
     
     # 测试6: 检查止损止盈
-    print("\n[测试6] 检查止损止盈")
+    print("\n[6] CheckStop lossTake profit")
     triggered, reason = manager.check_stop_conditions(current_price)
-    print(f"触发: {triggered}, 原因: {reason}")
+    print(f": {triggered}, : {reason}")
     
     # 测试7: 平仓
-    print("\n[测试7] 平仓")
+    print("\n[7] Close position")
     record = manager.close_position(current_price, 1.0)
-    print(f"平仓记录: 盈亏={record['pnl']:.2f}U, 盈亏率={record['pnl_ratio']*100:.1f}%")
+    print(f"Close position: ={record['pnl']:.2f}U, ={record['pnl_ratio']*100:.1f}%")
     
     # 测试8: 获取状态
-    print("\n[测试8] 获取状态")
+    print("\n[8] Get")
     status = manager.get_status()
     print(json.dumps(status, indent=2, ensure_ascii=False))
     
     print("\n" + "=" * 60)
-    print("测试完成")
+    print("Complete")
     print("=" * 60)
