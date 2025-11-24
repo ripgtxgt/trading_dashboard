@@ -645,3 +645,12 @@
 - [x] 允许进程不存在时继续执行（使用try-catch忽略错误）
 - [x] 重新打包
 - [x] 保存并交付
+
+
+## 修夏PM2启动命令 (v33.10)
+
+- [x] 修夏deploy_windows.ps1中的PM2启动命令
+- [x] 使用PM2 ecosystem配置文件
+- [x] 修夏ecosystem.config.js，改用node dist/index.js
+- [x] 重新打包
+- [x] 保存并交付

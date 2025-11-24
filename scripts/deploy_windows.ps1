@@ -191,20 +191,11 @@ Write-Host ""
 # ===================================================================
 Write-Host "[9/10] Starting services..." -ForegroundColor Yellow
 
-# Start Web Dashboard
-Write-Host "  Starting Web Dashboard..." -ForegroundColor Cyan
-if (Get-Command "pnpm" -ErrorAction SilentlyContinue) {
-    pm2 start pnpm --name "trading-dashboard" -- start
-} else {
-    pm2 start npm --name "trading-dashboard" -- start
-}
+# Start services using PM2 ecosystem config
+Write-Host "  Starting services using PM2 ecosystem config..." -ForegroundColor Cyan
+pm2 start ecosystem.config.js
 
-# Start WebSocket Server
-Write-Host "  Starting WebSocket server..." -ForegroundColor Cyan
-pm2 start python --name "websocket-server" -- scripts/websocket_pusher.py
-
-# Trading bot (optional)
-Write-Host "  [INFO] Trading bot needs to be started manually" -ForegroundColor Cyan
+Write-Host "  [INFO] Trading bot can be started manually if needed" -ForegroundColor Cyan
 Write-Host "    Start command: pm2 start python --name trading-bot -- scripts/kucoin_api.py" -ForegroundColor Gray
 
 Write-Host "  [OK] Services started" -ForegroundColor Green

@@ -5,11 +5,11 @@
 
 module.exports = {
   apps: [
-    // Web Dashboard (Next.js 服务器)
+    // Web Dashboard (Express + tRPC Server)
     {
       name: 'trading-dashboard',
-      script: 'pnpm',
-      args: 'start',
+      script: 'node',
+      args: 'dist/index.js',
       cwd: './',
       instances: 1,
       autorestart: true,
