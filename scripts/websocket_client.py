@@ -32,7 +32,7 @@ class WebSocketClient:
         self.url = url
         self.websocket: Optional[websockets.WebSocketClientProtocol] = None
         self.connected = False
-        self.reconnect_delay = 5  # 重连延迟(秒)
+        self.reconnect_delay = 5  # 重连延迟(s)
         self.max_reconnect_attempts = 3  # 最大重连次数
         
     async def connect(self) -> bool:
@@ -61,14 +61,14 @@ class WebSocketClient:
     
     async def send_data(self, data_type: str, data: Dict[str, Any]) -> bool:
         """
-        发送数据到WebSocket服务器
+        Send数据到WebSocket服务器
         
         Args:
             data_type: 数据类型 (account, position, kline, risk, trade, order)
-            data: 要发送的数据
+            data: 要Send的数据
             
         Returns:
-            bool: 发送是否成功
+            bool: Send是否成功
         """
         if not self.connected or not self.websocket:
             logger.warning("WebSocketNotConnect, Connect...")
@@ -187,7 +187,7 @@ class WebSocketClient:
         
         Args:
             is_trading_allowed: 是否允许交易
-            pause_reason: 暂停原因
+            pause_reason: Pause reason
             daily_pnl: 今日盈亏
             total_pnl: 总盈亏
             consecutive_losses: 连续亏损次数

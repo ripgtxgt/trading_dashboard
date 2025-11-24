@@ -51,7 +51,7 @@ class TradingBotWithWebSocket:
         try:
             while self.is_running:
                 await self.trading_loop()
-                await asyncio.sleep(5)  # 每5秒执行一次
+                await asyncio.sleep(5)  # 每5s执行一次
         finally:
             await self.ws_client.disconnect()
     

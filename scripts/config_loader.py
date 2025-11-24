@@ -20,7 +20,7 @@ class ConfigLoader:
         self.cursor = None
         self.last_config = None
         self.last_load_time = 0
-        self.cache_duration = 5  # 缓存5秒, 避免频繁查询
+        self.cache_duration = 5  # 缓存5s, 避免频繁查询
         
         if self.db_url:
             self._connect()

@@ -59,7 +59,7 @@ def get_risk_status():
         # 计算波动率
         vol_data = vol_monitor.calculate_volatility(klines)
         
-        # 评估风险等级
+        # 评估Risk level
         risk_level = vol_monitor.assess_risk_level(vol_data)
         
         # 计算仓位倍数

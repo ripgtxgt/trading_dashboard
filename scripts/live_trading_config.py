@@ -80,7 +80,7 @@ SAFETY_CONFIG = {
 
 # 运行配置
 RUN_CONFIG = {
-    'check_interval': 60,  # 检查间隔(秒)
+    'check_interval': 60,  # 检查间隔(s)
     'log_level': 'INFO',  # 日志级别: DEBUG, INFO, WARNING, ERROR
     'log_dir': 'logs',  # 日志目录(相对路径, 跨平台兼容)
     'state_file': 'trading_state.json',  # 状态文件(相对路径, 跨平台兼容)

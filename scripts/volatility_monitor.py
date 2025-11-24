@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 波动率监控模块
-实时监控市场波动率, 评估风险等级, 并提供仓位建议
+实时监控市场波动率, 评估Risk level, 并提供仓位建议
 """
 
 import numpy as np
@@ -150,7 +150,7 @@ class VolatilityMonitor:
     
     def assess_risk_level(self) -> Dict:
         """
-        评估风险等级
+        评估Risk level
         
         Returns:
             风险评估结果字典
@@ -167,22 +167,22 @@ class VolatilityMonitor:
                 'trend': None,
                 'position_multiplier': 0.5,
                 'should_pause': False,
-                'message': '数据不足, 无法评估风险'
+                'message': 'Insufficient data, cannot assess risk'
             }
         
-        # 确定风险等级
+        # 确定Risk level
         if volatility < self.volatility_thresholds['low']:
             level = 'low'
-            message = '市场波动较小, 风险较低'
+            message = 'Low market volatility, low risk'
         elif volatility < self.volatility_thresholds['medium']:
             level = 'medium'
-            message = '市场波动正常, 风险适中'
+            message = 'Normal market volatility, moderate risk'
         elif volatility < self.volatility_thresholds['high']:
             level = 'high'
-            message = '市场波动较大, 风险较高'
+            message = 'High market volatility, high risk'
         else:
             level = 'extreme'
-            message = '市场剧烈波动, 风险极高'
+            message = 'Extreme market volatility, very high risk'
         
         # 获取仓位调整系数
         position_multiplier = self.position_multipliers[level]
@@ -193,7 +193,7 @@ class VolatilityMonitor:
         # 如果波动率趋势上升, 降低仓位
         if trend == 'increasing' and level in ['medium', 'high']:
             position_multiplier *= 0.8
-            message += ', 波动率上升趋势'
+            message += ', Volatility rising trend'
         
         return {
             'level': level,
@@ -224,7 +224,7 @@ class VolatilityMonitor:
         """
         risk_assessment = self.assess_risk_level()
         
-        # 根据风险等级调整仓位
+        # 根据Risk level调整仓位
         multiplier = risk_assessment['position_multiplier']
         safe_position = base_position * multiplier
         

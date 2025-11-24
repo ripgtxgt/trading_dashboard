@@ -60,7 +60,7 @@ class RollingManager:
     # 阶段配置
     STAGES = [
         StageConfig(
-            name="初始阶段",
+            name="Initial Stage",
             balance_min=0,
             balance_max=20,
             position_ratio=0.5,      # 50%仓位
@@ -70,7 +70,7 @@ class RollingManager:
             add_profit_threshold=0.5 # 盈利50%后加仓
         ),
         StageConfig(
-            name="翻倍阶段",
+            name="Doubling Stage",
             balance_min=20,
             balance_max=80,
             position_ratio=0.5,      # 50%仓位
@@ -80,7 +80,7 @@ class RollingManager:
             add_profit_threshold=0.4
         ),
         StageConfig(
-            name="分仓阶段",
+            name="Split Position Stage",
             balance_min=80,
             balance_max=200,
             position_ratio=0.125,    # 12.5%仓位(10U固定)
@@ -90,7 +90,7 @@ class RollingManager:
             add_profit_threshold=0.3
         ),
         StageConfig(
-            name="阶梯阶段",
+            name="Ladder Stage",
             balance_min=200,
             balance_max=1000,
             position_ratio=0.1,      # 10%仓位(20U)
@@ -100,7 +100,7 @@ class RollingManager:
             add_profit_threshold=0.25
         ),
         StageConfig(
-            name="稳健阶段",
+            name="Stable Stage",
             balance_min=1000,
             balance_max=float('inf'),
             position_ratio=0.05,     # 5%仓位(50U)
@@ -124,7 +124,7 @@ class RollingManager:
         self.total_profit = 0.0
         self.trade_history: List[Dict] = []
         
-        # 风险控制
+        # Risk control
         self.consecutive_losses = 0
         self.max_consecutive_losses = 3
         self.is_paused = False

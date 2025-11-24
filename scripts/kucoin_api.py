@@ -48,7 +48,7 @@ class KuCoinFuturesAPI:
         生成API签名
         
         Args:
-            timestamp: 时间戳(毫秒)
+            timestamp: 时间戳(毫s)
             method: 请求方法 (GET/POST/DELETE)
             endpoint: API端点
             body: 请求体(JSON字符串)
@@ -81,7 +81,7 @@ class KuCoinFuturesAPI:
     
     def _request(self, method: str, endpoint: str, params: Optional[Dict] = None, data: Optional[Dict] = None) -> Dict:
         """
-        发送API请求
+        SendAPI请求
         
         Args:
             method: 请求方法
@@ -118,7 +118,7 @@ class KuCoinFuturesAPI:
             'KC-API-KEY-VERSION': '2'
         }
         
-        # 发送请求
+        # Send请求
         url = self.base_url + endpoint
         
         self.logger.debug(f"APIPlease: {method} {url}")
@@ -194,8 +194,8 @@ class KuCoinFuturesAPI:
         Args:
             symbol: 合约代码, 如 'XBTUSDTM'
             granularity: K线周期(分钟): 1, 5, 15, 30, 60, 120, 240, 480, 720, 1440, 10080
-            from_time: 开始时间(秒级时间戳)
-            to_time: 结束时间(秒级时间戳)
+            from_time: 开始时间(s级时间戳)
+            to_time: 结束时间(s级时间戳)
             
         Returns:
             K线数据列表 [[时间, 开, 高, 低, 收, 成交量], ...]
@@ -206,13 +206,13 @@ class KuCoinFuturesAPI:
             'granularity': granularity
         }
         
-        # KuCoin需要毫秒级时间戳, 且from/to都是必须的
+        # KuCoin需要毫s级时间戳, 且from/to都是必须的
         if not to_time:
             to_time = int(time.time())
         if not from_time:
             from_time = to_time - (200 * granularity * 60)  # 默认200条
         
-        params['from'] = from_time * 1000  # 转毫秒
+        params['from'] = from_time * 1000  # 转毫s
         params['to'] = to_time * 1000
         
         data = self._request('GET', endpoint, params=params)

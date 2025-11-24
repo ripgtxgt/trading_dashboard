@@ -122,7 +122,7 @@ class TradingStrategy:
         返回: 
         - 'long': 做多信号
         - 'short': 做空信号
-        - None: 无信号
+        - None: No signal
         """
         if len(klines) < self.long_ma_period:
             return None
@@ -183,7 +183,7 @@ class TradingStrategy:
         except Exception as e:
             logger.error(f"PositionFailed: {e}")
         
-        # 发送Telegram通知
+        # SendTelegram通知
         try:
             self.telegram.send_trade_opened(
                 symbol=self.symbol,
@@ -195,7 +195,7 @@ class TradingStrategy:
         except Exception as e:
             logger.error(f"TelegramNotifySendFailed: {e}")
     
-    def close_position(self, price: float, reason: str = "止盈/止损"):
+    def close_position(self, price: float, reason: str = "Take profit/Stop loss"):
         """平仓"""
         if self.position is None:
             logger.warning("Position, CannotClose position")
@@ -271,7 +271,7 @@ class TradingStrategy:
         except Exception as e:
             logger.error(f"TradeFailed: {e}")
         
-        # 发送Telegram通知
+        # SendTelegram通知
         try:
             self.telegram.send_trade_closed(
                 symbol=self.symbol,
@@ -386,7 +386,7 @@ class TradingStrategy:
         logger.info(f"Time: {self.timeframe}")
         logger.info("="*60)
         
-        # 发送启动通知
+        # Send启动通知
         try:
             self.telegram.send_bot_status(
                 status="启动",
@@ -421,11 +421,11 @@ class TradingStrategy:
             logger.info("\nStop, In progress...")
         except Exception as e:
             logger.error(f"Running: {e}", exc_info=True)
-            # 发送错误通知
+            # Send错误通知
             try:
                 self.telegram.send_risk_alert(
                     level="严重",
-                    message="策略运行出错",
+                    message="Strategy execution error",
                     details=str(e)
                 )
             except:
@@ -460,7 +460,7 @@ class TradingStrategy:
             logger.info(f"Balance: {self.current_balance:.2f} USDT")
             logger.info(f": {((self.current_balance - self.initial_balance) / self.initial_balance * 100):.2f}%")
             
-            # 发送每日统计
+            # Send每日统计
             try:
                 self.telegram.send_daily_summary(
                     total_trades=total_trades,

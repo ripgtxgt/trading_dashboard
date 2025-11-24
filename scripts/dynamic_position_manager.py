@@ -62,7 +62,7 @@ class DynamicPositionManager:
         # 获取风险评估
         risk_assessment = self.volatility_monitor.assess_risk_level()
         
-        # 根据风险等级调整仓位
+        # 根据Risk level调整仓位
         multiplier = risk_assessment['position_multiplier']
         optimal_position = self.base_position_size * multiplier
         
@@ -145,7 +145,7 @@ class DynamicPositionManager:
                 'change': calculation['position_change'],
                 'change_ratio': calculation['change_ratio'],
                 'risk_level': calculation['risk_level'],
-                'message': f"仓位已调整: {old_position:.4f} -> {new_position:.4f} ({calculation['change_ratio']:+.2f}%)"
+                'message': f"Position adjusted: {old_position:.4f} -> {new_position:.4f} ({calculation['change_ratio']:+.2f}%)"
             }
         else:
             return {
@@ -153,7 +153,7 @@ class DynamicPositionManager:
                 'current_position': self.current_position_size,
                 'optimal_position': calculation['optimal_position'],
                 'change_ratio': calculation['change_ratio'],
-                'message': f"仓位变化较小 ({calculation['change_ratio']:+.2f}%), 无需调整"
+                'message': f"Position change too small ({calculation['change_ratio']:+.2f}%), No adjustment needed"
             }
     
     def get_position_recommendation(self, current_price: float) -> Dict:
@@ -203,7 +203,7 @@ class DynamicPositionManager:
             'change': 0,
             'change_ratio': 0,
             'risk_level': 'unknown',
-            'reason': '手动重置'
+            'reason': 'Manual reset'
         })
     
     def get_status(self) -> Dict:

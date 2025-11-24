@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Telegram通知模块
-用于从Python交易脚本发送Telegram通知
+用于从Python交易脚本SendTelegram通知
 """
 
 import os
@@ -22,7 +22,7 @@ class TelegramNotifier:
     
     def send_message(self, text, parse_mode="Markdown", disable_notification=False):
         """
-        发送消息到Telegram
+        Send消息到Telegram
         
         Args:
             text: 消息文本
@@ -57,7 +57,7 @@ class TelegramNotifier:
             return False
     
     def notify_open_position(self, symbol, side, price, quantity, margin):
-        """发送开仓通知"""
+        """Send开仓通知"""
         emoji = "[CHART]" if side == "long" else "[DOWN]"
         direction = "做多" if side == "long" else "做空"
         
@@ -76,7 +76,7 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
         return self.send_message(text)
     
     def notify_close_position(self, symbol, side, entry_price, exit_price, pnl, pnl_pct):
-        """发送平仓通知"""
+        """Send平仓通知"""
         is_profit = pnl > 0
         emoji = "[OK]" if is_profit else "[ERROR]"
         direction = "做多" if side == "long" else "做空"
@@ -97,11 +97,11 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
     
     def notify_risk_alert(self, level, message, details=None):
         """
-        发送风险警告
+        Send风险警告
         
         Args:
             level: 警告级别 ("info", "warning", "error")
-            message: 警告消息
+            message: Warning message
             details: 详细信息(可选)
         """
         emoji_map = {
@@ -133,7 +133,7 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
         return self.send_message(text, disable_notification=(level == "info"))
     
     def notify_daily_stats(self, total_trades, win_trades, win_rate, total_pnl, capital):
-        """发送每日统计"""
+        """Send每日统计"""
         text = f"""
 [CHART] *每日统计*
 
@@ -149,9 +149,9 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
         return self.send_message(text)
     
     def notify_bot_status(self, is_running, reason=None):
-        """发送机器人状态变更通知"""
+        """Send机器人状态变更通知"""
         emoji = "▶️" if is_running else "⏸️"
-        status = "已启动" if is_running else "已停止"
+        status = "started" if is_running else "stopped"
         
         text = f"""
 {emoji} *机器人状态*
@@ -160,7 +160,7 @@ _{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
         """.strip()
         
         if reason:
-            text += f"\n原因: {reason}"
+            text += f"\nReason: {reason}"
         
         text += f"\n\n_{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_"
         
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     # 测试风险警告
     notifier.notify_risk_alert(
         level="warning",
-        message="仓位风险过高",
+        message="Position risk too high",
         details="当前仓位风险比例: 438.40%"
     )
     
@@ -214,5 +214,5 @@ if __name__ == "__main__":
     # 测试机器人状态
     notifier.notify_bot_status(
         is_running=True,
-        reason="手动启动"
+        reason="Manual start"
     )

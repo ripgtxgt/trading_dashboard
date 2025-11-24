@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 风险管理模块功能测试
-测试所有风险控制功能是否正常工作
+测试所有Risk control功能是否正常工作
 """
 
 import sys

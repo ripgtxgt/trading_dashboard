@@ -31,13 +31,13 @@ def get_risk_history():
             {
                 "timestamp": (now - timedelta(days=5)).isoformat(),
                 "type": "pause",
-                "reason": "波动率过高 (12.5%)",
+                "reason": "Volatility too high (12.5%)",
                 "volatility": 12.5,
             },
             {
                 "timestamp": (now - timedelta(days=5, hours=2)).isoformat(),
                 "type": "resume",
-                "reason": "波动率恢复正常 (4.2%)",
+                "reason": "Volatility back to normal (4.2%)",
                 "volatility": 4.2,
             },
         ]
@@ -48,14 +48,14 @@ def get_risk_history():
                 "timestamp": (now - timedelta(days=3)).isoformat(),
                 "from": 1.0,
                 "to": 0.7,
-                "reason": "风险等级: 中 -> 高",
+                "reason": "Risk level: 中 -> 高",
                 "riskLevel": "high",
             },
             {
                 "timestamp": (now - timedelta(days=1)).isoformat(),
                 "from": 0.7,
                 "to": 1.0,
-                "reason": "风险等级: 高 -> 中",
+                "reason": "Risk level: 高 -> 中",
                 "riskLevel": "medium",
             },
         ]

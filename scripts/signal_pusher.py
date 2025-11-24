@@ -73,7 +73,7 @@ class SignalPusher:
         
         Args:
             level: 警告级别 ('info', 'warning', 'error')
-            message: 警告消息
+            message: Warning message
         """
         return self.push_signal("alert", {
             "level": level,
@@ -103,4 +103,4 @@ if __name__ == "__main__":
     )
     
     # 测试警告信号
-    pusher.push_alert("warning", "仓位风险过高")
+    pusher.push_alert("warning", "Position risk too high")

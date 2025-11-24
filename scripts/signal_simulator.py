@@ -41,7 +41,7 @@ class SignalSimulator:
             # 使用正确的KuCoin API端点
             url = f"{self.base_url}/api/v1/kline/query"
             
-            # 计算时间范围(毫秒时间戳)
+            # 计算时间范围(毫s时间戳)
             end_time = int(datetime.now().timestamp())
             start_time = int((datetime.now() - timedelta(days=7)).timestamp())
             

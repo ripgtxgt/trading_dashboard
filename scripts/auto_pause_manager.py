@@ -18,8 +18,8 @@ class AutoPauseManager:
         extreme_volatility_threshold: float = 0.10,  # 10%波动率触发暂停
         auto_resume_enabled: bool = True,
         resume_volatility_threshold: float = 0.05,   # 5%波动率自动恢复
-        min_pause_duration: int = 300,  # 最小暂停时间(秒)
-        max_pause_duration: int = 3600  # 最大暂停时间(秒)
+        min_pause_duration: int = 300,  # 最小暂停时间(s)
+        max_pause_duration: int = 3600  # 最大暂停时间(s)
     ):
         """
         初始化自动暂停管理器
@@ -119,14 +119,14 @@ class AutoPauseManager:
         暂停交易
         
         Args:
-            reason: 暂停原因
+            reason: Pause reason
         """
         if self.is_paused:
             return
         
         self.is_paused = True
         self.pause_start_time = datetime.now()
-        self.pause_reason = reason or "市场波动过大"
+        self.pause_reason = reason or "Market volatility too high"
         
         # 记录暂停事件
         pause_event = {
@@ -144,7 +144,7 @@ class AutoPauseManager:
         恢复交易
         
         Args:
-            reason: 恢复原因
+            reason: Resume reason
         """
         if not self.is_paused:
             return
@@ -152,7 +152,7 @@ class AutoPauseManager:
         pause_duration = (datetime.now() - self.pause_start_time).total_seconds() if self.pause_start_time else 0
         
         self.is_paused = False
-        resume_reason = reason or "市场波动恢复正常"
+        resume_reason = reason or "Market volatility back to normal"
         
         # 记录恢复事件
         resume_event = {
@@ -201,7 +201,7 @@ class AutoPauseManager:
                 result['message'] = reason
             else:
                 pause_duration = (datetime.now() - self.pause_start_time).total_seconds() if self.pause_start_time else 0
-                result['message'] = f"继续暂停: {reason} (已暂停 {pause_duration:.0f}秒)"
+                result['message'] = f"Continue pause: {reason} (Paused for {pause_duration:.0f}s)"
         
         return result
     
@@ -269,7 +269,7 @@ if __name__ == "__main__":
         extreme_volatility_threshold=0.08,
         auto_resume_enabled=True,
         resume_volatility_threshold=0.04,
-        min_pause_duration=10,  # 测试用, 设置为10秒
+        min_pause_duration=10,  # 测试用, 设置为10s
         max_pause_duration=60
     )
     
@@ -318,7 +318,7 @@ if __name__ == "__main__":
     for event in history:
         action_text = "暂停" if event['action'] == 'pause' else "恢复"
         vol_text = f"{event['volatility']*100:.2f}%" if event['volatility'] else "N/A"
-        duration_text = f" (时长: {event.get('pause_duration', 0):.0f}秒)" if event['action'] == 'resume' else ""
+        duration_text = f" (时长: {event.get('pause_duration', 0):.0f}s)" if event['action'] == 'resume' else ""
         print(f"{event['timestamp']}: {action_text} - {event['reason']} (: {vol_text}){duration_text}")
     
     # 显示最终状态

@@ -59,7 +59,7 @@ class LiveStrategyEngineRolling:
         self.is_running = False
         self.emergency_stopped = False
         self.last_check_time = 0
-        self.check_interval = 60  # 检查间隔(s)
+        self.check_interval = 60  # 检查间隔(秒)
         
         # 统计信息
         self.daily_trades = 0
@@ -93,7 +93,7 @@ class LiveStrategyEngineRolling:
             return False
     
     def check_safety_limits(self):
-        """检查Safety limit"""
+        """检查安全限制"""
         # 检查日期
         today = datetime.now().date()
         if today != self.last_reset_date:
@@ -192,24 +192,24 @@ class LiveStrategyEngineRolling:
         
         if long_cond1 and long_cond2 and long_cond3:
             signal_type = 'long'
-            reason = "All long conditions met, open long position"
+            reason = "所有做多条件满足, 开仓做多"
         elif short_cond1 and short_cond2 and short_cond3:
             signal_type = 'short'
-            reason = "All short conditions met, open short position"
+            reason = "所有做空条件满足, 开仓做空"
         else:
             # 分析为什么没有信号
             if not long_cond1 and not short_cond1:
-                reason = "Waiting for MA cross: MA5 and MA20 too close"
+                reason = "等待MA交叉: MA5与MA20距离过近"
             elif long_cond1:
                 if not long_cond2:
-                    reason = "Waiting for price breakout: price needs to break MA5"
+                    reason = "等待价格突破: 价格需要突破MA5"
                 elif not long_cond3:
-                    reason = "Waiting for trend confirmation: MA5 needs to keep rising"
+                    reason = "等待趋势确认: MA5需要持续上升"
             elif short_cond1:
                 if not short_cond2:
-                    reason = "Waiting for price breakout: price needs to fall below MA5"
+                    reason = "等待价格突破: 价格需要跌破MA5"
                 elif not short_cond3:
-                    reason = "Waiting for trend confirmation: MA5 needs to keep falling"
+                    reason = "等待趋势确认: MA5需要持续下降"
         
         analysis = {
             'timestamp': int(time.time()),
@@ -252,7 +252,7 @@ class LiveStrategyEngineRolling:
             if isinstance(direction, dict):
                 direction = direction.get('direction', direction)
             
-            # 检查Safety limit
+            # 检查安全限制
             if not self.check_safety_limits():
                 self.logger.warning("NotCheck, CancelOpen position")
                 return False
@@ -465,7 +465,7 @@ class LiveStrategyEngineRolling:
         平仓(滚仓版)
         
         Args:
-            reason: Close reason
+            reason: 平仓原因
         """
         try:
             if not self.rolling_manager.current_position:
@@ -524,11 +524,11 @@ class LiveStrategyEngineRolling:
             # 更新资金
             self.update_capital()
             
-            # 检查Safety limit
+            # 检查安全限制
             if not self.check_safety_limits():
                 return {
                     'status': 'paused',
-                    'reason': 'Safety limit',
+                    'reason': '安全限制',
                     'balance': self.capital
                 }
             
@@ -572,7 +572,7 @@ class LiveStrategyEngineRolling:
                 if not ohlcv:
                     return {
                         'status': 'waiting',
-                        'reason': 'No kline data',
+                        'reason': '无K线数据',
                         'balance': self.capital
                     }
                 
@@ -599,7 +599,7 @@ class LiveStrategyEngineRolling:
                 
                 return {
                     'status': 'waiting',
-                    'reason': 'No signal',
+                    'reason': '无信号',
                     'balance': self.capital,
                     'signal_analysis': self.last_signal_analysis
                 }

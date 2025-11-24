@@ -48,7 +48,7 @@ TRANSLATIONS = {
     '更新': 'Update',
     '查询': 'Query',
     '获取': 'Get',
-    '发送': 'Send',
+    'Send': 'Send',
     '接收': 'Receive',
     '推送': 'Push',
     '通知': 'Notify',

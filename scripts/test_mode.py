@@ -28,7 +28,7 @@ class TestModeConfig:
             'taker_fee': 0.0006,  # Taker手续费 0.06%
             'slippage': 0.0005,  # 滑点 0.05%
             'simulate_latency': True,  # 模拟网络延迟
-            'latency_ms': 100,  # 延迟毫秒数
+            'latency_ms': 100,  # 延迟毫s数
             'simulate_failures': False,  # 模拟订单失败
             'failure_rate': 0.01,  # 失败率 1%
         }

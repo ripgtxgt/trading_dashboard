@@ -37,15 +37,15 @@ class TelegramBot:
     
     def send_risk_alert(self, risk_level: str, volatility: float, message: str) -> bool:
         """
-        发送风险警报
+        Send风险警报
         
         Args:
-            risk_level: 风险等级 (low/medium/high/extreme)
+            risk_level: Risk level (low/medium/high/extreme)
             volatility: 波动率
-            message: 警报消息
+            message: Alert message
         
         Returns:
-            是否发送成功
+            是否Send成功
         """
         emoji_map = {
             'low': '🟢',
@@ -57,7 +57,7 @@ class TelegramBot:
         emoji = emoji_map.get(risk_level, '⚪')
         
         alert_text = f"{emoji} 风险警报\n\n"
-        alert_text += f"风险等级: {risk_level.upper()}\n"
+        alert_text += f"Risk level: {risk_level.upper()}\n"
         alert_text += f"波动率: {volatility*100:.2f}%\n\n"
         alert_text += f"{message}"
         
@@ -65,17 +65,17 @@ class TelegramBot:
     
     def send_pause_alert(self, reason: str, volatility: float) -> bool:
         """
-        发送交易暂停警报
+        Send交易暂停警报
         
         Args:
-            reason: 暂停原因
+            reason: Pause reason
             volatility: 当前波动率
         
         Returns:
-            是否发送成功
+            是否Send成功
         """
         alert_text = "[WARNING] 交易自动暂停\n\n"
-        alert_text += f"原因: {reason}\n"
+        alert_text += f"Reason: {reason}\n"
         alert_text += f"波动率: {volatility*100:.2f}%\n\n"
         alert_text += "系统将在波动率降低后自动恢复交易"
         
@@ -83,17 +83,17 @@ class TelegramBot:
     
     def send_resume_alert(self, reason: str, pause_duration: float) -> bool:
         """
-        发送交易恢复警报
+        Send交易恢复警报
         
         Args:
-            reason: 恢复原因
-            pause_duration: 暂停时长(秒)
+            reason: Resume reason
+            pause_duration: 暂停时长(s)
         
         Returns:
-            是否发送成功
+            是否Send成功
         """
         alert_text = "[OK] 交易已恢复\n\n"
-        alert_text += f"原因: {reason}\n"
+        alert_text += f"Reason: {reason}\n"
         alert_text += f"暂停时长: {pause_duration/60:.1f}分钟\n\n"
         alert_text += "系统已恢复正常交易"
         
@@ -101,15 +101,15 @@ class TelegramBot:
     
     def send_position_adjustment_alert(self, old_position: float, new_position: float, reason: str) -> bool:
         """
-        发送仓位调整警报
+        Send仓位调整警报
         
         Args:
             old_position: 原仓位
             new_position: 新仓位
-            reason: 调整原因
+            reason: Adjustment reason
         
         Returns:
-            是否发送成功
+            是否Send成功
         """
         change_pct = ((new_position - old_position) / old_position * 100) if old_position > 0 else 0
         direction = "增加" if change_pct > 0 else "减少"
@@ -118,19 +118,19 @@ class TelegramBot:
         alert_text += f"原仓位: {old_position:.4f}\n"
         alert_text += f"新仓位: {new_position:.4f}\n"
         alert_text += f"变化: {direction} {abs(change_pct):.1f}%\n\n"
-        alert_text += f"原因: {reason}"
+        alert_text += f"Reason: {reason}"
         
         return self.send_message(alert_text)
     
     def send_message(self, text: str) -> bool:
         """
-        发送消息到Telegram
+        Send消息到Telegram
         
         Args:
             text: 消息文本
         
         Returns:
-            是否发送成功
+            是否Send成功
         """
         if not self.bot_token or not self.chat_id:
             print(f"[TG Bot] Cannot send message (no token/chat_id): {text}")
@@ -234,7 +234,7 @@ class TelegramBot:
             return self._handle_help()
         
         else:
-            return f"[ERROR] 未知命令: /{command}\n发送 /help 查看可用命令"
+            return f"[ERROR] 未知命令: /{command}\nSend /help to view available commands"
     
     def _handle_status(self) -> str:
         """处理状态查询"""
@@ -273,7 +273,7 @@ class TelegramBot:
             config_text += f"\n*止盈止损*\n"
             config_text += f"止盈: `{config['take_profit_pct']}%`\n"
             config_text += f"止损: `{config['stop_loss_pct']}%`\n"
-            config_text += f"\n*风险控制*\n"
+            config_text += f"\n*Risk control*\n"
             config_text += f"单日最大亏损: `{config['max_daily_loss']}%`\n"
             config_text += f"最大回撤: `{config['max_drawdown']}%`\n"
             config_text += f"连续亏损限制: `{config['consecutive_loss_limit']}`\n"
@@ -314,7 +314,7 @@ class TelegramBot:
             )
             
             return "[WARNING] *紧急停止已激活*\n\n" \
-                   "[OK] 所有交易活动已暂停\n" \
+                   "[OK] 所有交易活动Paused for\n" \
                    "[OK] 开仓位将被关闭\n\n" \
                    "使用 /resume 命令恢复交易"
         except Exception as e:
@@ -357,7 +357,7 @@ class TelegramBot:
     def run(self):
         """运行Bot(轮询模式)"""
         print("[TG Bot] Starting bot...")
-        self.send_message("🤖 Telegram Bot已启动\n发送 /help 查看可用命令")
+        self.send_message("🤖 Telegram Botstarted\nSend /help to view available commands")
         
         while True:
             try:
@@ -388,7 +388,7 @@ class TelegramBot:
                 
             except KeyboardInterrupt:
                 print("\n[TG Bot] Stopping bot...")
-                self.send_message("🤖 Telegram Bot已停止")
+                self.send_message("🤖 Telegram Botstopped")
                 break
             except Exception as e:
                 print(f"[TG Bot] Error in main loop: {e}")
@@ -404,8 +404,8 @@ class TelegramBot:
 if __name__ == "__main__":
     bot = TelegramBot()
     
-    # 测试发送消息
-    bot.send_message("🧪 测试消息")
+    # 测试Send消息
+    bot.send_message("🧪 Test message")
     
     # 运行Bot(轮询模式)
     # bot.run()

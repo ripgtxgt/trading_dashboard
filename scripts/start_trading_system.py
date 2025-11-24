@@ -145,7 +145,7 @@ class IntegratedTradingSystem:
                 except Exception as e:
                     logger.error(f"PositionFailed: {e}")
                 
-                # 发送Telegram通知
+                # SendTelegram通知
                 try:
                     self.telegram.send_trade_opened(
                         symbol='XBTUSDTM',
@@ -215,7 +215,7 @@ class IntegratedTradingSystem:
                 except Exception as e:
                     logger.error(f"TradeFailed: {e}")
                 
-                # 发送Telegram通知
+                # SendTelegram通知
                 try:
                     self.telegram.send_trade_closed(
                         symbol='XBTUSDTM',
@@ -238,7 +238,7 @@ class IntegratedTradingSystem:
         """运行交易系统"""
         logger.info("TradeStart")
         
-        # 发送启动通知
+        # Send启动通知
         try:
             self.telegram.send_bot_status(
                 status="启动",
@@ -280,7 +280,7 @@ class IntegratedTradingSystem:
                     if not allowed:
                         logger.warning(f"TradePaused: {reason}")
                         
-                        # 发送风险警告
+                        # Send风险警告
                         try:
                             risk_status = self.risk_manager.get_risk_status()
                             self.telegram.send_risk_alert(
@@ -295,7 +295,7 @@ class IntegratedTradingSystem:
                         # 如果有持仓, 考虑平仓
                         if self.engine.rolling_manager.current_position:
                             logger.info("Position, Close position...")
-                            self.engine.rolling_manager.close_position(current_price, f"风险控制: {reason}")
+                            self.engine.rolling_manager.close_position(current_price, f"Risk control: {reason}")
                         
                         # 等待一段时间再检查
                         time.sleep(300)  # 5分钟
@@ -344,7 +344,7 @@ class IntegratedTradingSystem:
             logger.info(f"Balance: {self.engine.capital:.2f} USDT")
             logger.info(f": {((self.engine.capital - self.engine.initial_capital) / self.engine.initial_capital * 100):.2f}%")
             
-            # 发送每日统计
+            # Send每日统计
             try:
                 self.telegram.send_daily_summary(
                     total_trades=total_trades,

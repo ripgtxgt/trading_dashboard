@@ -94,7 +94,7 @@ class RiskManager:
             current_capital: 当前资金
             
         Returns:
-            (是否允许交易, 暂停原因)
+            (Allow trade, Pause reason)
         """
         self.current_capital = current_capital
         
@@ -115,7 +115,7 @@ class RiskManager:
         
         # 检查市场波动率
         if not self._check_volatility():
-            self._trigger_pause("市场波动过大", hours=1)
+            self._trigger_pause("Market volatility too high", hours=1)
             return False, self.pause_reason
         
         # 检查单日亏损

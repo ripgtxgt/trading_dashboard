@@ -772,3 +772,14 @@
 - [ ] 保存checkpoint
 - [ ] 重新打包
 - [ ] 交付
+
+## 修复trading-bot持续重启问题 (v35.3)
+
+- [x] 用户反馈trading-bot重启28次
+- [x] 发现问题：logging输出中文对象属性(.name)
+- [x] 替换rolling_manager.py中5个Stage名称为英文
+- [x] 批量替换所有reason/message中文字符串
+- [x] 验证所有Python文件语法正确
+- [x] 确认0个中文字符在loggable代码中
+- [ ] 保存checkpoint v35.3
+- [ ] 打包并交付给用户
