@@ -654,3 +654,12 @@
 - [x] 修夏ecosystem.config.js，改用node dist/index.js
 - [x] 重新打包
 - [x] 保存并交付
+
+
+## 修夏ecosystem.config.js模块格式错误 (v33.11)
+
+- [x] 将ecosystem.config.js重命名为ecosystem.config.cjs
+- [x] 更新deploy_windows.ps1中的引用
+- [x] 更新README中的引用
+- [x] 重新打包
+- [x] 保存并交付

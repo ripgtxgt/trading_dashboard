@@ -193,7 +193,7 @@ Write-Host "[9/10] Starting services..." -ForegroundColor Yellow
 
 # Start services using PM2 ecosystem config
 Write-Host "  Starting services using PM2 ecosystem config..." -ForegroundColor Cyan
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 
 Write-Host "  [INFO] Trading bot can be started manually if needed" -ForegroundColor Cyan
 Write-Host "    Start command: pm2 start python --name trading-bot -- scripts/kucoin_api.py" -ForegroundColor Gray
