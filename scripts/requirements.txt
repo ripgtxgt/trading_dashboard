@@ -39,3 +39,6 @@ ujson==5.9.0
 # 异步支持
 asyncio==3.4.3
 aiohttp==3.9.1
+
+# 定时任务
+schedule==1.2.0

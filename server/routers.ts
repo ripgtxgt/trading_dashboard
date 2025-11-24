@@ -87,6 +87,14 @@ export const appRouter = router({
         return { success: true, message: 'Emergency stop activated' };
       }),
     
+    // Get balance snapshots
+    getBalanceSnapshots: publicProcedure
+      .input(z.object({ limit: z.number().optional().default(100) }))
+      .query(async ({ input }) => {
+        const { getBalanceSnapshots } = await import('./db');
+        return await getBalanceSnapshots(input.limit);
+      }),
+    
     // Resume bot
     resumeBot: publicProcedure
       .mutation(async () => {

@@ -26,6 +26,7 @@ import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { StrategyComparison } from "@/components/StrategyComparison";
 import { StrategyWizard } from "@/components/StrategyWizard";
 import { toast } from "sonner";
+import { PositionTimeline } from "@/components/PositionTimeline";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -382,6 +383,9 @@ export default function Home() {
 
           {/* 概览标签 */}
           <TabsContent value="overview" className="space-y-4">
+            {/* 仓位追踪可视化 */}
+            <PositionTimeline />
+
             <Card>
               <CardHeader>
                 <CardTitle>交易概览</CardTitle>

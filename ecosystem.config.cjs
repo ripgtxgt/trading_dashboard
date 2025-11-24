@@ -70,5 +70,21 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       autostart: true,
     },
+
+    // Daily Report Scheduler
+    {
+      name: 'daily-report',
+      script: 'python',
+      args: 'scripts/daily_report_scheduler.py',
+      cwd: './',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '200M',
+      error_file: './logs/daily-report-error.log',
+      out_file: './logs/daily-report-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      autostart: true,
+    },
   ],
 };

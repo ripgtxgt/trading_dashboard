@@ -742,6 +742,33 @@
 
 - [x] 检查live_strategy_engine_rolling.py的实际类名（LiveStrategyEngineRolling）
 - [x] 修复trading_bot_runner.py的导入语句
-- [ ] 测试trading-bot启动
+- [x] 测试trading-bot启动
+- [x] 重新打包
+- [x] 交付
+
+## 实现实时数据推送、每日收益报告和仓位追踪可视化 (v35.0)
+
+### 1. 配置实时数据推送
+- [x] 检查websocket_pusher.py的推送逻辑（已实现）
+- [x] 确认trading_bot_runner调用WebSocket推送（enable_websocket=True）
+- [x] 确认Dashboard实时接收数据（useWebSocket hook已实现）
+
+### 2. 实现每日收益报告
+- [x] 创建每日报告生成函数（daily_report.py）
+- [x] 添加定时任务（daily_report_scheduler.py, UTC 16:00）
+- [x] 通过Telegram发送报告
+- [x] 包含：盈亏、胜率、最大回撤、交易次数
+- [x] 添加到PM2配置自动启动
+
+### 3. 实现仓位追踪可视化
+- [x] 在数据库中记录仓位变化历史（balanceSnapshots表）
+- [x] 创建PositionTimeline组件
+- [x] 显示从10U到100U的进度（进度条+里程碑）
+- [x] 展示每个阶段的盈亏分布（资金曲线图）
+- [x] 添加到Dashboard首页（概览标签）
+
+### 4. 测试和交付
+- [x] 测试所有功能（6个测试全部通过）
+- [ ] 保存checkpoint
 - [ ] 重新打包
 - [ ] 交付

@@ -262,3 +262,10 @@ export async function getBacktestByParams(shortMa: number, longMa: number, timef
     .orderBy(desc(backtestHistory.createdAt))
     .limit(10);
 }
+
+// Balance snapshots queries
+export async function getBalanceSnapshots(limit: number = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(balanceSnapshots).orderBy(desc(balanceSnapshots.timestamp)).limit(limit);
+}
