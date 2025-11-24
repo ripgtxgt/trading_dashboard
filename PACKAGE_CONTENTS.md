@@ -2,10 +2,11 @@
 
 ## 📦 打包信息
 
-- **版本**: v33.2
+- **版本**: v33.3
 - **打包时间**: 2024-11-24
-- **文件名**: trading_dashboard_v33.2_windows_deployment.tar.gz
+- **文件名**: trading_dashboard_v33.3_windows_deployment.tar.gz
 - **修复**: 批处理文件编码问题（移除中文字符，使用纯ASCII）
+- **修复**: PowerShell脚本语法错误（移除中文字符，使用纯ASCII）
 - **适用系统**: Windows Server 2022 / Windows 10/11
 
 ---
@@ -205,9 +206,15 @@ CREATE DATABASE trading_dashboard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_
 
 ## 📝 版本历史
 
+### v33.3 (2024-11-24)
+- ✅ 修复PowerShell脚本语法错误
+- ✅ check_windows_environment.ps1 移除中文字符
+- ✅ deploy_windows.ps1 移除中文字符
+- ✅ 所有脚本使用纯ASCII编码
+
 ### v33.2 (2024-11-24)
 - ✅ 修复批处理文件编码问题
-- ✅ 移除所有中文字符，使用纯ASCII
+- ✅ 移除批处理文件中文字符，使用纯ASCII
 - ✅ 确保在Windows上正常运行
 
 ### v33.1 (2024-11-24)

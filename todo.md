@@ -574,3 +574,12 @@
 - [x] 修复stop_all.bat编码（移除中文）
 - [x] 重新打包项目
 - [x] 保存并交付
+
+
+## 修复PowerShell脚本语法错误 (v33.3)
+
+- [x] 检查check_windows_environment.ps1语法错误
+- [x] 修复PowerShell脚本（移除中文字符）
+- [x] 修复deploy_windows.ps1（移除中文字符）
+- [x] 重新打包
+- [x] 保存并交付
