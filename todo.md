@@ -830,3 +830,21 @@
 - [x] 添加实时连接状态指示器
 - [x] 测试价格更新功能
 - [x] 保存checkpoint并交付
+
+
+## 修复Dashboard K线图表CORS问题 (v36.3)
+
+- [ ] 创建KuCoin API后端代理
+- [ ] 添加获取K线数据的tRPC路由
+- [ ] 修改前端K线图表组件调用后端API
+- [ ] 测试K线图表正常显示
+- [ ] 保存checkpoint并交付
+
+
+## 修复Dashboard K线图表CORS问题 (v36.3)
+
+- [x] 创建KuCoin API后端代理（/api/kucoin-proxy/*）
+- [x] 修改前端K线图表组件调用代理API
+- [x] 修复交易对符号（XBTUSDTM→BTC-USDT）
+- [x] 测试代理API正常返回K线数据
+- [x] 保存checkpoint并交付

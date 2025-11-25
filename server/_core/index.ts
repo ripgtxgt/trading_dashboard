@@ -43,6 +43,22 @@ async function startServer() {
   // Signal API for Python script integration
   const signalRouter = await import("../signal_api");
   app.use(signalRouter.default);
+  
+  // KuCoin API CORS proxy
+  app.get("/api/kucoin-proxy/*", async (req, res) => {
+    try {
+      const kucoinPath = req.path.replace("/api/kucoin-proxy", "");
+      const kucoinUrl = `https://api.kucoin.com${kucoinPath}${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
+      
+      const response = await fetch(kucoinUrl);
+      const data = await response.json();
+      
+      res.json(data);
+    } catch (error) {
+      console.error("KuCoin proxy error:", error);
+      res.status(500).json({ error: "Failed to fetch from KuCoin API" });
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",

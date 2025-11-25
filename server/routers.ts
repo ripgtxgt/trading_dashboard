@@ -12,11 +12,12 @@ import { signalParamsRouter } from "./signal_params_api";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import { klineProxyRouter } from "./kline_proxy";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
-  v24: v24Router,
+  kline: klineProxyRouter,
   tradeHistory: tradeHistoryRouter,
   performanceReport: performanceReportRouter,
   strategyConfig: strategyConfigRouter,
@@ -445,6 +446,9 @@ export const appRouter = router({
   
   // 风险管理
   risk: riskRouter,
+  
+  // v24 API
+  v24: v24Router,
 });
 
 export type AppRouter = typeof appRouter;

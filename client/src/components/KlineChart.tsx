@@ -10,7 +10,7 @@ interface KlineChartProps {
   interval?: string;
 }
 
-export function KlineChart({ symbol = "XBTUSDTM", interval = "1h" }: KlineChartProps) {
+export function KlineChart({ symbol = "BTC-USDT", interval = "1hour" }: KlineChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<any | null>(null);
@@ -28,7 +28,7 @@ export function KlineChart({ symbol = "XBTUSDTM", interval = "1h" }: KlineChartP
       const startTime = endTime - 24 * 60 * 60; // 最近24小时
       
       const response = await fetch(
-        `https://api.kucoin.com/api/v1/market/candles?type=${selectedInterval}&symbol=${symbol}&startAt=${startTime}&endAt=${endTime}`
+        `/api/kucoin-proxy/api/v1/market/candles?type=${selectedInterval}&symbol=${symbol}&startAt=${startTime}&endAt=${endTime}`
       );
       
       const result = await response.json();
