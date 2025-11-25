@@ -28,6 +28,7 @@ import { StrategyWizard } from "@/components/StrategyWizard";
 import { toast } from "sonner";
 import { PositionTimeline } from "@/components/PositionTimeline";
 import SignalParamsPanel from "@/components/SignalParamsPanel";
+import DataExportPanel from "@/components/DataExportPanel";
 import PositionStatus from "@/components/PositionStatus";
 
 export default function Home() {
@@ -422,7 +423,9 @@ export default function Home() {
 
           {/* 设置标签 */}
           <TabsContent value="settings" className="space-y-4">
-            <SignalParamsPanel />
+              <SignalParamsPanel />
+              
+              <DataExportPanel />
             
             <Card>
               <CardHeader>

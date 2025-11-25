@@ -848,3 +848,15 @@
 - [x] 修复交易对符号（XBTUSDTM→BTC-USDT）
 - [x] 测试代理API正常返回K线数据
 - [x] 保存checkpoint并交付
+
+
+## 数据日志导出和实时性验证 (v36.4)
+
+- [x] 检查Dashboard数据来源（API调用链路）
+- [x] 验证数据库中的真实数据（发现bot_state表未创建）
+- [x] 推送数据库Schema（pnpm db:push）
+- [x] 检查账户余额数据来源（trpc.trading.getState）
+- [x] 创建数据日志导出API（dataExportRouter）
+- [x] 添加前端导出按钮（DataExportPanel）
+- [x] 导出格式：JSON
+- [x] 测试并交付

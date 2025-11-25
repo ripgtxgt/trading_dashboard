@@ -3,7 +3,8 @@ import { z } from "zod";
 import { klineCache } from "./kline_cache";
 import { telegramNotifier } from "./telegram";
 import { riskRouter } from "./risk_api";
-import { v24Router } from "./v24_api";
+import { v24Router } from './v24_api';
+import { dataExportRouter } from './data_export';
 import { tradeHistoryRouter } from "./trade_history_api";
 import { performanceReportRouter } from "./performance_report_api";
 import { strategyConfigRouter } from "./strategy_config_api";
@@ -449,6 +450,9 @@ export const appRouter = router({
   
   // v24 API
   v24: v24Router,
+  
+  // Data export
+  dataExport: dataExportRouter,
 });
 
 export type AppRouter = typeof appRouter;
