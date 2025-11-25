@@ -860,3 +860,14 @@
 - [x] 添加前端导出按钮（DataExportPanel）
 - [x] 导出格式：JSON
 - [x] 测试并交付
+
+
+## 公网部署配置 (v36.5)
+
+- [x] 创建Nginx配置文件（Windows版本）
+- [x] 创建SSL证书申请脚本（Let's Encrypt）
+- [x] 创建防火墙配置指南
+- [x] 创建DNS配置指南（cryptoalpha.vip → 13.113.194.218）
+- [x] 创建一键部署脚本
+- [x] 创建完整部署文档
+- [x] 测试并交付
