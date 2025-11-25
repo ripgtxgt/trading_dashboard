@@ -1,5 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import Database from 'better-sqlite3';
+import path from 'path';
 import { backtestHistory, balanceSnapshots, BotState, botState, InsertUser, paramSimulations, positions, strategyConfig, StrategyConfig, strategyParams, StrategyParams, trades, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -89,12 +91,47 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// Trading bot queries
+// SQLite database for trading bot data
+const SQLITE_DB_PATH = path.join(process.cwd(), 'scripts', 'trading_data.db');
+
+function getSqliteDb() {
+  try {
+    return new Database(SQLITE_DB_PATH, { readonly: true });
+  } catch (error) {
+    console.error('[SQLite] Failed to connect:', error);
+    return null;
+  }
+}
+
+// Trading bot queries (read from SQLite)
 export async function getBotState() {
-  const db = await getDb();
+  const db = getSqliteDb();
   if (!db) return null;
-  const result = await db.select().from(botState).limit(1);
-  return result.length > 0 ? result[0] : null;
+  
+  try {
+    const row = db.prepare('SELECT * FROM bot_state ORDER BY id DESC LIMIT 1').get() as any;
+    db.close();
+    
+    if (!row) return null;
+    
+    return {
+      id: row.id,
+      isRunning: row.status === 'running' ? 1 : 0,
+      capital: row.current_balance.toString(),
+      initialCapital: row.initial_balance.toString(),
+      currentStage: row.current_stage,
+      dailyTrades: row.today_trades,
+      dailyPnl: row.total_profit.toString(),
+      totalTrades: row.total_trades,
+      emergencyStopped: row.status === 'stopped' ? 1 : 0,
+      createdAt: new Date(row.timestamp),
+      updatedAt: new Date(row.timestamp),
+    };
+  } catch (error) {
+    console.error('[SQLite] Error reading bot_state:', error);
+    db?.close();
+    return null;
+  }
 }
 
 export async function updateBotState(data: Partial<BotState>) {
@@ -115,9 +152,35 @@ export async function updateBotState(data: Partial<BotState>) {
 }
 
 export async function getRecentTrades(limit: number = 50) {
-  const db = await getDb();
+  const db = getSqliteDb();
   if (!db) return [];
-  return await db.select().from(trades).orderBy(desc(trades.exitTime)).limit(limit);
+  
+  try {
+    const rows = db.prepare('SELECT * FROM trades ORDER BY id DESC LIMIT ?').all(limit) as any[];
+    db.close();
+    
+    return rows.map(row => ({
+      id: row.id,
+      symbol: row.symbol || 'XBTUSDTM',
+      direction: row.side,
+      entryPrice: row.entry_price.toString(),
+      exitPrice: row.exit_price.toString(),
+      quantity: row.size.toString(),
+      margin: '0',
+      pnl: row.pnl.toString(),
+      pnlPct: row.pnl_rate.toString(),
+      fee: '0',
+      reason: row.reason || '',
+      stage: row.stage || 'stage1',
+      entryTime: new Date(row.timestamp),
+      exitTime: new Date(row.timestamp),
+      createdAt: new Date(row.timestamp),
+    }));
+  } catch (error) {
+    console.error('[SQLite] Error reading trades:', error);
+    db?.close();
+    return [];
+  }
 }
 
 export async function addTrade(trade: Omit<typeof trades.$inferInsert, "id" | "createdAt">) {
@@ -127,10 +190,34 @@ export async function addTrade(trade: Omit<typeof trades.$inferInsert, "id" | "c
 }
 
 export async function getCurrentPosition() {
-  const db = await getDb();
+  const db = getSqliteDb();
   if (!db) return null;
-  const result = await db.select().from(positions).orderBy(desc(positions.createdAt)).limit(1);
-  return result.length > 0 ? result[0] : null;
+  
+  try {
+    const row = db.prepare('SELECT * FROM positions ORDER BY id DESC LIMIT 1').get() as any;
+    db.close();
+    
+    if (!row) return null;
+    
+    return {
+      id: row.id,
+      symbol: row.symbol || 'XBTUSDTM',
+      direction: row.side,
+      entryPrice: row.entry_price.toString(),
+      quantity: row.size.toString(),
+      margin: row.margin.toString(),
+      stopLossPct: '2',
+      takeProfitPct: '3',
+      stage: 'stage1',
+      entryTime: new Date(row.timestamp),
+      createdAt: new Date(row.timestamp),
+      updatedAt: new Date(row.timestamp),
+    };
+  } catch (error) {
+    console.error('[SQLite] Error reading position:', error);
+    db?.close();
+    return null;
+  }
 }
 
 export async function updatePosition(data: Omit<typeof positions.$inferInsert, "id" | "createdAt" | "updatedAt">) {
@@ -265,9 +352,23 @@ export async function getBacktestByParams(shortMa: number, longMa: number, timef
 
 // Balance snapshots queries
 export async function getBalanceSnapshots(limit: number = 100) {
-  const db = await getDb();
+  const db = getSqliteDb();
   if (!db) return [];
-  return await db.select().from(balanceSnapshots).orderBy(desc(balanceSnapshots.timestamp)).limit(limit);
+  
+  try {
+    const rows = db.prepare('SELECT * FROM balance_snapshots ORDER BY id DESC LIMIT ?').all(limit) as any[];
+    db.close();
+    
+    return rows.map(row => ({
+      id: row.id,
+      capital: row.balance.toString(),
+      timestamp: new Date(row.timestamp),
+    }));
+  } catch (error) {
+    console.error('[SQLite] Error reading balance_snapshots:', error);
+    db?.close();
+    return [];
+  }
 }
 
 // Strategy config queries

@@ -879,3 +879,23 @@
 - [x] 创建SSL升级脚本（upgrade_to_https.bat）
 - [x] 更新PUBLIC_DEPLOYMENT_GUIDE.md
 - [x] 测试并交付
+
+## 修复deploy_public.bat脚本逻辑错误 (v36.7)
+
+- [ ] 修复脚本中的错误消息显示问题
+- [ ] 测试并交付
+
+## 修复Dashboard /lander重定向问题 (v36.8)
+
+- [ ] 检查重新构建后的dist/public/index.html
+- [ ] 清除Nginx缓存
+- [ ] 验证Dashboard可以正常访问
+- [ ] 诊断数据显示问题
+
+## 修复Python交易机器人数据库问题 (v36.9)
+
+- [ ] 创建数据库初始化脚本（init_database.py）
+- [ ] 修复db_sync.py添加自动建表逻辑
+- [ ] 运行初始化脚本创建数据库表
+- [ ] 重启trading-bot验证数据写入
+- [ ] 验证Dashboard显示实时数据
