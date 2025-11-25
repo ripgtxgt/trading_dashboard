@@ -28,6 +28,7 @@ import { StrategyWizard } from "@/components/StrategyWizard";
 import { toast } from "sonner";
 import { PositionTimeline } from "@/components/PositionTimeline";
 import SignalParamsPanel from "@/components/SignalParamsPanel";
+import PositionStatus from "@/components/PositionStatus";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -384,6 +385,9 @@ export default function Home() {
 
           {/* 概览标签 */}
           <TabsContent value="overview" className="space-y-4">
+            {/* 实时持仓状态 */}
+            <PositionStatus />
+            
             {/* 仓位追踪可视化 */}
             <PositionTimeline />
 
