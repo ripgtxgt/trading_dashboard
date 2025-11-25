@@ -871,3 +871,11 @@
 - [x] 创建一键部署脚本
 - [x] 创建完整部署文档
 - [x] 测试并交付
+
+## 修复Nginx部署脚本 (v36.6)
+
+- [x] 创建HTTP-only Nginx配置文件（nginx_http_only.conf）
+- [x] 修改deploy_public.bat支持渐进式部署（先HTTP，后HTTPS）
+- [x] 创建SSL升级脚本（upgrade_to_https.bat）
+- [x] 更新PUBLIC_DEPLOYMENT_GUIDE.md
+- [x] 测试并交付
