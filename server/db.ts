@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { backtestHistory, balanceSnapshots, BotState, botState, InsertUser, paramSimulations, positions, strategyParams, StrategyParams, trades, users } from "../drizzle/schema";
+import { backtestHistory, balanceSnapshots, BotState, botState, InsertUser, paramSimulations, positions, strategyConfig, StrategyConfig, strategyParams, StrategyParams, trades, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -268,4 +268,31 @@ export async function getBalanceSnapshots(limit: number = 100) {
   const db = await getDb();
   if (!db) return [];
   return await db.select().from(balanceSnapshots).orderBy(desc(balanceSnapshots.timestamp)).limit(limit);
+}
+
+// Strategy config queries
+export async function getStrategyConfig() {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(strategyConfig).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateStrategyConfig(config: Partial<StrategyConfig>) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const existing = await getStrategyConfig();
+  
+  if (existing) {
+    // Update existing config
+    await db.update(strategyConfig)
+      .set(config)
+      .where(eq(strategyConfig.id, existing.id));
+  } else {
+    // Insert new config
+    await db.insert(strategyConfig).values(config as any);
+  }
+  
+  return await getStrategyConfig();
 }

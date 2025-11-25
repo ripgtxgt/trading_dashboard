@@ -783,3 +783,27 @@
 - [x] 确认0个中文字符在loggable代码中
 - [ ] 保存checkpoint v35.3
 - [ ] 打包并交付给用户
+
+
+## 用户反馈问题修复 (v36.0)
+
+- [x] 检查trading-bot运行日志
+- [x] 发现KeyError: 'max_daily_loss'
+- [x] 修复SAFETY_CONFIG缺失配置项
+- [ ] 添加策略参数调整界面（MA5/MA20）
+- [ ] 创建Telegram配置指南
+- [ ] 测试trading-bot正常运行
+- [ ] 打包并交付v36.0
+
+
+## 用户反馈问题修复 (v36.0)
+
+- [x] 检查trading-bot运行日志
+- [x] 发现KeyError: 'max_daily_loss'
+- [x] 修复SAFETY_CONFIG缺失配置项
+- [x] 创建SignalParams API
+- [x] 添加SignalParamsPanel组件
+- [x] 集成到Dashboard Settings标签页
+- [x] Telegram配置指南已存在
+- [ ] 测试trading-bot正常运行
+- [ ] 打包并交付v36.0

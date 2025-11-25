@@ -27,6 +27,7 @@ import { StrategyComparison } from "@/components/StrategyComparison";
 import { StrategyWizard } from "@/components/StrategyWizard";
 import { toast } from "sonner";
 import { PositionTimeline } from "@/components/PositionTimeline";
+import SignalParamsPanel from "@/components/SignalParamsPanel";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -417,6 +418,8 @@ export default function Home() {
 
           {/* 设置标签 */}
           <TabsContent value="settings" className="space-y-4">
+            <SignalParamsPanel />
+            
             <Card>
               <CardHeader>
                 <CardTitle>系统设置</CardTitle>
