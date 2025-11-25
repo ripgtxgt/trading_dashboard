@@ -3,14 +3,15 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, TrendingUp, TrendingDown, DollarSign, Activity } from "lucide-react";
+import { useRealtimeData } from "@/contexts/RealtimeDataContext";
 
 export default function PositionStatus() {
   const { data: position, isLoading, refetch } = trpc.trading.getPosition.useQuery();
-  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const { latestKline, isConnected } = useRealtimeData();
   const [unrealizedPnl, setUnrealizedPnl] = useState<number>(0);
   const [unrealizedPnlPct, setUnrealizedPnlPct] = useState<number>(0);
 
-  // Auto refresh every 5 seconds
+  // Auto refresh position data every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       refetch();
@@ -18,11 +19,12 @@ export default function PositionStatus() {
     return () => clearInterval(interval);
   }, [refetch]);
 
-  // Calculate unrealized PnL when position or current price changes
+  // Calculate unrealized PnL when position or latest kline changes
   useEffect(() => {
-    if (position && currentPrice) {
+    if (position && latestKline) {
       const entryPrice = parseFloat(position.entryPrice);
       const quantity = parseFloat(position.quantity);
+      const currentPrice = latestKline.close;
       
       let pnl = 0;
       if (position.direction === "long") {
@@ -36,16 +38,7 @@ export default function PositionStatus() {
       setUnrealizedPnl(pnl);
       setUnrealizedPnlPct(pnlPct);
     }
-  }, [position, currentPrice]);
-
-  // Fetch current price (mock for now, should be from WebSocket or API)
-  useEffect(() => {
-    if (position) {
-      // TODO: Replace with real-time price from WebSocket or API
-      // For now, use entry price as current price
-      setCurrentPrice(parseFloat(position.entryPrice));
-    }
-  }, [position]);
+  }, [position, latestKline]);
 
   if (isLoading) {
     return (
@@ -127,7 +120,16 @@ export default function PositionStatus() {
           <div>
             <p className="text-sm text-muted-foreground">Current Price</p>
             <p className="text-lg font-semibold">
-              ${currentPrice?.toFixed(2) || parseFloat(position.entryPrice).toFixed(2)}
+              {latestKline ? (
+                <span className={isConnected ? "text-green-600" : ""}>
+                  ${latestKline.close.toFixed(2)}
+                  {isConnected && <span className="ml-1 text-xs">●</span>}
+                </span>
+              ) : (
+                <span className="text-muted-foreground">
+                  ${parseFloat(position.entryPrice).toFixed(2)}
+                </span>
+              )}
             </p>
           </div>
         </div>

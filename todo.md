@@ -820,3 +820,13 @@
 - [x] 显示止损止盈价格
 - [x] 集成到Dashboard主页
 - [x] 测试并保存checkpoint
+
+
+## WebSocket实时价格集成 (v36.2)
+
+- [x] 检查RealtimeDataContext是否包含价格数据
+- [x] 修改PositionStatus组件使用WebSocket价格
+- [x] 实时计算未实现盈亏
+- [x] 添加实时连接状态指示器
+- [x] 测试价格更新功能
+- [x] 保存checkpoint并交付
