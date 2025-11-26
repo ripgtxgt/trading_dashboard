@@ -1,17 +1,19 @@
 /**
- * PM2 配置文件
- * 用于管理所有服务进程
+ * PM2 Configuration File
+ * Manages all service processes
  */
 
 module.exports = {
   apps: [
-    // Web Dashboard (Express + tRPC Server)
+    // Web Dashboard (Node.js + tRPC Server)
     {
       name: 'trading-dashboard',
-      script: 'node',
-      args: 'dist/index.js',
+      script: 'server/_core/index.ts',
+      interpreter: 'node',
+      interpreter_args: '--import tsx/esm',
       cwd: './',
       instances: 1,
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
       max_memory_restart: '500M',
@@ -24,28 +26,14 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
 
-    // WebSocket 推送服务器
-    {
-      name: 'websocket-server',
-      script: 'python',
-      args: 'scripts/websocket_pusher.py',
-      cwd: './',
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '200M',
-      error_file: './logs/websocket-error.log',
-      out_file: './logs/websocket-out.log',
-      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-    },
-
-    // Trading Bot (Auto start enabled)
+    // Trading Bot (Start Trading System)
     {
       name: 'trading-bot',
-      script: 'python',
-      args: 'scripts/trading_bot_runner.py',
+      script: 'scripts/start_trading_system.py',
+      interpreter: 'python',
       cwd: './',
       instances: 1,
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
       max_memory_restart: '300M',
@@ -55,13 +43,14 @@ module.exports = {
       autostart: true,
     },
 
-    // Telegram Bot (Auto start enabled)
+    // Telegram Bot
     {
       name: 'telegram-bot',
-      script: 'python',
-      args: 'scripts/telegram_bot_runner.py',
+      script: 'scripts/telegram_bot.py',
+      interpreter: 'python',
       cwd: './',
       instances: 1,
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
       max_memory_restart: '200M',
@@ -71,13 +60,31 @@ module.exports = {
       autostart: true,
     },
 
+    // WebSocket Server
+    {
+      name: 'websocket-server',
+      script: 'scripts/websocket_server.py',
+      interpreter: 'python',
+      cwd: './',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '200M',
+      error_file: './logs/websocket-error.log',
+      out_file: './logs/websocket-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      autostart: true,
+    },
+
     // Daily Report Scheduler
     {
       name: 'daily-report',
-      script: 'python',
-      args: 'scripts/daily_report_scheduler.py',
+      script: 'scripts/daily_report.py',
+      interpreter: 'python',
       cwd: './',
       instances: 1,
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
       max_memory_restart: '200M',
@@ -85,6 +92,7 @@ module.exports = {
       out_file: './logs/daily-report-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       autostart: true,
+      cron_restart: '0 0 * * *',
     },
   ],
 };
