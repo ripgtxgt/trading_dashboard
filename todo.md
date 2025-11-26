@@ -900,9 +900,19 @@
 - [ ] 重启trading-bot验证数据写入
 - [ ] 验证Dashboard显示实时数据
 
-## K线图CORS错误修复 (当前任务)
+## K线图CORS错误修复 (已完成)
 
 - [x] 分析K线图CORS跨域错误原因
 - [x] 在Nginx配置中添加KuCoin API代理
 - [x] 修改前端代码使用代理API
-- [ ] 测试K线图功能并验证修复（用户需要在服务器上操作）
+- [x] 测试K线图功能并验证修复
+
+## K线图文件未生效问题 (已解决)
+
+- [x] 确认KlineChartSimple.tsx文件是否正确替换
+- [x] 检查pnpm run build是否成功构建
+- [x] 确认dist目录包含最新构建文件
+- [x] 检查Nginx代理配置和文件路径
+- [x] 验证trading-dashboard服务加载的静态文件路径（发现NODE_ENV=production导致加载server/_core/public）
+- [x] 修复文件路径问题（复制dist/public到server/_core/public）
+- [x] K线图成功显示BTC-USDT并加载数据
