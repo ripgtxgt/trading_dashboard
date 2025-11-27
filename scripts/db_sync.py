@@ -84,8 +84,8 @@ class DatabaseSync:
         print("[DB] Disconnected")
     
     def update_bot_state(self, is_running: int, capital: float, initial_capital: float, 
-                        current_stage: str, total_profit: float, total_trades: int,
-                        win_trades: int, emergency_stopped: int = 0):
+                        current_stage: str, total_trades: int, daily_pnl: float = 0.0,
+                        emergency_stopped: int = 0):
         """更新机器人状态"""
         try:
             # 检查是否存在记录
@@ -98,34 +98,33 @@ class DatabaseSync:
                 # 更新现有记录
                 sql = """
                 UPDATE bot_state SET
-                    isRunning = %s,
+                    is_running = %s,
                     capital = %s,
-                    initialCapital = %s,
-                    currentStage = %s,
-                    totalProfit = %s,
-                    totalTrades = %s,
-                    winTrades = %s,
-                    emergencyStopped = %s,
-                    updatedAt = %s
+                    initial_capital = %s,
+                    current_stage = %s,
+                    total_trades = %s,
+                    daily_pnl = %s,
+                    emergency_stopped = %s,
+                    updated_at = %s
                 WHERE id = %s
                 """
                 self.cursor.execute(sql, (
                     is_running, capital, initial_capital, current_stage,
-                    total_profit, total_trades, win_trades, emergency_stopped,
+                    total_trades, daily_pnl, emergency_stopped,
                     now, result[0]
                 ))
             else:
                 # 插入新记录
                 sql = """
                 INSERT INTO bot_state (
-                    isRunning, capital, initialCapital, currentStage,
-                    totalProfit, totalTrades, winTrades, emergencyStopped,
-                    createdAt, updatedAt
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    is_running, capital, initial_capital, current_stage,
+                    total_trades, daily_pnl, emergency_stopped,
+                    created_at, updated_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 self.cursor.execute(sql, (
                     is_running, capital, initial_capital, current_stage,
-                    total_profit, total_trades, win_trades, emergency_stopped,
+                    total_trades, daily_pnl, emergency_stopped,
                     now, now
                 ))
             
@@ -206,7 +205,7 @@ class DatabaseSync:
                     unrealizedPnl = %s,
                     stopLossPct = %s,
                     takeProfitPct = %s,
-                    updatedAt = %s
+                    updated_at = %s
                 WHERE id = %s
                 """
                 self.cursor.execute(sql, (
@@ -220,7 +219,7 @@ class DatabaseSync:
                 INSERT INTO positions (
                     symbol, side, entryPrice, quantity, leverage, stage,
                     unrealizedPnl, stopLossPct, takeProfitPct,
-                    createdAt, updatedAt
+                    created_at, updated_at
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 self.cursor.execute(sql, (

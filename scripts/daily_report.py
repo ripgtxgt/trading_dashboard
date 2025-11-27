@@ -210,16 +210,47 @@ Generated at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC
 
 
 def main():
-    """Main function"""
+    """Main function - runs as a scheduled service"""
     print("=" * 60)
-    print("Daily Trading Report Generator")
+    print("Daily Trading Report Service")
+    print("Runs every day at 00:00")
     print("=" * 60)
     
-    generator = DailyReportGenerator()
-    success = generator.send_report()
-    generator.close()
+    import schedule
+    import time
     
-    return 0 if success else 1
+    def send_daily_report():
+        """Send daily report"""
+        print(f"\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] Generating daily report...")
+        generator = DailyReportGenerator()
+        success = generator.send_report()
+        generator.close()
+        if success:
+            print("[Daily Report] Report sent successfully")
+        else:
+            print("[Daily Report] Failed to send report")
+    
+    # Schedule daily report at midnight
+    schedule.every().day.at("00:00").do(send_daily_report)
+    
+    print("[Daily Report] Service started")
+    print("[Daily Report] Next report scheduled at 00:00")
+    
+    # Send initial report on startup
+    print("\n[Daily Report] Sending initial report...")
+    send_daily_report()
+    
+    # Keep running
+    try:
+        while True:
+            schedule.run_pending()
+            time.sleep(60)  # Check every minute
+    except KeyboardInterrupt:
+        print("\n[Daily Report] Service stopped by user")
+        return 0
+    except Exception as e:
+        print(f"[Daily Report] Error: {e}")
+        return 1
 
 
 if __name__ == "__main__":

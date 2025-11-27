@@ -63,7 +63,7 @@ module.exports = {
     // WebSocket Server
     {
       name: 'websocket-server',
-      script: 'scripts/websocket_server.py',
+      script: 'scripts/websocket_pusher.py',
       interpreter: 'python',
       cwd: './',
       instances: 1,

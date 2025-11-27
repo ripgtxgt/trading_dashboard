@@ -5,11 +5,16 @@ Telegram Bot控制模块
 """
 
 import os
+import sys
 import requests
 from typing import Optional, Dict, Any
 import time
+from dotenv import load_dotenv
 from config_loader import get_config_loader
 from db_integration import DatabaseIntegration
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class TelegramBot:
@@ -48,13 +53,13 @@ class TelegramBot:
             是否Send成功
         """
         emoji_map = {
-            'low': '🟢',
-            'medium': '🟡',
-            'high': '🟠',
-            'extreme': '🔴'
+            'low': '[LOW]',
+            'medium': '[MED]',
+            'high': '[HIGH]',
+            'extreme': '[CRIT]'
         }
         
-        emoji = emoji_map.get(risk_level, '⚪')
+        emoji = emoji_map.get(risk_level, '[RISK]')
         
         alert_text = f"{emoji} 风险警报\n\n"
         alert_text += f"Risk level: {risk_level.upper()}\n"
@@ -247,7 +252,7 @@ class TelegramBot:
             
             status_text = "[CHART] *交易系统状态*\n\n"
             status_text += f"交易对: `{config['symbol']}`\n"
-            status_text += f"策略状态: {'🟢 启用' if config['is_active'] else '🔴 禁用'}\n"
+            status_text += f"策略状态: {'[ON] Enabled' if config['is_active'] else '[OFF] Disabled'}\n"
             status_text += f"杠杆: `{config['leverage']}x`\n"
             status_text += f"仓位大小: `{config['position_size']}`\n"
             status_text += f"\n滚仓倍数: `{config['roll_multiplier']}`\n"
@@ -266,7 +271,7 @@ class TelegramBot:
             if not config:
                 return "[ERROR] 无法读取配置"
             
-            config_text = "⚙️ *策略配置*\n\n"
+            config_text = "[CONFIG] *Strategy Configuration*\n\n"
             config_text += f"*基础配置*\n"
             config_text += f"交易对: `{config['symbol']}`\n"
             config_text += f"滚仓倍数: `{config['roll_multiplier']}`\n"
@@ -280,7 +285,7 @@ class TelegramBot:
             config_text += f"\n*交易参数*\n"
             config_text += f"杠杆: `{config['leverage']}x`\n"
             config_text += f"仓位大小: `{config['position_size']}`\n"
-            config_text += f"\n策略状态: {'🟢 启用' if config['is_active'] else '🔴 禁用'}\n"
+            config_text += f"\n策略状态: {'[ON] Enabled' if config['is_active'] else '[OFF] Disabled'}\n"
             
             return config_text
             
@@ -338,7 +343,7 @@ class TelegramBot:
     
     def _handle_help(self) -> str:
         """处理帮助命令"""
-        help_text = "🤖 *Telegram Bot 命令帮助*\n\n"
+        help_text = "[BOT] *Telegram Bot Command Help*\n\n"
         help_text += "*查询命令*\n"
         help_text += "/status - 查询交易系统状态\n"
         help_text += "/config - 查看策略配置\n"
@@ -357,7 +362,7 @@ class TelegramBot:
     def run(self):
         """运行Bot(轮询模式)"""
         print("[TG Bot] Starting bot...")
-        self.send_message("🤖 Telegram Botstarted\nSend /help to view available commands")
+        self.send_message("[Bot] Telegram Bot started successfully!\nSend /help to view available commands")
         
         while True:
             try:
@@ -388,7 +393,7 @@ class TelegramBot:
                 
             except KeyboardInterrupt:
                 print("\n[TG Bot] Stopping bot...")
-                self.send_message("🤖 Telegram Botstopped")
+                self.send_message("[Bot] Telegram Bot stopped")
                 break
             except Exception as e:
                 print(f"[TG Bot] Error in main loop: {e}")
@@ -404,8 +409,33 @@ class TelegramBot:
 if __name__ == "__main__":
     bot = TelegramBot()
     
-    # 测试Send消息
-    bot.send_message("🧪 Test message")
+    print("[TG Bot] Starting Telegram Bot...")
+    
+    # Check configuration
+    if not bot.bot_token:
+        print("[TG Bot] ERROR: TELEGRAM_BOT_TOKEN not configured")
+        print("[TG Bot] Please set TELEGRAM_BOT_TOKEN in .env file")
+        sys.exit(1)
+    
+    if not bot.chat_id:
+        print("[TG Bot] ERROR: TELEGRAM_CHAT_ID not configured")
+        print("[TG Bot] Please set TELEGRAM_CHAT_ID in .env file")
+        sys.exit(1)
+    
+    print(f"[TG Bot] Bot Token: {bot.bot_token[:20]}...")
+    print(f"[TG Bot] Chat ID: {bot.chat_id}")
+    
+    # 发送启动消息
+    bot.send_message("[Bot] Telegram Bot started successfully!")
+    print("[TG Bot] Startup message sent")
     
     # 运行Bot(轮询模式)
-    # bot.run()
+    try:
+        print("[TG Bot] Starting message polling...")
+        bot.run()
+    except KeyboardInterrupt:
+        print("\n[TG Bot] Bot stopped by user")
+    except Exception as e:
+        print(f"[TG Bot] Error: {e}")
+    finally:
+        bot.close()

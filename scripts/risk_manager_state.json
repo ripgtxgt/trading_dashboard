@@ -1,7 +1,7 @@
 {
   "is_trading_allowed": false,
-  "pause_reason": "\u8fde\u7eed3\u7b14\u4e8f\u635f",
-  "pause_until": "2025-11-22T05:12:32.099236",
+  "pause_reason": "\u56de\u64a4\u8d85\u9650",
+  "pause_until": null,
   "daily_pnl": 61.5,
   "total_pnl": 61.5,
   "peak_capital": 103,
@@ -73,6 +73,16 @@
       "timestamp": "2025-11-22T04:12:32.099241",
       "type": "pause",
       "description": "\u8fde\u7eed3\u7b14\u4e8f\u635f"
+    },
+    {
+      "timestamp": "2025-11-25T15:53:50.385597",
+      "type": "manual_resume",
+      "description": "\u624b\u52a8\u6062\u590d\u4ea4\u6613"
+    },
+    {
+      "timestamp": "2025-11-25T15:53:50.387604",
+      "type": "pause",
+      "description": "\u56de\u64a4\u8d85\u9650"
     }
   ]
 }

@@ -4,17 +4,17 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
+import DeploymentStatus from "./pages/DeploymentStatus";
 import TradeHistory from "./pages/TradeHistory";
-import PerformanceReport from "./pages/PerformanceReport";
 import RiskAnalysis from "./pages/RiskAnalysis";
 
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Dashboard} />
+      <Route path={"/"} component={Home} />
+      <Route path={"/deployment"} component={DeploymentStatus} />
       <Route path={"/history"} component={TradeHistory} />
-      <Route path={"/report"} component={PerformanceReport} />
       <Route path={"/risk-analysis"} component={RiskAnalysis} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

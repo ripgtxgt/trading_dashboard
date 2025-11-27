@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import Database from 'better-sqlite3';
+// // import Database from 'better-sqlite3'; // Disabled // Disabled for Windows compatibility
 import path from 'path';
 import { backtestHistory, balanceSnapshots, BotState, botState, InsertUser, paramSimulations, positions, strategyConfig, StrategyConfig, strategyParams, StrategyParams, trades, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -91,45 +91,23 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// SQLite database for trading bot data
-const SQLITE_DB_PATH = path.join(process.cwd(), 'scripts', 'trading_data.db');
-
+// SQLite database disabled for Windows compatibility
+// All data will be read from MySQL database instead
 function getSqliteDb() {
-  try {
-    return new Database(SQLITE_DB_PATH, { readonly: true });
-  } catch (error) {
-    console.error('[SQLite] Failed to connect:', error);
-    return null;
-  }
+  console.warn('[SQLite] Disabled - using MySQL database instead');
+  return null;
 }
 
-// Trading bot queries (read from SQLite)
+// Trading bot queries (fallback to MySQL)
 export async function getBotState() {
-  const db = getSqliteDb();
+  const db = await getDb();
   if (!db) return null;
   
   try {
-    const row = db.prepare('SELECT * FROM bot_state ORDER BY id DESC LIMIT 1').get() as any;
-    db.close();
-    
-    if (!row) return null;
-    
-    return {
-      id: row.id,
-      isRunning: row.status === 'running' ? 1 : 0,
-      capital: row.current_balance.toString(),
-      initialCapital: row.initial_balance.toString(),
-      currentStage: row.current_stage,
-      dailyTrades: row.today_trades,
-      dailyPnl: row.total_profit.toString(),
-      totalTrades: row.total_trades,
-      emergencyStopped: row.status === 'stopped' ? 1 : 0,
-      createdAt: new Date(row.timestamp),
-      updatedAt: new Date(row.timestamp),
-    };
+    const result = await db.select().from(botState).orderBy(desc(botState.id)).limit(1);
+    return result.length > 0 ? result[0] : null;
   } catch (error) {
-    console.error('[SQLite] Error reading bot_state:', error);
-    db?.close();
+    console.error('[Database] Error reading bot_state:', error);
     return null;
   }
 }
@@ -152,33 +130,13 @@ export async function updateBotState(data: Partial<BotState>) {
 }
 
 export async function getRecentTrades(limit: number = 50) {
-  const db = getSqliteDb();
+  const db = await getDb();
   if (!db) return [];
   
   try {
-    const rows = db.prepare('SELECT * FROM trades ORDER BY id DESC LIMIT ?').all(limit) as any[];
-    db.close();
-    
-    return rows.map(row => ({
-      id: row.id,
-      symbol: row.symbol || 'XBTUSDTM',
-      direction: row.side,
-      entryPrice: row.entry_price.toString(),
-      exitPrice: row.exit_price.toString(),
-      quantity: row.size.toString(),
-      margin: '0',
-      pnl: row.pnl.toString(),
-      pnlPct: row.pnl_rate.toString(),
-      fee: '0',
-      reason: row.reason || '',
-      stage: row.stage || 'stage1',
-      entryTime: new Date(row.timestamp),
-      exitTime: new Date(row.timestamp),
-      createdAt: new Date(row.timestamp),
-    }));
+    return await db.select().from(trades).orderBy(desc(trades.id)).limit(limit);
   } catch (error) {
-    console.error('[SQLite] Error reading trades:', error);
-    db?.close();
+    console.error('[Database] Error reading trades:', error);
     return [];
   }
 }
@@ -190,32 +148,14 @@ export async function addTrade(trade: Omit<typeof trades.$inferInsert, "id" | "c
 }
 
 export async function getCurrentPosition() {
-  const db = getSqliteDb();
+  const db = await getDb();
   if (!db) return null;
   
   try {
-    const row = db.prepare('SELECT * FROM positions ORDER BY id DESC LIMIT 1').get() as any;
-    db.close();
-    
-    if (!row) return null;
-    
-    return {
-      id: row.id,
-      symbol: row.symbol || 'XBTUSDTM',
-      direction: row.side,
-      entryPrice: row.entry_price.toString(),
-      quantity: row.size.toString(),
-      margin: row.margin.toString(),
-      stopLossPct: '2',
-      takeProfitPct: '3',
-      stage: 'stage1',
-      entryTime: new Date(row.timestamp),
-      createdAt: new Date(row.timestamp),
-      updatedAt: new Date(row.timestamp),
-    };
+    const result = await db.select().from(positions).orderBy(desc(positions.id)).limit(1);
+    return result.length > 0 ? result[0] : null;
   } catch (error) {
-    console.error('[SQLite] Error reading position:', error);
-    db?.close();
+    console.error('[Database] Error reading position:', error);
     return null;
   }
 }
@@ -350,23 +290,15 @@ export async function getBacktestByParams(shortMa: number, longMa: number, timef
     .limit(10);
 }
 
-// Balance snapshots queries
+// Balance snapshots queries (fallback to MySQL)
 export async function getBalanceSnapshots(limit: number = 100) {
-  const db = getSqliteDb();
+  const db = await getDb();
   if (!db) return [];
   
   try {
-    const rows = db.prepare('SELECT * FROM balance_snapshots ORDER BY id DESC LIMIT ?').all(limit) as any[];
-    db.close();
-    
-    return rows.map(row => ({
-      id: row.id,
-      capital: row.balance.toString(),
-      timestamp: new Date(row.timestamp),
-    }));
+    return await db.select().from(balanceSnapshots).orderBy(desc(balanceSnapshots.id)).limit(limit);
   } catch (error) {
-    console.error('[SQLite] Error reading balance_snapshots:', error);
-    db?.close();
+    console.error('[Database] Error reading balance_snapshots:', error);
     return [];
   }
 }
@@ -397,3 +329,4 @@ export async function updateStrategyConfig(config: Partial<StrategyConfig>) {
   
   return await getStrategyConfig();
 }
+

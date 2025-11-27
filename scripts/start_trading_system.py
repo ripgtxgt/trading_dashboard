@@ -13,6 +13,22 @@ from datetime import datetime
 # 添加当前目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+import codecs
+
+# Set UTF-8 encoding for Windows
+if sys.platform == 'win32':
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+
+# Load .env file from project root
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+load_dotenv(env_path)
+print(f"Loaded environment variables from: {env_path}")
+
+
 from live_strategy_engine_rolling import LiveStrategyEngineRolling
 from kucoin_trader import KuCoinTrader
 from live_trading_config import STRATEGY_CONFIG
@@ -68,12 +84,14 @@ class IntegratedTradingSystem:
             logger.error("Please: KUCOIN_API_KEY, KUCOIN_API_SECRET, KUCOIN_API_PASSPHRASE")
             sys.exit(1)
         
-        self.trader = KuCoinTrader(
-            api_key=api_key,
-            api_secret=api_secret,
-            api_passphrase=api_passphrase,
-            is_sandbox=os.getenv('KUCOIN_SANDBOX', 'false').lower() == 'true'
-        )
+        # Create config dictionary for KuCoinTrader
+        kucoin_config = {
+            'api_key': api_key,
+            'api_secret': api_secret,
+            'api_passphrase': api_passphrase,
+            'is_sandbox': os.getenv('KUCOIN_SANDBOX', 'false').lower() == 'true'
+        }
+        self.trader = KuCoinTrader(kucoin_config)
         
         # 初始化策略引擎
         self.engine = LiveStrategyEngineRolling(
@@ -198,11 +216,13 @@ class IntegratedTradingSystem:
                     
                     # 更新机器人状态
                     self.db.update_bot_state(
-                        status='running',
-                        current_balance=self.engine.capital,
+                        is_running=1,
+                        capital=self.engine.capital,
+                        initial_capital=self.engine.initial_capital,
+                        current_stage=self.engine.rolling_manager.get_current_stage(self.engine.capital).name,
                         total_trades=len(self.engine.rolling_manager.trade_history),
-                        win_trades=sum(1 for t in self.engine.rolling_manager.trade_history if t.get('pnl', 0) > 0),
-                        total_profit=self.engine.capital - self.engine.initial_capital
+                        daily_pnl=result['pnl'],
+                        emergency_stopped=0
                     )
                     
                     # 添加资金快照
@@ -240,11 +260,9 @@ class IntegratedTradingSystem:
         
         # Send启动通知
         try:
-            self.telegram.send_bot_status(
-                status="启动",
-                balance=self.engine.capital,
-                total_trades=0,
-                win_rate=0.0
+            self.telegram.notify_bot_status(
+                is_running=True,
+                reason="启动"
             )
         except Exception as e:
             logger.error(f"TelegramNotifySendFailed: {e}")
@@ -252,11 +270,13 @@ class IntegratedTradingSystem:
         # 更新数据库状态
         try:
             self.db.update_bot_state(
-                status='running',
-                current_balance=self.engine.capital,
+                is_running=1,
+                capital=self.engine.capital,
+                initial_capital=self.engine.initial_capital,
+                current_stage=self.engine.rolling_manager.get_current_stage(self.engine.capital).name,
                 total_trades=0,
-                win_trades=0,
-                total_profit=0.0
+                daily_pnl=0.0,
+                emergency_stopped=0
             )
         except Exception as e:
             logger.error(f"DatabaseUpdateFailed: {e}")
@@ -268,7 +288,7 @@ class IntegratedTradingSystem:
             while self.engine.is_running and not self.engine.emergency_stopped:
                 try:
                     # 获取当前价格
-                    current_price = self.trader.get_current_price()
+                    current_price = self.trader.get_current_price(STRATEGY_CONFIG['symbol'])
                     if not current_price:
                         logger.warning("CannotGetCurrentPrice")
                         time.sleep(60)
@@ -283,11 +303,10 @@ class IntegratedTradingSystem:
                         # Send风险警告
                         try:
                             risk_status = self.risk_manager.get_risk_status()
-                            self.telegram.send_risk_alert(
-                                alert_type=reason,
-                                current_balance=self.engine.capital,
-                                drawdown=risk_status['current_drawdown_pct'],
-                                consecutive_losses=risk_status['consecutive_losses']
+                            self.telegram.notify_risk_alert(
+                                level="warning",
+                                message=f"Trade paused: {reason}",
+                                details=f"Balance: {self.engine.capital:.2f} USDT\nDrawdown: {risk_status['current_drawdown_pct']:.2f}%\nConsecutive losses: {risk_status['consecutive_losses']}"
                             )
                         except Exception as e:
                             logger.error(f"TelegramNotifySendFailed: {e}")
@@ -326,7 +345,7 @@ class IntegratedTradingSystem:
         # 如果有持仓, 平仓
         if self.engine.rolling_manager.current_position:
             logger.info("Position, Close position...")
-            current_price = self.trader.get_current_price()
+            current_price = self.trader.get_current_price(STRATEGY_CONFIG['symbol'])
             if current_price:
                 self.engine.rolling_manager.close_position(current_price, "系统停止")
         
@@ -359,11 +378,13 @@ class IntegratedTradingSystem:
         # 更新数据库状态
         try:
             self.db.update_bot_state(
-                status='stopped',
-                current_balance=self.engine.capital,
+                is_running=0,
+                capital=self.engine.capital,
+                initial_capital=self.engine.initial_capital,
+                current_stage=self.engine.rolling_manager.get_current_stage(self.engine.capital).name,
                 total_trades=total_trades,
-                win_trades=win_trades if total_trades > 0 else 0,
-                total_profit=total_profit if total_trades > 0 else 0.0
+                daily_pnl=total_profit if total_trades > 0 else 0.0,
+                emergency_stopped=0
             )
         except Exception as e:
             logger.error(f"DatabaseUpdateFailed: {e}")

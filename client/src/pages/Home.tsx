@@ -28,12 +28,15 @@ import { StrategyWizard } from "@/components/StrategyWizard";
 import { toast } from "sonner";
 import { PositionTimeline } from "@/components/PositionTimeline";
 import SignalParamsPanel from "@/components/SignalParamsPanel";
-import DataExportPanel from "@/components/DataExportPanel";
 import PositionStatus from "@/components/PositionStatus";
+import { useTradingWebSocket } from "@/hooks/useTradingWebSocket";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [testModeEnabled, setTestModeEnabled] = useState(false);
+  
+  // WebSocket实时数据推送
+  const { connected: wsConnected, tradingState: wsTradingState, latestSignal, latestTrade } = useTradingWebSocket();
 
   // 获取测试模式状态
   const { data: testModeStatus, refetch: refetchTestMode } = trpc.v24.getTestModeStatus.useQuery();
@@ -49,10 +52,13 @@ export default function Home() {
     refetchInterval: 10000,
   });
 
-  // 获取交易状态
+  // 获取交易状态（WebSocket连接时减少轮询频率）
   const { data: botState } = trpc.trading.getState.useQuery(undefined, {
-    refetchInterval: 5000,
+    refetchInterval: wsConnected ? 30000 : 5000, // WebSocket连接时降低轮询频率
   });
+  
+  // 使用WebSocket数据或API数据
+  const currentTradingState = wsTradingState || botState;
 
   // 获取策略对比结果
   const { data: strategyComparison } = trpc.v24.getStrategyComparison.useQuery();
@@ -153,38 +159,43 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* 顶部导航栏 */}
       <header className="bg-white border-b shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Activity className="h-8 w-8 text-blue-600" />
+        <div className="container mx-auto px-4 py-3 md:py-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            {/* Logo和标题 */}
+            <div className="flex items-center gap-2 md:gap-3">
+              <Activity className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{APP_TITLE}</h1>
-                <p className="text-sm text-gray-500">交易监控与策略优化平台</p>
+                <h1 className="text-lg md:text-2xl font-bold text-gray-900">{APP_TITLE}</h1>
+                <p className="text-xs md:text-sm text-gray-500 hidden sm:block">交易监控与策略优化平台</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              {/* 连接状态 */}
-              <ConnectionStatus />
+            {/* 右侧控制区 */}
+            <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+              {/* 连接状态 - 移动端隐藏 */}
+              <div className="hidden md:block">
+                <ConnectionStatus />
+              </div>
               
               {/* 测试模式开关 */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg">
-                <TestTube className={`h-4 w-4 ${testModeEnabled ? 'text-orange-600' : 'text-gray-400'}`} />
-                <Label htmlFor="test-mode" className="cursor-pointer text-sm font-medium">
+              <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 bg-slate-100 rounded-lg">
+                <TestTube className={`h-3.5 w-3.5 md:h-4 md:w-4 ${testModeEnabled ? 'text-orange-600' : 'text-gray-400'}`} />
+                <Label htmlFor="test-mode" className="cursor-pointer text-xs md:text-sm font-medium hidden sm:inline">
                   测试模式
                 </Label>
                 <Switch
                   id="test-mode"
                   checked={testModeEnabled}
                   onCheckedChange={handleTestModeToggle}
+                  className="scale-75 md:scale-100"
                 />
               </div>
 
-              {/* 用户信息 */}
+              {/* 用户信息 - 移动端简化 */}
               <div className="flex items-center gap-2">
                 <div className="text-right">
-                  <p className="text-sm font-medium">{user?.name || "用户"}</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
+                  <p className="text-xs md:text-sm font-medium truncate max-w-[100px] md:max-w-none">{user?.name || "用户"}</p>
+                  <p className="text-xs text-gray-500 hidden md:block">{user?.email}</p>
                 </div>
               </div>
             </div>
@@ -193,44 +204,44 @@ export default function Home() {
       </header>
 
       {/* 主内容区 */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 md:px-4 py-4 md:py-6">
         {/* 紧急停止控制区 */}
-        <Card className="mb-6 border-red-200 bg-gradient-to-r from-red-50 to-orange-50">
-          <CardContent className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <StopCircle className="h-6 w-6 text-red-600" />
+        <Card className="mb-4 md:mb-6 border-red-200 bg-gradient-to-r from-red-50 to-orange-50">
+          <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-3 md:py-4 gap-3">
+            <div className="flex items-center gap-2 md:gap-3 flex-1">
+              <div className="p-1.5 md:p-2 bg-red-100 rounded-lg">
+                <StopCircle className="h-5 w-5 md:h-6 md:w-6 text-red-600" />
               </div>
-              <div>
-                <p className="font-bold text-red-900">紧急控制</p>
-                <p className="text-sm text-red-700">
+              <div className="flex-1">
+                <p className="font-bold text-sm md:text-base text-red-900">紧急控制</p>
+                <p className="text-xs md:text-sm text-red-700">
                   {botState?.emergencyStopped === 1 
-                    ? "⚠️ 交易已暂停 - 点击恢复按钮重新启动" 
-                    : "在紧急情况下立即停止所有交易活动"}
+                    ? "⚠️ 交易已暂停" 
+                    : "立即停止所有交易"}
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               {botState?.emergencyStopped === 1 ? (
                 <Button
                   variant="default"
-                  size="lg"
+                  size="sm"
                   onClick={handleResumeBot}
                   disabled={resumeBotMutation.isPending}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none md:text-base"
                 >
-                  <Play className="h-5 w-5 mr-2" />
+                  <Play className="h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2" />
                   恢复交易
                 </Button>
               ) : (
                 <Button
                   variant="destructive"
-                  size="lg"
+                  size="sm"
                   onClick={handleEmergencyStop}
                   disabled={emergencyStopMutation.isPending}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-red-600 hover:bg-red-700 flex-1 sm:flex-none md:text-base"
                 >
-                  <StopCircle className="h-5 w-5 mr-2" />
+                  <StopCircle className="h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2" />
                   紧急停止
                 </Button>
               )}
@@ -240,14 +251,14 @@ export default function Home() {
 
         {/* 测试模式警告 */}
         {testModeEnabled && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
-            <CardContent className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-                <div>
-                  <p className="font-medium text-orange-900">当前为测试模式</p>
-                  <p className="text-sm text-orange-700">
-                    使用模拟资金进行交易，不会影响真实账户
+          <Card className="mb-4 md:mb-6 border-orange-200 bg-orange-50">
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-3 md:py-4 gap-3">
+              <div className="flex items-center gap-2 md:gap-3 flex-1">
+                <AlertTriangle className="h-4 w-4 md:h-5 md:w-5 text-orange-600" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm md:text-base text-orange-900">当前为测试模式</p>
+                  <p className="text-xs md:text-sm text-orange-700">
+                    使用模拟资金，不影响真实账户
                   </p>
                 </div>
               </div>
@@ -256,6 +267,7 @@ export default function Home() {
                 size="sm"
                 onClick={handleResetTestMode}
                 disabled={resetTestModeMutation.isPending}
+                className="w-full sm:w-auto text-xs md:text-sm"
               >
                 重置测试状态
               </Button>
@@ -264,7 +276,7 @@ export default function Home() {
         )}
 
         {/* 核心指标卡片 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
           {/* 账户余额 */}
           <Card>
             <CardHeader className="pb-3">
@@ -424,8 +436,6 @@ export default function Home() {
           {/* 设置标签 */}
           <TabsContent value="settings" className="space-y-4">
               <SignalParamsPanel />
-              
-              <DataExportPanel />
             
             <Card>
               <CardHeader>

@@ -268,7 +268,7 @@ class LiveStrategyEngineRolling:
             # 使用滚仓管理器计算仓位
             margin, size = self.rolling_manager.calculate_position_size(
                 self.capital,
-                self.trader.get_current_price()
+                self.trader.get_current_price(self.symbol)
             )
             
             if margin <= 0 or size <= 0:
@@ -276,7 +276,7 @@ class LiveStrategyEngineRolling:
                 return False
             
             # 获取当前价格
-            entry_price = self.trader.get_current_price()
+            entry_price = self.trader.get_current_price(self.symbol)
             if not entry_price:
                 return False
             
@@ -324,7 +324,7 @@ class LiveStrategyEngineRolling:
             self.update_capital()
             
             # 获取当前价格并更新盈亏
-            current_price = self.trader.get_current_price()
+            current_price = self.trader.get_current_price(self.symbol)
             self.rolling_manager.update_position_pnl(current_price)
             
             # 检查是否应该加仓
@@ -377,7 +377,7 @@ class LiveStrategyEngineRolling:
                 return False
             
             # 获取当前价格并更新盈亏
-            current_price = self.trader.get_current_price()
+            current_price = self.trader.get_current_price(self.symbol)
             self.rolling_manager.update_position_pnl(current_price)
             
             # 检查是否应该分批平仓
@@ -443,7 +443,7 @@ class LiveStrategyEngineRolling:
         
         try:
             # 获取当前价格
-            current_price = self.trader.get_current_price()
+            current_price = self.trader.get_current_price(self.symbol)
             
             # 更新盈亏
             self.rolling_manager.update_position_pnl(current_price)
@@ -486,7 +486,7 @@ class LiveStrategyEngineRolling:
                     return False
             
             # 获取平仓价格
-            close_price = self.trader.get_current_price()
+            close_price = self.trader.get_current_price(self.symbol)
             
             # 在滚仓管理器中记录平仓
             record = self.rolling_manager.close_position(close_price, 1.0)
