@@ -7,18 +7,70 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
+    name: Run Tests
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Trigger Webhook Deployment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      
+      - name: Install pnpm
+        run: npm install -g pnpm
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Run tests
+        run: pnpm test
+        continue-on-error: false
+      
+      - name: Send test failure notification
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            ❌ 测试失败，部署已取消！
+            
+            仓库: ${{ github.repository }}
+            分支: ${{ github.ref_name }}
+            提交: ${{ github.sha }}
+            作者: ${{ github.actor }}
+            
+            请修复测试错误后重新提交。
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    name: Deploy to Server
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Get commit info
+        id: commit_info
         run: |
-          curl -X POST \
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_msg=$(git log -1 --pretty=%B | head -n 1)" >> $GITHUB_OUTPUT
+          echo "deploy_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+      
+      - name: Trigger Webhook Deployment
+        id: deploy
+        run: |
+          START_TIME=$(date +%s)
+          
+          RESPONSE=$(curl -X POST \
             -H "Content-Type: application/json" \
             -H "X-GitHub-Event: push" \
+            -w "\n%{http_code}" \
             -d "{
               \"ref\": \"${{ github.ref }}\",
               \"after\": \"${{ github.sha }}\",
@@ -29,42 +81,99 @@ jobs:
                 \"name\": \"${{ github.actor }}\"
               },
               \"head_commit\": {
-                \"message\": \"${{ github.event.head_commit.message }}\",
-                \"timestamp\": \"${{ github.event.head_commit.timestamp }}\"
+                \"message\": \"${{ steps.commit_info.outputs.commit_msg }}\",
+                \"timestamp\": \"${{ steps.commit_info.outputs.deploy_time }}\"
               }
             }" \
-            "https://cryptoalpha.vip/webhook"
+            "https://cryptoalpha.vip/webhook")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          
+          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+          echo "duration=$DURATION" >> $GITHUB_OUTPUT
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Deployment webhook failed with HTTP code: $HTTP_CODE"
+            exit 1
+          fi
       
-      - name: Send Telegram Notification on Success
+      - name: Wait for deployment
+        run: sleep 30
+      
+      - name: Verify deployment
+        id: verify
+        run: |
+          echo "Checking website accessibility..."
+          
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          SUCCESS=false
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://cryptoalpha.vip/)
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Website is accessible (HTTP $HTTP_CODE)"
+              SUCCESS=true
+              break
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "Attempt $RETRY_COUNT/$MAX_RETRIES failed (HTTP $HTTP_CODE), retrying..."
+            sleep 10
+          done
+          
+          if [ "$SUCCESS" = "false" ]; then
+            echo "verification_status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "verification_status=success" >> $GITHUB_OUTPUT
+      
+      - name: Send success notification
         if: success()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            ✅ Deployment Triggered Successfully!
+            ✅ 部署成功！
             
-            Repository: ${{ github.repository }}
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Author: ${{ github.actor }}
-            Message: ${{ github.event.head_commit.message }}
+            📦 版本信息
+            • 版本号: ${{ steps.commit_info.outputs.short_sha }}
+            • 提交信息: ${{ steps.commit_info.outputs.commit_msg }}
+            • 作者: ${{ github.actor }}
             
-            Server: ${{ secrets.SERVER_HOST }}
-            Time: ${{ github.event.head_commit.timestamp }}
+            ⏱️ 部署统计
+            • 触发耗时: ${{ steps.deploy.outputs.duration }}秒
+            • 部署时间: ${{ steps.commit_info.outputs.deploy_time }}
+            • 验证状态: ${{ steps.verify.outputs.verification_status }}
+            
+            🌐 访问地址
+            https://cryptoalpha.vip
       
-      - name: Send Telegram Notification on Failure
+      - name: Send failure notification
         if: failure()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            ❌ Deployment Trigger Failed!
+            ❌ 部署失败！
             
-            Repository: ${{ github.repository }}
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Author: ${{ github.actor }}
+            📦 版本信息
+            • 版本号: ${{ steps.commit_info.outputs.short_sha }}
+            • 提交信息: ${{ steps.commit_info.outputs.commit_msg }}
+            • 作者: ${{ github.actor }}
             
-            Please check GitHub Actions logs for details.
+            ⚠️ 失败原因
+            请检查 GitHub Actions 日志获取详细信息。
+            
+            🔄 建议操作
+            1. 查看错误日志
+            2. 修复问题后重新提交
+            3. 或执行回滚命令恢复上一版本

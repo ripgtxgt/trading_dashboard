@@ -21,6 +21,7 @@ const PORT = 9000;
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'your-webhook-secret-here';
 const PROJECT_PATH = 'C:\\trading_dashboard_fixed';
 const LOG_FILE = path.join(PROJECT_PATH, 'webhook-deploy.log');
+const DEPLOY_HISTORY_FILE = path.join(PROJECT_PATH, 'deploy-history.json');
 
 // Logging function
 function log(message) {
@@ -28,6 +29,47 @@ function log(message) {
   const logMessage = `[${timestamp}] ${message}\n`;
   console.log(logMessage.trim());
   fs.appendFileSync(LOG_FILE, logMessage);
+}
+
+// Save deployment history
+function saveDeploymentHistory(commitInfo, status, duration) {
+  try {
+    let history = [];
+    if (fs.existsSync(DEPLOY_HISTORY_FILE)) {
+      history = JSON.parse(fs.readFileSync(DEPLOY_HISTORY_FILE, 'utf8'));
+    }
+    
+    history.unshift({
+      timestamp: new Date().toISOString(),
+      commit: commitInfo.sha || commitInfo.after,
+      message: commitInfo.message,
+      author: commitInfo.author,
+      status: status,
+      duration: duration
+    });
+    
+    // Keep only last 50 deployments
+    if (history.length > 50) {
+      history = history.slice(0, 50);
+    }
+    
+    fs.writeFileSync(DEPLOY_HISTORY_FILE, JSON.stringify(history, null, 2));
+    log(`Deployment history saved: ${status}`);
+  } catch (error) {
+    log(`Failed to save deployment history: ${error.message}`);
+  }
+}
+
+// Get deployment history
+function getDeploymentHistory() {
+  try {
+    if (fs.existsSync(DEPLOY_HISTORY_FILE)) {
+      return JSON.parse(fs.readFileSync(DEPLOY_HISTORY_FILE, 'utf8'));
+    }
+  } catch (error) {
+    log(`Failed to read deployment history: ${error.message}`);
+  }
+  return [];
 }
 
 // Verify GitHub webhook signature
@@ -105,11 +147,24 @@ const server = http.createServer((req, res) => {
         if (event === 'push' && payload.ref === 'refs/heads/main') {
           log('Push to main branch detected, starting deployment...');
           
+          const startTime = Date.now();
+          const commitInfo = {
+            sha: payload.after,
+            message: payload.head_commit?.message || 'No message',
+            author: payload.pusher?.name || 'Unknown'
+          };
+          
           try {
             await deploy();
+            const duration = Math.round((Date.now() - startTime) / 1000);
+            saveDeploymentHistory(commitInfo, 'success', duration);
+            
             res.writeHead(200);
             res.end('Deployment triggered successfully');
           } catch (error) {
+            const duration = Math.round((Date.now() - startTime) / 1000);
+            saveDeploymentHistory(commitInfo, 'failed', duration);
+            
             log(`Deployment failed: ${error.message}`);
             res.writeHead(500);
             res.end('Deployment failed');
@@ -125,6 +180,11 @@ const server = http.createServer((req, res) => {
         res.end('Bad request');
       }
     });
+  } else if (req.method === 'GET' && req.url === '/history') {
+    // Deployment history endpoint
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    const history = getDeploymentHistory();
+    res.end(JSON.stringify(history, null, 2));
   } else if (req.method === 'GET' && req.url === '/') {
     // Health check endpoint
     res.writeHead(200, { 'Content-Type': 'text/html' });
