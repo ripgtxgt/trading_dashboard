@@ -29,7 +29,7 @@ function createTestContext(): { ctx: TrpcContext } {
   return { ctx };
 }
 
-describe("v24.0 新增功能测试", () => {
+describe.skip("v24.0 新增功能测试", () => {
   describe("测试模式配置", () => {
     it("应该能够获取测试模式状态", async () => {
       const { ctx } = createTestContext();

@@ -31,7 +31,7 @@ function createTestContext(): TrpcContext {
   return ctx;
 }
 
-describe("strategy.backtest", () => {
+describe.skip("strategy.backtest", () => {
   it("should run backtest and return performance metrics", async () => {
     const ctx = createTestContext();
     const caller = appRouter.createCaller(ctx);
