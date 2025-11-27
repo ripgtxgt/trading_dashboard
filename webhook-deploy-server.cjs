@@ -1,0 +1,208 @@
+/**
+ * GitHub Webhook Auto-Deployment Server
+ * 
+ * This server listens for GitHub push events and automatically
+ * pulls latest code and runs deployment script.
+ * 
+ * Setup:
+ * 1. Run this on Windows Server: node webhook-deploy-server.js
+ * 2. Configure GitHub webhook to point to: http://your-server:9000/webhook
+ * 3. Set webhook secret in GitHub (optional but recommended)
+ */
+
+const http = require('http');
+const crypto = require('crypto');
+const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+// Configuration
+const PORT = 9000;
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'your-webhook-secret-here';
+const PROJECT_PATH = 'C:\\trading_dashboard_fixed';
+const LOG_FILE = path.join(PROJECT_PATH, 'webhook-deploy.log');
+
+// Logging function
+function log(message) {
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] ${message}\n`;
+  console.log(logMessage.trim());
+  fs.appendFileSync(LOG_FILE, logMessage);
+}
+
+// Verify GitHub webhook signature
+function verifySignature(payload, signature) {
+  if (!signature) {
+    return false;
+  }
+  
+  const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET);
+  const digest = 'sha256=' + hmac.update(payload).digest('hex');
+  
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(digest)
+  );
+}
+
+// Execute deployment
+function deploy() {
+  return new Promise((resolve, reject) => {
+    log('Starting deployment...');
+    
+    const deployScript = path.join(PROJECT_PATH, 'deploy-auto.ps1');
+    const command = `cd /d ${PROJECT_PATH} && git pull origin main && powershell.exe -ExecutionPolicy Bypass -File "${deployScript}"`;
+    
+    exec(command, { cwd: PROJECT_PATH, maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+      if (error) {
+        log(`Deployment error: ${error.message}`);
+        reject(error);
+        return;
+      }
+      
+      if (stderr) {
+        log(`Deployment stderr: ${stderr}`);
+      }
+      
+      log(`Deployment stdout: ${stdout}`);
+      log('Deployment completed successfully!');
+      resolve(stdout);
+    });
+  });
+}
+
+// HTTP server
+const server = http.createServer((req, res) => {
+  if (req.method === 'POST' && req.url === '/webhook') {
+    let body = '';
+    
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    
+    req.on('end', async () => {
+      try {
+        // Verify signature
+        const signature = req.headers['x-hub-signature-256'];
+        if (WEBHOOK_SECRET !== 'your-webhook-secret-here' && !verifySignature(body, signature)) {
+          log('Invalid webhook signature');
+          res.writeHead(401);
+          res.end('Invalid signature');
+          return;
+        }
+        
+        // Parse payload
+        const payload = JSON.parse(body);
+        const event = req.headers['x-github-event'];
+        
+        log(`Received GitHub event: ${event}`);
+        log(`Repository: ${payload.repository?.full_name}`);
+        log(`Branch: ${payload.ref}`);
+        log(`Commit: ${payload.after}`);
+        log(`Pusher: ${payload.pusher?.name}`);
+        
+        // Only deploy on push to main branch
+        if (event === 'push' && payload.ref === 'refs/heads/main') {
+          log('Push to main branch detected, starting deployment...');
+          
+          try {
+            await deploy();
+            res.writeHead(200);
+            res.end('Deployment triggered successfully');
+          } catch (error) {
+            log(`Deployment failed: ${error.message}`);
+            res.writeHead(500);
+            res.end('Deployment failed');
+          }
+        } else {
+          log('Not a push to main branch, skipping deployment');
+          res.writeHead(200);
+          res.end('Event received but no deployment triggered');
+        }
+      } catch (error) {
+        log(`Error processing webhook: ${error.message}`);
+        res.writeHead(400);
+        res.end('Bad request');
+      }
+    });
+  } else if (req.method === 'GET' && req.url === '/') {
+    // Health check endpoint
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Webhook Deploy Server</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+          h1 { color: #333; }
+          .status { padding: 10px; background: #e8f5e9; border-left: 4px solid #4caf50; margin: 20px 0; }
+          .info { background: #e3f2fd; border-left-color: #2196f3; }
+          code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }
+        </style>
+      </head>
+      <body>
+        <h1>🚀 Webhook Deploy Server</h1>
+        <div class="status">
+          <strong>Status:</strong> Server is running
+        </div>
+        <div class="info">
+          <strong>Webhook URL:</strong> <code>http://your-server:${PORT}/webhook</code>
+        </div>
+        <h2>Setup Instructions:</h2>
+        <ol>
+          <li>Go to GitHub repository settings</li>
+          <li>Navigate to Webhooks → Add webhook</li>
+          <li>Set Payload URL to: <code>http://your-server-ip:${PORT}/webhook</code></li>
+          <li>Set Content type to: <code>application/json</code></li>
+          <li>Set Secret to your webhook secret (optional)</li>
+          <li>Select "Just the push event"</li>
+          <li>Click "Add webhook"</li>
+        </ol>
+        <h2>Recent Logs:</h2>
+        <pre>${getRecentLogs()}</pre>
+      </body>
+      </html>
+    `);
+  } else {
+    res.writeHead(404);
+    res.end('Not found');
+  }
+});
+
+// Get recent logs
+function getRecentLogs() {
+  try {
+    if (fs.existsSync(LOG_FILE)) {
+      const logs = fs.readFileSync(LOG_FILE, 'utf8');
+      const lines = logs.split('\n').slice(-20); // Last 20 lines
+      return lines.join('\n');
+    }
+    return 'No logs yet';
+  } catch (error) {
+    return `Error reading logs: ${error.message}`;
+  }
+}
+
+// Start server
+server.listen(PORT, () => {
+  log(`Webhook deployment server started on port ${PORT}`);
+  log(`Webhook URL: http://localhost:${PORT}/webhook`);
+  log(`Project path: ${PROJECT_PATH}`);
+  log(`Waiting for GitHub push events...`);
+});
+
+// Handle errors
+server.on('error', (error) => {
+  log(`Server error: ${error.message}`);
+  process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  log('Shutting down webhook server...');
+  server.close(() => {
+    log('Server stopped');
+    process.exit(0);
+  });
+});

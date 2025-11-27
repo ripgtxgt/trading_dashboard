@@ -5,9 +5,6 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import CoinSelector from "./pages/CoinSelector";
-import MultiCoinMonitor from "./pages/MultiCoinMonitor";
-import RotationSettings from "./pages/RotationSettings";
 import DeploymentStatus from "./pages/DeploymentStatus";
 import TradeHistory from "./pages/TradeHistory";
 import RiskAnalysis from "./pages/RiskAnalysis";
@@ -16,10 +13,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/coin-selector"} component={CoinSelector} />
-      <Route path={"/multi-coin-monitor"} component={MultiCoinMonitor} />
-      <Route path={"/rotation-settings"} component={RotationSettings} />
-      <Route path={"/deployment-status"} component={DeploymentStatus} />
+      <Route path={"/deployment"} component={DeploymentStatus} />
       <Route path={"/history"} component={TradeHistory} />
       <Route path={"/risk-analysis"} component={RiskAnalysis} />
       <Route path={"/404"} component={NotFound} />

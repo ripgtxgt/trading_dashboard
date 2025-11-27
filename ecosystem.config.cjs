@@ -94,5 +94,26 @@ module.exports = {
       autostart: true,
       cron_restart: '0 0 * * *',
     },
+
+    // Webhook Deploy Server (Auto-deployment on GitHub push)
+    {
+      name: 'webhook-deploy-server',
+      script: 'webhook-deploy-server.cjs',
+      interpreter: 'node',
+      cwd: './',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '200M',
+      env: {
+        NODE_ENV: 'production',
+        WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || 'your-webhook-secret-here',
+      },
+      error_file: './logs/webhook-error.log',
+      out_file: './logs/webhook-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      autostart: true,
+    },
   ],
 };
