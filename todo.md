@@ -961,3 +961,10 @@
 - [x] 推送到GitHub测试自动部署
 - [x] Webhook服务成功启动并监听9000端口
 - [ ] 保存checkpoint触发真实自动部署测试
+
+
+## 修复GitHub Actions curl命令错误 (v37.2)
+
+- [x] 修复deploy.yml中的curl命令语法错误
+- [ ] 推送修复并测试自动部署
+- [ ] 保存checkpoint
