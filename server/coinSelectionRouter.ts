@@ -9,6 +9,7 @@ import { defaultExchange } from "./exchanges";
 import type { Contract } from "./exchanges";
 import * as KuCoin from "./exchanges/kucoin";
 import { backtestMA520Strategy, analyzeMarketEnvironments, calculateTechnicalIndicators } from "./backtesting";
+import { multiCoinMonitor } from "./multiCoinMonitor";
 
 /**
  * 币种综合评分
@@ -226,6 +227,93 @@ export const coinSelectionRouter = router({
           error: error instanceof Error ? error.message : "Unknown error",
         };
       }
+    }),
+
+  /**
+   * 添加监控币种
+   */
+  addMonitoredCoin: publicProcedure
+    .input(z.object({ symbol: z.string() }))
+    .mutation(async ({ input }) => {
+      const coin = await multiCoinMonitor.addCoin(input.symbol);
+      return {
+        success: coin !== null,
+        coin,
+      };
+    }),
+
+  /**
+   * 移除监控币种
+   */
+  removeMonitoredCoin: publicProcedure
+    .input(z.object({ symbol: z.string() }))
+    .mutation(async ({ input }) => {
+      const removed = multiCoinMonitor.removeCoin(input.symbol);
+      return { success: removed };
+    }),
+
+  /**
+   * 获取所有监控币种
+   */
+  getMonitoredCoins: publicProcedure
+    .query(() => {
+      return multiCoinMonitor.getMonitoredCoins();
+    }),
+
+  /**
+   * 更新所有监控币种数据
+   */
+  updateMonitoredCoins: publicProcedure
+    .mutation(async () => {
+      await multiCoinMonitor.updateAllCoins();
+      return { success: true };
+    }),
+
+  /**
+   * 记录交易结果
+   */
+  recordTrade: publicProcedure
+    .input(z.object({
+      symbol: z.string(),
+      profit: z.number(),
+    }))
+    .mutation(({ input }) => {
+      multiCoinMonitor.recordTrade(input.symbol, input.profit);
+      return { success: true };
+    }),
+
+  /**
+   * 获取轮换规则
+   */
+  getRotationRule: publicProcedure
+    .query(() => {
+      return multiCoinMonitor.getRotationRule();
+    }),
+
+  /**
+   * 更新轮换规则
+   */
+  updateRotationRule: publicProcedure
+    .input(z.object({
+      enabled: z.boolean().optional(),
+      consecutiveLosses: z.number().optional(),
+      maxDrawdown: z.number().optional(),
+      minWinRate: z.number().optional(),
+      cooldownPeriod: z.number().optional(),
+      minBacktestReturn: z.number().optional(),
+      minVolume: z.number().optional(),
+    }))
+    .mutation(({ input }) => {
+      multiCoinMonitor.updateRotationRule(input);
+      return { success: true };
+    }),
+
+  /**
+   * 获取轮换历史
+   */
+  getRotationHistory: publicProcedure
+    .query(() => {
+      return multiCoinMonitor.getRotationHistory();
     }),
 
   /**
