@@ -33,7 +33,7 @@ jobs:
                 \"timestamp\": \"${{ github.event.head_commit.timestamp }}\"
               }
             }" \
-            "http://${{ secrets.SERVER_HOST }}:9000/webhook"
+            "https://cryptoalpha.vip/webhook"
       
       - name: Send Telegram Notification on Success
         if: success()
