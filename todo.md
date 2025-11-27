@@ -1015,3 +1015,11 @@
 - [x] 创建完整部署文档 (DEPLOYMENT_GUIDE.md)
 - [x] 测试完整部署流程
 - [x] 保存checkpoint并触发自动部署
+
+
+## 修复pnpm lockfile配置不匹配错误 (v38.1)
+
+- [x] 运行pnpm install --no-frozen-lockfile更新lockfile
+- [ ] 提交更新后的pnpm-lock.yaml
+- [ ] 推送到GitHub测试自动部署
+- [ ] 保存checkpoint
