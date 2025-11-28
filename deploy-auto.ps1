@@ -106,16 +106,18 @@ try {
     # Check if PM2 is installed
     $pm2Check = Get-Command pm2 -ErrorAction SilentlyContinue
     if ($pm2Check) {
-        # Stop all services first
-        pm2 stop all 2>&1 | Out-Null
-        
-        # Delete old processes (ignore errors if no processes exist)
-        pm2 delete all 2>&1 | Out-Null
-        
         # Start with ecosystem config
         if (Test-Path "ecosystem.config.cjs") {
-            pm2 start ecosystem.config.cjs
-            Write-Success "PM2 services started successfully"
+            Write-Info "Restarting services with ecosystem.config.cjs..."
+            pm2 restart ecosystem.config.cjs 2>&1 | Out-Null
+            
+            # If restart fails (no existing processes), start fresh
+            if ($LASTEXITCODE -ne 0) {
+                Write-Info "No existing processes, starting fresh..."
+                pm2 start ecosystem.config.cjs
+            }
+            
+            Write-Success "PM2 services restarted successfully"
             
             # Save PM2 process list
             pm2 save 2>&1 | Out-Null
@@ -185,6 +187,8 @@ try {
     Write-Info "3. Access dashboard: http://localhost:3000"
     Write-Host ""
     
+    exit 0
+    
 } catch {
     Write-Host ""
     Write-Error "========================================="
@@ -195,12 +199,5 @@ try {
     Write-Info "Please check the error message above and try again"
     Write-Host ""
     
-    # Pause to show error
-    Write-Host "Press any key to exit..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit 1
 }
-
-# Pause at the end so user can see the results
-Write-Host "Press any key to exit..."
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

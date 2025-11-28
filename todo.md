@@ -1107,9 +1107,18 @@
 
 ## 测试自动部署和Nginx启动 (当前)
 
-- [ ] 做一个小改动触发部署
-- [ ] 推送到GitHub
+- [x] 做一个小改动触发部署
+- [x] 推送到GitHub
 - [ ] 等待GitHub Actions完成
 - [ ] 验证webhook自动部署
 - [ ] 验证Nginx自动启动
 - [ ] 验证网站正常访问
+
+
+## 修复自动部署导致服务停止的问题
+
+- [x] 分析deploy-auto.ps1脚本
+- [x] 找出导致服务停止的原因（pm2 delete all + ReadKey卡住）
+- [x] 修复部署脚本（改用pm2 restart + 移除用户交互）
+- [ ] 测试修复后的部署
+- [ ] 推送到GitHub验证
