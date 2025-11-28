@@ -85,7 +85,7 @@ jobs:
                 \"timestamp\": \"${{ steps.commit_info.outputs.deploy_time }}\"
               }
             }" \
-            "https://cryptoalpha.vip/webhook")
+            "http://13.113.194.218:9000/webhook")
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | sed '$d')
