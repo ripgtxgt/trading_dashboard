@@ -11,11 +11,10 @@ import { ParamsComparison } from "@/components/ParamsComparison";
 import { TradeHistory } from "@/components/TradeHistory";
 import { RiskControlPanel } from "@/components/RiskControlPanel";
 import { KlineChartSimple } from "@/components/KlineChartSimple";
-import { ReportExport } from "@/components/ReportExport";
 import { SignalNotifications } from "@/components/SignalNotifications";
-import { BacktestHistoryChart } from "@/components/BacktestHistoryChart";
 import { RiskManagementPanel } from "@/components/RiskManagementPanel";
 import RiskMonitorCard from "@/components/RiskMonitorCard";
+import { ServiceMonitor } from "@/components/ServiceMonitor";
 
 export default function Dashboard() {
   return (
@@ -209,14 +208,11 @@ function DashboardContent() {
       {/* Trade History */}
       <TradeHistory />
 
-      {/* Backtest History */}
-      <BacktestHistoryChart />
-      
       {/* Signal Notifications */}
       <SignalNotifications />
-      
-      {/* Report Export */}
-      <ReportExport />
+
+      {/* Service Monitor */}
+      <ServiceMonitor />
 
       {/* Recent Trades */}
       <Card>

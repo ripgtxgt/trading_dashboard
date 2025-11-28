@@ -14,16 +14,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["server/**/*.test.ts", "server/**/*.spec.ts"],
-    exclude: [
-      "node_modules",
-      "dist",
-      ".idea",
-      ".git",
-      ".cache",
-      // Exclude integration tests by default (run with --run-integration flag)
-      "server/**/*.integration.test.ts",
-    ],
-    testTimeout: 30000,
+    // Only run integration tests
+    include: ["server/**/*.integration.test.ts"],
+    testTimeout: 60000, // Longer timeout for integration tests
   },
 });
