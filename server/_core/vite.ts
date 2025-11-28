@@ -58,10 +58,25 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static files with proper configuration
+  app.use(express.static(distPath, {
+    maxAge: '1d',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // Set proper content type for JavaScript files
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+      }
+    }
+  }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  // fall through to index.html ONLY for non-file requests
+  app.use("*", (req, res, next) => {
+    // If request is for a file with extension, don't serve index.html
+    if (path.extname(req.originalUrl)) {
+      return res.status(404).send('File not found');
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

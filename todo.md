@@ -1128,7 +1128,7 @@
 
 - [x] 添加PM2开机自启动文档
 - [x] 更新部署测试文件
-- [ ] 创建checkpoint
-- [ ] 推送到GitHub
-- [ ] 验证自动部署成功
-- [ ] 验证所有服务保持online
+- [x] 创建checkpoint
+- [x] 推送到GitHub
+- [ ] 验证自动部署成功（等待GitHub Actions）
+- [ ] 验证所有服务保持online（等待部署完成）
