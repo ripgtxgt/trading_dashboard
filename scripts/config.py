@@ -1,0 +1,14 @@
+# KuCoin API Configuration
+KUCOIN_API_KEY = "6902f625f9a9a300014c3976"
+KUCOIN_API_SECRET = "d71e4e3d-4369-4e77-94f8-fd456c5e0387"
+KUCOIN_API_PASSPHRASE = "x5gU7dnL6bvrvbV!"
+
+# Telegram Configuration
+TELEGRAM_BOT_TOKEN = "7965687699:AAHWCHsHPyJEuvaFVU8yLCvSPohT8kU3G4U"
+TELEGRAM_CHAT_ID = "5374455360"
+
+# Trading Mode
+TRADING_MODE = "paper"  # paper or live
+
+# Database
+DATABASE_PATH = "../trading.db"
