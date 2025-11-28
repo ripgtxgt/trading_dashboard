@@ -1100,6 +1100,16 @@
 - [x] 修改部署脚本添加Nginx检测
 - [x] 添加Nginx自动启动逻辑
 - [x] 测试部署脚本（语法检查通过）
-- [ ] 创建checkpoint
-- [ ] 推送到GitHub
+- [x] 创建checkpoint
+- [x] 推送到GitHub
 - [ ] 验证自动部署
+
+
+## 测试自动部署和Nginx启动 (当前)
+
+- [ ] 做一个小改动触发部署
+- [ ] 推送到GitHub
+- [ ] 等待GitHub Actions完成
+- [ ] 验证webhook自动部署
+- [ ] 验证Nginx自动启动
+- [ ] 验证网站正常访问
