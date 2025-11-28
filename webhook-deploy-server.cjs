@@ -87,6 +87,37 @@ function verifySignature(payload, signature) {
   );
 }
 
+// Check and start Nginx if not running
+function checkAndStartNginx() {
+  return new Promise((resolve) => {
+    log('Checking Nginx status...');
+    
+    // Check if Nginx is running
+    exec('tasklist /FI "IMAGENAME eq nginx.exe"', (error, stdout) => {
+      const nginxRunning = stdout.includes('nginx.exe');
+      
+      if (nginxRunning) {
+        log('Nginx is already running');
+        resolve(true);
+      } else {
+        log('Nginx is not running, attempting to start...');
+        
+        // Try to start Nginx
+        const nginxPath = 'C:\\nginx';
+        exec(`cd /d ${nginxPath} && start nginx.exe`, (startError) => {
+          if (startError) {
+            log(`Failed to start Nginx: ${startError.message}`);
+            resolve(false);
+          } else {
+            log('Nginx started successfully');
+            resolve(true);
+          }
+        });
+      }
+    });
+  });
+}
+
 // Execute deployment
 function deploy() {
   return new Promise((resolve, reject) => {
@@ -95,7 +126,7 @@ function deploy() {
     const deployScript = path.join(PROJECT_PATH, 'deploy-auto.ps1');
     const command = `cd /d ${PROJECT_PATH} && git pull origin main && powershell.exe -ExecutionPolicy Bypass -File "${deployScript}"`;
     
-    exec(command, { cwd: PROJECT_PATH, maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+    exec(command, { cwd: PROJECT_PATH, maxBuffer: 1024 * 1024 * 10 }, async (error, stdout, stderr) => {
       if (error) {
         log(`Deployment error: ${error.message}`);
         reject(error);
@@ -107,6 +138,10 @@ function deploy() {
       }
       
       log(`Deployment stdout: ${stdout}`);
+      
+      // Check and start Nginx after deployment
+      await checkAndStartNginx();
+      
       log('Deployment completed successfully!');
       resolve(stdout);
     });
@@ -250,6 +285,15 @@ server.listen(PORT, () => {
   log(`Webhook URL: http://localhost:${PORT}/webhook`);
   log(`Project path: ${PROJECT_PATH}`);
   log(`Waiting for GitHub push events...`);
+  
+  // Check Nginx status on startup
+  checkAndStartNginx().then((running) => {
+    if (running) {
+      log('Initial Nginx check: Running');
+    } else {
+      log('Initial Nginx check: Failed to start');
+    }
+  });
 });
 
 // Handle errors
