@@ -18,15 +18,29 @@ echo "[1/5] Pulling latest code from GitHub..."
 git pull origin main
 
 echo ""
-echo "[2/5] Installing dependencies..."
+echo "[2/5] Configuring environment variables..."
+if [ ! -f .env ]; then
+    if [ -f .env.production.example ]; then
+        cp .env.production.example .env
+        chmod 600 .env
+        echo "Environment file created from template"
+    else
+        echo "Warning: .env.production.example not found, skipping .env creation"
+    fi
+else
+    echo "Environment file already exists, skipping"
+fi
+
+echo ""
+echo "[3/5] Installing dependencies..."
 pnpm install
 
 echo ""
-echo "[3/5] Building project..."
+echo "[4/5] Building project..."
 pnpm build
 
 echo ""
-echo "[4/5] Restarting PM2 services..."
+echo "[5/5] Restarting PM2 services..."
 # Only restart trading-dashboard, not webhook-deploy-server to avoid interrupting deployment
 pm2 restart trading-dashboard
 
