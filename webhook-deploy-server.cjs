@@ -93,8 +93,8 @@ function checkAndStartNginx() {
     log('Checking Nginx status...');
     
     // Check if Nginx is running
-    exec('tasklist /FI "IMAGENAME eq nginx.exe"', (error, stdout) => {
-      const nginxRunning = stdout.includes('nginx.exe');
+    exec('systemctl is-active nginx', (error, stdout) => {
+      const nginxRunning = stdout.trim() === 'active';
       
       if (nginxRunning) {
         log('Nginx is already running');
@@ -103,8 +103,8 @@ function checkAndStartNginx() {
         log('Nginx is not running, attempting to start...');
         
         // Try to start Nginx
-        const nginxPath = 'C:\\nginx';
-        exec(`cd /d ${nginxPath} && start nginx.exe`, (startError) => {
+        const nginxPath = '/etc/nginx';
+        exec(`sudo systemctl start nginx`, (startError) => {
           if (startError) {
             log(`Failed to start Nginx: ${startError.message}`);
             resolve(false);
@@ -123,8 +123,8 @@ function deploy() {
   return new Promise((resolve, reject) => {
     log('Starting deployment...');
     
-    const deployScript = path.join(PROJECT_PATH, 'deploy-auto.ps1');
-    const command = `cd /d ${PROJECT_PATH} && git pull origin main && powershell.exe -ExecutionPolicy Bypass -File "${deployScript}"`;
+    const deployScript = path.join(PROJECT_PATH, 'deploy-auto.sh');
+    const command = `cd ${PROJECT_PATH} && git pull origin main && bash "${deployScript}"`;
     
     exec(command, { cwd: PROJECT_PATH, maxBuffer: 1024 * 1024 * 10 }, async (error, stdout, stderr) => {
       if (error) {
