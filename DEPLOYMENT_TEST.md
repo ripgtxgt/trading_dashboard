@@ -41,4 +41,5 @@
   * ✅ 创建Linux版本deploy-auto.sh脚本
   * ✅ 修复Nginx检查和启动命令
   * ✅ 配置PM2开机自启动
-  * ⏳ 测试GitHub Webhook自动部署
+  * ✅ 测试GitHub Webhook自动部署（HTTP成功）
+  * ⏳ 测试HTTPS webhook端点和完整部署流程
