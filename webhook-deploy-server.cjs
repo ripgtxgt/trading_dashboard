@@ -19,7 +19,7 @@ const path = require('path');
 // Configuration
 const PORT = 9000;
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'your-webhook-secret-here';
-const PROJECT_PATH = 'C:\\trading_dashboard_fixed';
+const PROJECT_PATH = process.env.PROJECT_PATH || '/home/ubuntu/trading_dashboard';
 const LOG_FILE = path.join(PROJECT_PATH, 'webhook-deploy.log');
 const DEPLOY_HISTORY_FILE = path.join(PROJECT_PATH, 'deploy-history.json');
 
