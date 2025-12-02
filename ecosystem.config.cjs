@@ -30,7 +30,7 @@ module.exports = {
     {
       name: 'trading-bot',
       script: 'scripts/start_trading_system.py',
-      interpreter: 'python',
+      interpreter: 'python3',
       cwd: './',
       instances: 1,
       exec_mode: 'fork',
@@ -47,7 +47,7 @@ module.exports = {
     {
       name: 'telegram-bot',
       script: 'scripts/telegram_bot.py',
-      interpreter: 'python',
+      interpreter: 'python3',
       cwd: './',
       instances: 1,
       exec_mode: 'fork',
@@ -64,7 +64,7 @@ module.exports = {
     {
       name: 'websocket-server',
       script: 'scripts/websocket_pusher.py',
-      interpreter: 'python',
+      interpreter: 'python3',
       cwd: './',
       instances: 1,
       exec_mode: 'fork',
@@ -81,7 +81,7 @@ module.exports = {
     {
       name: 'daily-report',
       script: 'scripts/daily_report.py',
-      interpreter: 'python',
+      interpreter: 'python3',
       cwd: './',
       instances: 1,
       exec_mode: 'fork',
