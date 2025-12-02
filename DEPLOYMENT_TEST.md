@@ -27,6 +27,18 @@
 
 ### 测试 #2
 - 时间: 2025-11-28 15:45 GMT+8
-- 状态: ⏳ 进行中...
+- 状态: ✅ 成功
 - 修复: 改用pm2 restart + 移除用户交互
 - 新增: Nginx自动启动功能
+
+### 测试 #3 - Linux服务器迁移
+- 时间: 2025-12-02 04:50 UTC
+- 服务器: AWS Lightsail Ubuntu 22.04 (3.112.226.9)
+- 域名: cryptoalpha.vip
+- 状态: ⏳ 进行中...
+- 修复内容:
+  * ✅ 修复webhook-deploy-server.cjs Windows路径问题
+  * ✅ 创建Linux版本deploy-auto.sh脚本
+  * ✅ 修复Nginx检查和启动命令
+  * ✅ 配置PM2开机自启动
+  * ⏳ 测试GitHub Webhook自动部署
