@@ -77,6 +77,23 @@ module.exports = {
       autostart: true,
     },
 
+    // Server Monitor (Resource and Process Monitoring)
+    {
+      name: 'server-monitor',
+      script: 'scripts/monitor_server.py',
+      interpreter: 'python3',
+      cwd: './',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '100M',
+      error_file: './logs/server-monitor-error.log',
+      out_file: './logs/server-monitor-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      autostart: true,
+    },
+
     // Daily Report Scheduler
     {
       name: 'daily-report',

@@ -1,0 +1,16 @@
+# Trading Dashboard - Crontab Configuration
+# Install: crontab /home/ubuntu/trading_dashboard/deployment/crontab.txt
+# View: crontab -l
+# Edit: crontab -e
+
+# Database Backup - Daily at 2:00 AM UTC (10:00 AM Beijing Time)
+0 2 * * * /home/ubuntu/trading_dashboard/scripts/backup_database.sh >> /home/ubuntu/trading_dashboard/logs/backup-cron.log 2>&1
+
+# Server Monitor - Check every 5 minutes (optional, if not using PM2 service)
+# */5 * * * * cd /home/ubuntu/trading_dashboard && /usr/bin/python3 scripts/monitor_server.py --once >> /home/ubuntu/trading_dashboard/logs/monitor-cron.log 2>&1
+
+# Clean up old log files - Weekly on Sunday at 3:00 AM
+0 3 * * 0 find /home/ubuntu/trading_dashboard/logs -name "*.log" -type f -mtime +30 -delete
+
+# PM2 Save - Daily at 4:00 AM (save PM2 process list)
+0 4 * * * /usr/bin/pm2 save >> /home/ubuntu/trading_dashboard/logs/pm2-save.log 2>&1
