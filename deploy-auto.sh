@@ -27,7 +27,8 @@ pnpm build
 
 echo ""
 echo "[4/5] Restarting PM2 services..."
-pm2 restart all
+# Only restart trading-dashboard, not webhook-deploy-server to avoid interrupting deployment
+pm2 restart trading-dashboard
 
 echo ""
 echo "[5/5] Checking service status..."
